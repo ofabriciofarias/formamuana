@@ -2,36 +2,58 @@
 
 require_once __DIR__ . '/../core/helpers.php';
 require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../models/Oferta.php';
+require_once __DIR__ . '/../models/AlunoOferta.php';
 
 class DashboardController {
 
     public function index() {
-        // As funções de segurança e controle de acesso do exemplo do usuário
-        // foram adaptadas no `helpers.php`
-        if (!is_admin() && !is_dentista() && !is_recepcionista()) {
+        if (!is_admin() && !is_professor()) {
             header('Location: ' . BASE_URL . 'index.php?action=login');
             exit;
         }
 
-        // --- AVISO ---
-        // A lógica de negócio e as consultas SQL fornecidas no exemplo
-        // (faturamento, lucro, despesas, atendimentos) não correspondem
-        // ao esquema do banco de dados atual ('forma_muana' com alunos, ofertas, etc.).
-        // Os valores a seguir são apenas placeholders.
-        // Será necessário reescrever as consultas para refletir a estrutura de dados do projeto.
-
-        $mes_selecionado = date('Y-m');
-        $faturamentoBruto = 0;
-        $lucroLiquido = 0;
-        $totalDespesas = 0;
-        $ultimosAtendimentos = [];
-        $totalPaginas = 0;
-        $busca = '';
-        $mes_anterior = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
-        $mes_proximo = date('Y-m', strtotime(date('Y-m-01') . ' +1 month'));
-        $mesAtual = 'Mês Atual';
-
         // Carrega a view do dashboard
         require_once __DIR__ . '/../views/dashboard/index.php';
+    }
+
+    public function relatorioGeral() {
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $ofertaId = $_GET['oferta_id'] ?? null;
+        $buscaNome = $_GET['busca'] ?? null;
+
+        // Busca todas as ofertas para o filtro
+        $ofertas = Oferta::findAll();
+
+        // Busca os inscritos se uma oferta for selecionada ou se houver busca
+        $inscritos = [];
+        if ($ofertaId || $buscaNome) {
+            $inscritos = AlunoOferta::getRelatorio($ofertaId, $buscaNome);
+        }
+
+        require_once __DIR__ . '/../views/dashboard/relatorio.php';
+    }
+
+    public function updateStatus() {
+        if (!is_admin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php');
+            exit;
+        }
+
+        $alunoId = $_POST['aluno_id'];
+        $ofertaId = $_POST['oferta_id'];
+        $status = $_POST['status_selecao'];
+        
+        // Redirecionamento mantendo os filtros
+        $redirectUrl = "index.php?action=relatorio_geral&oferta_id=" . $_POST['current_oferta_id'] . "&busca=" . $_POST['current_busca'];
+
+        AlunoOferta::updateStatus($alunoId, $ofertaId, $status);
+        
+        header("Location: $redirectUrl");
+        exit;
     }
 }
