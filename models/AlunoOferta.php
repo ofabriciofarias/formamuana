@@ -177,4 +177,104 @@ class AlunoOferta {
     public function setMotivoEvasao($motivo_evasao) {
         $this->motivo_evasao = $motivo_evasao;
     }
+
+    public function save() {
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "INSERT INTO alunos_has_oferta (
+                    alunos_id, oferta_id, status_selecao, termo_aceite,
+                    exerce_atividade_remunerada, vinculo_atividade, afinidade_atividade_curso,
+                    participacao_economica_familiar, numero_membros_familia, renda_familiar,
+                    motivo_escolha_curso, o_que_mais_espera_do_curso, expectativas_relacao_curso,
+                    expectativas_profissionais_pos_curso, canal_informacao_curso, turno_preferencia
+                ) VALUES (
+                    :alunos_id, :oferta_id, :status_selecao, :termo_aceite,
+                    :exerce_atividade_remunerada, :vinculo_atividade, :afinidade_atividade_curso,
+                    :participacao_economica_familiar, :numero_membros_familia, :renda_familiar,
+                    :motivo_escolha_curso, :o_que_mais_espera_do_curso, :expectativas_relacao_curso,
+                    :expectativas_profissionais_pos_curso, :canal_informacao_curso, :turno_preferencia
+                )";
+
+        try {
+            $stmt = $db->prepare($sql);
+
+            $stmt->bindParam(':alunos_id', $this->alunos_id);
+            $stmt->bindParam(':oferta_id', $this->oferta_id);
+            $stmt->bindParam(':status_selecao', $this->status_selecao);
+            $stmt->bindParam(':termo_aceite', $this->termo_aceite);
+            $stmt->bindParam(':exerce_atividade_remunerada', $this->exerce_atividade_remunerada);
+            $stmt->bindParam(':vinculo_atividade', $this->vinculo_atividade);
+            $stmt->bindParam(':afinidade_atividade_curso', $this->afinidade_atividade_curso);
+            $stmt->bindParam(':participacao_economica_familiar', $this->participacao_economica_familiar);
+            $stmt->bindParam(':numero_membros_familia', $this->numero_membros_familia);
+            $stmt->bindParam(':renda_familiar', $this->renda_familiar);
+            $stmt->bindParam(':motivo_escolha_curso', $this->motivo_escolha_curso);
+            $stmt->bindParam(':o_que_mais_espera_do_curso', $this->o_que_mais_espera_do_curso);
+            $stmt->bindParam(':expectativas_relacao_curso', $this->expectativas_relacao_curso);
+            $stmt->bindParam(':expectativas_profissionais_pos_curso', $this->expectativas_profissionais_pos_curso);
+            $stmt->bindParam(':canal_informacao_curso', $this->canal_informacao_curso);
+            $stmt->bindParam(':turno_preferencia', $this->turno_preferencia);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            // Em um ambiente de produção, você poderia logar o erro em vez de usar die()
+            die("Erro ao salvar inscrição: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Busca inscrições para o relatório geral com filtros.
+     */
+    public static function getRelatorio($ofertaId = null, $buscaNome = null) {
+        $db = Database::getInstance()->getConnection();
+        
+        $sql = "SELECT aho.*, a.nome as nome_aluno, a.email, a.whatsapp, o.nome as nome_oferta 
+                FROM alunos_has_oferta aho
+                JOIN alunos a ON aho.alunos_id = a.id
+                JOIN oferta o ON aho.oferta_id = o.id
+                WHERE 1=1";
+        
+        $params = [];
+
+        if (!empty($ofertaId)) {
+            $sql .= " AND aho.oferta_id = :ofertaId";
+            $params[':ofertaId'] = $ofertaId;
+        }
+
+        if (!empty($buscaNome)) {
+            $sql .= " AND a.nome LIKE :buscaNome";
+            $params[':buscaNome'] = '%' . $buscaNome . '%';
+        }
+
+        $sql .= " ORDER BY a.nome ASC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function findByAlunoAndOferta($alunoId, $ofertaId) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT * FROM alunos_has_oferta WHERE alunos_id = :alunoId AND oferta_id = :ofertaId";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':alunoId' => $alunoId, ':ofertaId' => $ofertaId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function findAllByAluno($alunoId) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT * FROM alunos_has_oferta WHERE alunos_id = :alunoId";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':alunoId' => $alunoId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function updateStatus($alunoId, $ofertaId, $status) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE alunos_has_oferta SET status_selecao = :status 
+                WHERE alunos_id = :alunoId AND oferta_id = :ofertaId";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':status' => $status, ':alunoId' => $alunoId, ':ofertaId' => $ofertaId]);
+    }
 }

@@ -26,8 +26,26 @@ if (!is_admin()) {
             <a href="index.php?action=dashboard">Admin Forma Muana</a>
         </div>
         <nav class="nav-links">
-            <a href="index.php?action=register">Cadastrar Usuário</a>
-            <a href="index.php?action=show_register_aluno_form">Cadastrar Aluno</a>
+            <div class="dropdown">
+                <a href="#">Cadastro <i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="index.php?action=register-oferta">Oferta</a>
+                    <a href="index.php?action=register">Usuário</a>
+                </div>
+            </div>
+        <nav class="nav-links">
+            <div class="dropdown">
+                <a href="#">Ações<i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Relatório <i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="index.php?action=relatorio_geral">Relatório Geral</a>
+                </div>
+            </div>
             <a href="index.php?action=logout">Logout</a>
         </nav>
     </div>

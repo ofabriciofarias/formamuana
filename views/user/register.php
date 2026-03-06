@@ -1,5 +1,3 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
-
 <h2>Cadastro de Usuário</h2>
 <form action="index.php?action=register" method="POST" enctype="multipart/form-data">
     <div class="form-group">
@@ -19,23 +17,39 @@
         <input type="password" id="senha" name="senha" required>
     </div>
     <div class="form-group">
+        <label for="confirmar_senha">Confirmar Senha</label>
+        <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+    </div>
+    <div class="form-group">
         <label for="telefone">Telefone</label>
         <input type="text" id="telefone" name="telefone">
     </div>
     <div class="form-group">
         <label for="tipo_usuario_id">Tipo de Usuário</label>
-        <select id="tipo_usuario_id" name="tipo_usuario_id" required>
-            <option value="">Selecione...</option>
-            <?php if (isset($tipos_usuario) && !empty($tipos_usuario)): ?>
-                <?php foreach ($tipos_usuario as $tipo): ?>
-                    <option value="<?= htmlspecialchars($tipo['id']) ?>"><?= htmlspecialchars($tipo['nome']) ?></option>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <option value="" disabled>Não foi possível carregar os tipos de usuário</option>
-            <?php endif; ?>
-        </select>
+        <?php 
+        // Verifica se é um cadastro público (não é admin e só tem um tipo de usuário, que é Aluno)
+        $is_public_aluno_registration = (isset($tipos_usuario) && count($tipos_usuario) === 1 && !is_admin());
+        ?>
+
+        <?php if ($is_public_aluno_registration): ?>
+            <?php $aluno_tipo = $tipos_usuario[0]; ?>
+            <input type="text" value="<?= htmlspecialchars($aluno_tipo['nome']) ?>" disabled>
+            <input type="hidden" name="tipo_usuario_id" value="<?= htmlspecialchars($aluno_tipo['id']) ?>">
+        <?php else: ?>
+            <select id="tipo_usuario_id" name="tipo_usuario_id" required>
+                <option value="">Selecione...</option>
+                <?php if (isset($tipos_usuario) && !empty($tipos_usuario)): ?>
+                    <?php foreach ($tipos_usuario as $tipo): ?>
+                        <option value="<?= htmlspecialchars($tipo['id']) ?>"><?= htmlspecialchars($tipo['nome']) ?></option>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="" disabled>Não foi possível carregar os tipos de usuário</option>
+                <?php endif; ?>
+            </select>
+        <?php endif; ?>
     </div>
 
+    <?php if (is_admin()): ?>
     <fieldset>
         <legend>Documentos para Upload</legend>
         <div class="form-group">
@@ -67,6 +81,7 @@
             <input type="file" id="upload_declaracao_vinculo_matr" name="upload_declaracao_vinculo_matr">
         </div>
     </fieldset>
+    <?php endif; ?>
 
     <div class="form-group">
         <input type="checkbox" id="termo_aceite" name="termo_aceite" value="aceito" required>
@@ -75,5 +90,3 @@
 
     <button type="submit" class="btn">Cadastrar</button>
 </form>
-
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

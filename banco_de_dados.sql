@@ -50,15 +50,30 @@ CREATE TABLE IF NOT EXISTS `forma_muana`.`usuarios` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `forma_muana`.`ofertas` (Cursos/Turmas)
+-- Table `forma_muana`.`oferta` (Cursos/Turmas)
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `forma_muana`.`ofertas` (
+CREATE TABLE IF NOT EXISTS `forma_muana`.`oferta` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(100) NULL,
   `descricao` TEXT NULL,
-  `preco` DECIMAL(10,2) NULL,
-  `vagas` INT NULL,
-  PRIMARY KEY (`id`))
+  `eixo_tecnologico` VARCHAR(100) NULL, -- Ex: Informática, Gestão, Artes
+  `foto` VARCHAR(255) NULL,
+  `inicio_insc` DATE NULL,
+  `final_insc` DATE NULL,
+  `status_oferta` VARCHAR(45) NULL, -- Ex: Em Inscrição, Em Andamento, Concluída
+  `usuarios_id` INT NOT NULL, -- Usuário responsável pelo cadastro
+  `local` VARCHAR(150) NULL,
+  `turno` VARCHAR(45) NULL,
+  `numero_vagas` INT NULL,
+  `publico_alvo` VARCHAR(100) NULL,
+  `modalidade` VARCHAR(45) NULL, -- Ex: Presencial, EAD, Híbrido
+  `carga_horaria` INT NULL,
+  `upload_relatorio` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_oferta_usuarios1_idx` (`usuarios_id` ASC),
+  CONSTRAINT `fk_oferta_usuarios1`
+    FOREIGN KEY (`usuarios_id`)
+    REFERENCES `forma_muana`.`usuarios` (`id`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------

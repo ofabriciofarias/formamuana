@@ -27,6 +27,15 @@ class Aluno {
     private $beneficiario_programa_social;
     private $acesso_internet;
     private $dispositivo_principal;
+    private $usuarios_id;
+
+    public function getUsuariosId() {
+        return $this->usuarios_id;
+    }
+
+    public function setUsuariosId($usuarios_id) {
+        $this->usuarios_id = $usuarios_id;
+    }
 
     public function getId() {
         return $this->id;
@@ -230,5 +239,20 @@ class Aluno {
 
     public function setDispositivoPrincipal($dispositivo_principal) {
         $this->dispositivo_principal = $dispositivo_principal;
+    }
+
+    public static function findByEmail($email) {
+        $db = Database::getInstance()->getConnection();
+        try {
+            $stmt = $db->prepare("SELECT * FROM alunos WHERE email = :email");
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Aluno');
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar aluno por email: " . $e->getMessage());
+            return false;
+        }
     }
 }

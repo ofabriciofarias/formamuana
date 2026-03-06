@@ -137,4 +137,20 @@ class Usuario {
     public function setUploadDeclaracaoVinculoMatr($upload_declaracao_vinculo_matr) {
         $this->upload_declaracao_vinculo_matr = $upload_declaracao_vinculo_matr;
     }
+
+    public static function findById($id) {
+        $db = Database::getInstance()->getConnection();
+        try {
+            $stmt = $db->prepare("SELECT * FROM usuarios WHERE id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Usuario');
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            // Log do erro
+            error_log("Erro ao buscar usuário por ID: " . $e->getMessage());
+            return false;
+        }
+    }
 }

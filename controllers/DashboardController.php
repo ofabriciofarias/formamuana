@@ -56,4 +56,41 @@ class DashboardController {
         header("Location: $redirectUrl");
         exit;
     }
+
+    public function selecaoAlunos() {
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $ofertaId = $_GET['oferta_id'] ?? null;
+        
+        // Busca todas as ofertas para o dropdown
+        $ofertas = Oferta::findAll();
+
+        // Busca os inscritos apenas se uma oferta for selecionada
+        $inscritos = [];
+        if ($ofertaId) {
+            // Reutiliza o método do model que já faz o JOIN necessário
+            $inscritos = AlunoOferta::getRelatorio($ofertaId, null);
+        }
+
+        require_once __DIR__ . '/../views/dashboard/selecao.php';
+    }
+
+    public function updateStatusAjax() {
+        header('Content-Type: application/json');
+        
+        if (!is_admin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Acesso negado']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        $result = AlunoOferta::updateStatus($data['aluno_id'], $data['oferta_id'], $data['status']);
+        
+        echo json_encode(['success' => $result]);
+        exit;
+    }
 }

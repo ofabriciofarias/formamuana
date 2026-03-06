@@ -45,8 +45,28 @@ switch ($action) {
         $alunoController->registerAluno();
         break;
 
+    case 'show_inscricao_oferta_form':
+        $alunoController->showInscricaoForm();
+        break;
+
+    case 'do_inscricao_oferta':
+        $alunoController->doInscricaoOferta();
+        break;
+
     case 'dashboard':
         $dashboardController->index();
+        break;
+
+    case 'aluno_dashboard':
+        $alunoController->dashboard();
+        break;
+
+    case 'aluno_profile':
+        $alunoController->profile();
+        break;
+
+    case 'update_aluno':
+        $alunoController->updateAluno();
         break;
 
     case 'register-oferta':
@@ -55,6 +75,22 @@ switch ($action) {
 
     case 'store-oferta':
         $ofertaController->store();
+        break;
+
+    case 'relatorio_geral':
+        $dashboardController->relatorioGeral();
+        break;
+
+    case 'updateStatus':
+        $dashboardController->updateStatus();
+        break;
+
+    case 'selecao_alunos':
+        $dashboardController->selecaoAlunos();
+        break;
+
+    case 'updateStatusAjax':
+        $dashboardController->updateStatusAjax();
         break;
 
     case 'registro-sucesso':
