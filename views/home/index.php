@@ -2,7 +2,11 @@
 
     <?php if(isset($_GET['error'])): ?>
         <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 1100; background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            <i class="fas fa-exclamation-circle"></i> Usuário não encontrado ou senha incorreta. Tente novamente ou cadastre-se.
+            <?php if ($_GET['error'] == 1): ?>
+                <i class="fas fa-exclamation-circle"></i> Usuário não encontrado ou senha incorreta. Tente novamente ou cadastre-se.
+            <?php elseif ($_GET['error'] == 'register_duplicate'): ?>
+                <i class="fas fa-exclamation-triangle"></i> Este login ou email já existem no sistema. Por favor, cadastre com outro.
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 
@@ -50,18 +54,18 @@
             }
             ?>
 
-            <div class="table-responsive" style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
+            <div class="table-responsive">
+                <table class="responsive-table">
                     <thead>
-                        <tr style="background-color: var(--primary-color); color: white; text-align: left;">
-                            <th style="padding: 12px 15px;">Nome</th>
-                            <th style="padding: 12px 15px;">Descrição</th>
-                            <th style="padding: 12px 15px;">Local</th>
-                            <th style="padding: 12px 15px;">Vagas</th>
-                            <th style="padding: 12px 15px;">Carga Horária</th>
-                            <th style="padding: 12px 15px;">Público Alvo</th>
-                            <th style="padding: 12px 15px;">Inscrições Até</th>
-                            <th style="padding: 12px 15px;">Ação</th>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Local</th>
+                            <th>Vagas</th>
+                            <th>Carga Horária</th>
+                            <th>Público Alvo</th>
+                            <th>Inscrições Até</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,22 +75,22 @@
                                     $hoje = date('Y-m-d');
                                     $encerrado = ($oferta->getFinalInsc() < $hoje);
                                 ?>
-                                <tr style="border-bottom: 1px solid #dddddd;">
-                                    <td style="padding: 12px 15px; font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars(substr($oferta->getDescricao(), 0, 50)) . (strlen($oferta->getDescricao()) > 50 ? '...' : '') ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getLocal()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getNumeroVagas()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
-                                    <td style="padding: 12px 15px;">
+                                <tr>
+                                    <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
+                                    <td data-label="Descrição"><?= htmlspecialchars(substr($oferta->getDescricao(), 0, 50)) . (strlen($oferta->getDescricao()) > 50 ? '...' : '') ?></td>
+                                    <td data-label="Local"><?= htmlspecialchars($oferta->getLocal()) ?></td>
+                                    <td data-label="Vagas"><?= htmlspecialchars($oferta->getNumeroVagas()) ?></td>
+                                    <td data-label="Carga Horária"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
+                                    <td data-label="Público Alvo"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
+                                    <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
+                                    <td data-label="Ação">
                                         <?php if ($encerrado): ?>
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
                                                 <a href="index.php?action=show_inscricao_oferta_form&oferta_id=<?= $oferta->getId() ?>" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</a>
                                             <?php else: ?>
-                                                <button onclick="alert('Você precisa efetuar login para efetuar sua inscrição.')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
@@ -94,7 +98,7 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" style="padding: 15px; text-align: center;">Nenhuma oferta disponível no momento.</td>
+                                <td colspan="8" style="text-align: center;">Nenhuma oferta disponível no momento.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -154,42 +158,46 @@
 
     <section id="equipe" class="section-padding">
         <div class="container">
-            <h2 class="section-title">Nossos Cursos</h2>
+            <h2 class="section-title">Realização</h2>
             <p style="text-align: center; color: var(--text-light); max-width: 600px; margin: 0 auto;">
-                Nossos cursos são ministrados por especialistas dedicados a proporcionar a melhor formação para você.
+                Este projeto é uma iniciativa da SECTET, sendo executado UFPA com suporte da FADESP.
             </p>
             
             <div class="team-grid">
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-8.jpg" alt="Curso 1">
+                        <img src="views/assets/img/sectet.jpg" alt="Curso 1">
                     </div>
-                    <span class="role-tag">Prof. Dr. Fabricio Farias</span>
-                    <h3>Coordenador do Projeto</h3>
-                    <p>Aprenda a criar sites e aplicações web do zero com as tecnologias mais recentes do mercado.</p>
+                    <span class="role-tag">SECTET</span>
+                    <h3>Agência Financiadora</h3>
+                    <p>Secretaria de Ciência, Tecnologia e Educação Superior, Profissional e Tecnológica do Estado do Pará (SECTET)</p>
+                    Secretário Victor Dias
                 </div>
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-2.jpeg" alt="Curso 2">
+                        <img src="views/assets/img/ufpa.jpeg" alt="Curso 2">
                     </div>
-                    <span class="role-tag">Prof. Dr. Allan Costa</span>
-                    <h3>Pesquisador</h3>
-                    <p>Domine as metodologias ágeis e tradicionais para gerenciar projetos de sucesso.</p>
+                    <span class="role-tag">UFPA</span>
+                    <h3>Execução do Projeot</h3>
+                    <p>Universidade Federal do Pará</p>
+                    Reotpr Prof. Dr. Gilmar Silva
                 </div>
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-7.jpeg" class="img-centered" alt="Curso 3">
+                        <img src="views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
                     </div>
-                    <span class="role-tag">Prof. Daniel Sidônio</span>
-                    <h3>Coordenação Local</h3>
-                    <p>Aprenda a criar campanhas de marketing digital eficazes e a gerar resultados para empresas.</p>
+                    <span class="role-tag">FADESP</span>
+                    <h3>Suporte Administrativo</h3>
+                    <p>Fundação de Amparo e Desenvolvimento de Pesquisa</p>
+                    Presidente Prof. Dr. Roberto Ferraz
                 </div>
             </div>
         </div>
     </section>
 
+    <!--
     <section id="localizacao" class="section-padding location-section">
         <div class="container">
             <h2 class="section-title">Onde Estamos</h2>
@@ -238,7 +246,7 @@
             </div>
         </div>
     </section>
-
+                    -->
     <footer>
         <div class="container">
             <p>© <?= date('Y') ?> Forma Muana. Feito com <i class="fas fa-heart" style="color: #fab1a0;"></i> para o seu futuro.</p>
@@ -253,45 +261,115 @@
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('registerModal')">&times;</span>
-            <h2 style="text-align: center; margin-bottom: 20px;">Cadastro de Aluno</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Preencha os dados abaixo para criar sua conta.</p>
-            
-            <form action="index.php?action=register" method="POST">
-                <div class="form-group">
-                    <label for="nome">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="login">Login (Usuário)</label>
-                    <input type="text" id="login" name="login" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="telefone">Telefone / WhatsApp</label>
-                    <input type="text" id="telefone" name="telefone" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                <div class="form-group">
-                    <label for="confirmar_senha">Confirmar Senha</label>
-                    <input type="password" id="confirmar_senha" name="confirmar_senha" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                </div>
-                
-                <!-- Campo oculto para Tipo de Usuário (Aluno = 3) -->
-                <input type="hidden" name="tipo_usuario_id" value="3">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Cadastro de Aluno</h2>
+            </div>
+            <div class="modal-body">
+                <p>Preencha os dados abaixo para criar sua conta.</p>
+                <form action="index.php?action=register" method="POST">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="login">Login (Usuário)</label>
+                        <input type="text" id="login" name="login" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone / WhatsApp</label>
+                        <input type="text" id="telefone" name="telefone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" name="senha" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmar_senha">Confirmar Senha</label>
+                        <input type="password" id="confirmar_senha" name="confirmar_senha" required class="form-control">
+                    </div>
+                    
+                    <!-- Campo oculto para Tipo de Usuário (Aluno = 3) -->
+                    <input type="hidden" name="tipo_usuario_id" value="3">
 
-                <div class="form-group" style="margin-top: 15px;">
-                    <input type="checkbox" id="termo_aceite_modal" name="termo_aceite" value="aceito" required>
-                    <label for="termo_aceite_modal" style="display:inline; font-weight: normal;">Eu li e aceito os termos de uso.</label>
-                </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="termo_aceite_modal" name="termo_aceite" value="aceito" required>
+                        <label for="termo_aceite_modal" class="checkbox-label">Eu li e aceito os termos de uso.</label>
+                        <a href="#" onclick="event.preventDefault(); openModal('termsModal');" class="terms-link">(Saber mais)</a>
+                    </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Cadastrar</button>
-            </form>
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Termos de Uso -->
+    <div id="termsModal" class="modal modal-on-top">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('termsModal')">&times;</span>
+            <div class="modal-header">
+                <h2>Termo de Ciência e Aceite de Participação</h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <p>Ao prosseguir com esta inscrição, eu declaro estar de acordo com os termos de livre participação no projeto de formação Forma Muaná, da Universidade Federal do Pará (UFPA), submetendo-me às seguintes condições:</p>
+
+                <h4>1. Veracidade das Informações</h4>
+                <p>Declaro que todas as informações prestadas neste formulário são verdadeiras e assumo total responsabilidade por elas. Estou ciente de que a omissão ou a falsidade de dados em documentos públicos constitui crime previsto no Art. 299 do Código Penal Brasileiro, sujeitando o infrator às penalidades legais, além da imediata desclassificação do projeto.</p>
+
+                <h4>2. Critérios de Seleção e Notificação</h4>
+                <p>Tenho ciência de que a inscrição não garante a vaga imediata. A seleção será realizada pela coordenação do projeto com base em:</p>
+                <ul>
+                    <li>Disponibilidade de vagas;</li>
+                    <li>Análise de critérios de vulnerabilidade socioeconômica (critério majoritário);</li>
+                    <li>Conformidade com o público-alvo do projeto.</li>
+                </ul>
+                <p>Declaro estar ciente de que receberei a confirmação do aceite ou indeferimento da minha vaga pelos canais de comunicação oficiais do projeto.</p>
+
+                <h4>3. Comunicação e Proteção de Dados (LGPD)</h4>
+                <p>Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), autorizo expressamente o projeto Forma Muaná a:</p>
+                <ul>
+                    <li>Utilizar meus dados para fins de seleção, estatística institucional e registro acadêmico;</li>
+                    <li>Enviar notificações sobre o status da minha inscrição via e-mail;</li>
+                    <li>Realizar comunicações sobre novas ofertas de turmas, eventos e avisos urgentes via e-mail, SMS ou WhatsApp (incluindo a inclusão em grupos oficiais de mensagens associados ao projeto).</li>
+                </ul>
+
+                <h4>4. Consentimento</h4>
+                <p>Por fim, ao clicar em "Aceito", confirmo que li e compreendi os termos acima, manifestando minha vontade livre e informada de participar do processo de seleção.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('termsModal')" class="btn btn-primary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login Necessário (Aprimorado) -->
+    <div id="loginRequiredModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('loginRequiredModal')">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-in-alt"></i>Login Necessário</h2>
+            </div>
+            <div class="modal-body">
+                <p>Você precisa estar logado para realizar sua inscrição.</p>
+                <form action="index.php?action=do_login" method="POST" class="modal-login-form">
+                    <div class="form-group">
+                        <label for="login_modal">Usuário</label>
+                        <input type="text" id="login_modal" name="login" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="senha_modal">Senha</label>
+                        <input type="password" id="senha_modal" name="senha" required class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <p>Não tem uma conta? <a href="#" onclick="closeModal('loginRequiredModal'); openModal('registerModal'); return false;">Cadastre-se</a></p>
+            </div>
         </div>
     </div>
 
@@ -346,24 +424,55 @@
             }
         });
 
-        // Funções do Modal
+        // --- Lógica do Modal Aprimorada ---
+        // Mantém o controle dos modais abertos para gerenciar a rolagem do corpo da página corretamente.
+        let openModals = [];
+
         function openModal(modalId) {
-            document.getElementById(modalId).style.display = "block";
-            document.body.style.overflow = "hidden"; // Evita rolagem do fundo
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            modal.style.display = "block";
+            
+            // Se este for o primeiro modal a ser aberto, bloqueia a rolagem do corpo.
+            if (openModals.length === 0) {
+                document.body.style.overflow = "hidden";
+            }
+            
+            // Adiciona o modal à pilha de modais abertos.
+            openModals.push(modalId);
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-            document.body.style.overflow = "auto"; // Restaura rolagem
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            modal.style.display = "none";
+            
+            // Remove o modal da pilha.
+            openModals = openModals.filter(id => id !== modalId);
+
+            // Se não houver mais modais abertos, restaura a rolagem do corpo.
+            if (openModals.length === 0) {
+                document.body.style.overflow = "auto";
+            }
         }
 
         // Fechar modal ao clicar fora dele
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                event.target.style.display = "none";
-                document.body.style.overflow = "auto";
+                // O alvo do evento é o próprio div do modal, que tem o ID.
+                closeModal(event.target.id);
             }
-        }
+        };
+
+        // Ao carregar a página, verifica se há um erro de registro duplicado e abre o modal.
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'register_duplicate') {
+                openModal('registerModal');
+            }
+        });
     </script>
 </body>
 </html>

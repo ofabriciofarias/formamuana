@@ -33,7 +33,7 @@ if (!defined('BASE_URL')) define('BASE_URL', '/formamuana/');
                 <a href="#ofertas">Vagas</a>
                 <a href="#cursos">Cursos</a>
                 <a href="#equipe">Equipe</a>
-                <a href="#localizacao">Localização</a>
+               <!-- <a href="#localizacao">Localização</a> -->
                 
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <form action="index.php?action=do_login" method="POST" class="header-login-form">

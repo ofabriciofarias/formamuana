@@ -143,9 +143,25 @@ class UserController {
              die("Acesso não autorizado.");
         }
 
+        $db = Database::getInstance()->getConnection();
+
+        // VERIFICAÇÃO: Checa se o login ou email já existem no sistema
+        try {
+            $stmt = $db->prepare("SELECT id FROM usuarios WHERE login = :login OR email = :email");
+            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            if ($stmt->fetch()) {
+                // Se encontrar, redireciona com um erro específico
+                header('Location: index.php?error=register_duplicate');
+                exit;
+            }
+        } catch (PDOException $e) {
+            die("Erro de banco de dados ao verificar duplicidade: " . $e->getMessage());
+        }
+
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
         
-        $db = Database::getInstance()->getConnection();
         try {
             $db->beginTransaction();
 
