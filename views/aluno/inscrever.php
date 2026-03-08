@@ -3,6 +3,17 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../../core/helpers.php';
+require_once __DIR__ . '/../../models/Oferta.php';
+
+$oferta_id = $_GET['oferta_id'] ?? null;
+$turno_oferta = '';
+
+if ($oferta_id) {
+    $oferta = Oferta::findById($oferta_id);
+    if ($oferta) {
+        $turno_oferta = $oferta->getTurno();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -129,13 +140,7 @@ require_once __DIR__ . '/../../core/helpers.php';
             </div>
             <div class="form-group">
                 <label for="turno_preferencia">Qual o seu turno de preferência para estudar?</label>
-                <select id="turno_preferencia" name="turno_preferencia" required>
-                    <option value="" disabled selected>Selecione</option>
-                    <option value="Manha" <?= (isset($oferta) && $oferta->getTurno() == 'Manha') ? 'selected' : '' ?>>Manhã</option>
-                    <option value="Tarde" <?= (isset($oferta) && $oferta->getTurno() == 'Tarde') ? 'selected' : '' ?>>Tarde</option>
-                    <option value="Noite" <?= (isset($oferta) && $oferta->getTurno() == 'Noite') ? 'selected' : '' ?>>Noite</option>
-                    <option value="Indiferente" <?= (isset($oferta) && $oferta->getTurno() == 'Indiferente') ? 'selected' : '' ?>>Indiferente</option>
-                </select>
+                <input type="text" id="turno_preferencia" name="turno_preferencia" value="<?= htmlspecialchars($turno_oferta) ?>" class="form-control" readonly>
             </div>
         </fieldset>
         

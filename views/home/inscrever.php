@@ -1,3 +1,16 @@
+<?php
+require_once __DIR__ . '/../../models/Oferta.php';
+
+$oferta_id = $_GET['oferta_id'] ?? null;
+$turno_oferta = '';
+
+if ($oferta_id) {
+    $oferta = Oferta::findById($oferta_id);
+    if ($oferta) {
+        $turno_oferta = $oferta->getTurno();
+    }
+}
+?>
 <div class="container" style="padding-top: 120px; padding-bottom: 60px;">
     <div class="section-title">
         <h2>Ficha de Inscrição</h2>
@@ -97,13 +110,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="turno_preferencia">Turno de Preferência:</label>
-                    <select name="turno_preferencia" id="turno_preferencia" required>
-                        <option value="">Selecione...</option>
-                        <option value="Matutino">Matutino</option>
-                        <option value="Vespertino">Vespertino</option>
-                        <option value="Noturno">Noturno</option>
-                    </select>
+                    <label for="turno_preferencia">Qual o seu turno de preferência para estudar?</label>
+                    <input type="text" name="turno_preferencia" id="turno_preferencia" value="<?= htmlspecialchars($turno_oferta) ?>" class="form-control" readonly>
                 </div>
             </fieldset>
 

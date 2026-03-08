@@ -194,4 +194,19 @@ class Oferta {
             return [];
         }
     }
+
+    public static function findById($id) {
+        $db = Database::getInstance()->getConnection();
+        try {
+            $stmt = $db->prepare("SELECT * FROM oferta WHERE id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            // Retorna um objeto da classe Oferta
+            return $stmt->fetchObject('Oferta');
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar a oferta por ID: " . $e->getMessage());
+            return null;
+        }
+    }
 }
