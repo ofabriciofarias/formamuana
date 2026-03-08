@@ -121,7 +121,7 @@
                         <img src="views/assets/img/informatica.png" alt="Curso 1">
                     </div>
                     <span class="role-tag">Curso</span>
-                    <h3>Informática</h3>
+                    <h3>Informática para Inserção no Mercado de Trabalho</h3>
                     <p>Aprenda a criar sites e aplicações web do zero com as tecnologias mais recentes do mercado.</p>
                 </div>
 
@@ -130,7 +130,7 @@
                         <img src="views/assets/img/tecnologias.png" alt="Curso 2">
                     </div>
                     <span class="role-tag">Curso</span>
-                    <h3>Tecnologias Digitais</h3>
+                    <h3>Tecnologias Digitais na Educação</h3>
                     <p>Domine as metodologias ágeis e tradicionais para gerenciar projetos de sucesso.</p>
                 </div>
 
