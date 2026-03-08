@@ -171,7 +171,7 @@
                     <span class="role-tag">UFPA</span>
                     <h3>Execução do Projeot</h3>
                     <p>Universidade Federal do Pará</p>
-                    Reotpr Prof. Dr. Gilmar Silva
+                    Reitor Prof. Dr. Gilmar Silva
                 </div>
 
                 <div class="team-card">

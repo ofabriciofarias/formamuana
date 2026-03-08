@@ -26,7 +26,7 @@ require_once __DIR__ . '/../../core/helpers.php';
             <a href="index.php#inicio">Início</a>
             <a href="#ofertas">Vagas</a>
             <a href="#cursos">Cursos</a>
-            <a href="#equipe">Equipe</a>
+            <a href="#equipe">Realização</a>
 
             <a href="#" onclick="openModal('profileModal'); return false;" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
             <a href="index.php?action=logout" class="btn" style="background-color: #c0392b; color: white; padding: 8px 20px;">Sair</a>
@@ -178,78 +178,95 @@ require_once __DIR__ . '/../../core/helpers.php';
 
     <section id="equipe" class="section-padding">
         <div class="container">
-            <h2 class="section-title">Nossos Cursos</h2>
+            <h2 class="section-title">Realização</h2>
             <p style="text-align: center; color: var(--text-light); max-width: 600px; margin: 0 auto;">
-                Nossos cursos são ministrados por especialistas dedicados a proporcionar a melhor formação para você.
+                Este projeto é uma iniciativa da SECTET, sendo executado UFPA com suporte da FADESP.
             </p>
             
             <div class="team-grid">
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-8.jpg" alt="Curso 1">
+                        <img src="views/assets/img/sectet.jpg" alt="Curso 1">
                     </div>
-                    <span class="role-tag">Prof. Dr. Fabricio Farias</span>
-                    <h3>Coordenador do Projeto</h3>
-                    <p>Aprenda a criar sites e aplicações web do zero com as tecnologias mais recentes do mercado.</p>
+                    <span class="role-tag">SECTET</span>
+                    <h3>Agência Financiadora</h3>
+                    <p>Secretaria de Ciência, Tecnologia e Educação Superior, Profissional e Tecnológica do Estado do Pará (SECTET)</p>
+                    Secretário Victor Dias
                 </div>
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-2.jpeg" alt="Curso 2">
+                        <img src="views/assets/img/ufpa.jpeg" alt="Curso 2">
                     </div>
-                    <span class="role-tag">Prof. Dr. Allan Costa</span>
-                    <h3>Pesquisador</h3>
-                    <p>Domine as metodologias ágeis e tradicionais para gerenciar projetos de sucesso.</p>
+                    <span class="role-tag">UFPA</span>
+                    <h3>Execução do Projeot</h3>
+                    <p>Universidade Federal do Pará</p>
+                    Reotpr Prof. Dr. Gilmar Silva
                 </div>
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/dentista-7.jpeg" class="img-centered" alt="Curso 3">
+                        <img src="views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
                     </div>
-                    <span class="role-tag">Prof. Daniel Sidônio</span>
-                    <h3>Coordenação Local</h3>
-                    <p>Aprenda a criar campanhas de marketing digital eficazes e a gerar resultados para empresas.</p>
+                    <span class="role-tag">FADESP</span>
+                    <h3>Suporte Administrativo</h3>
+                    <p>Fundação de Amparo e Desenvolvimento de Pesquisa</p>
+                    Presidente Prof. Dr. Roberto Ferraz
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Seção de Contato/Localização -->
-    <section class="location-section section-padding">
+    <!--
+    <section id="localizacao" class="section-padding location-section">
         <div class="container">
-            <div class="section-title">
-                <h2>Onde Estamos</h2>
-            </div>
+            <h2 class="section-title">Onde Estamos</h2>
+            
             <div class="contact-grid">
                 <div class="contact-info-box">
+                    <h3>Visite-nos</h3>
+                    <p style="margin-bottom: 20px; color: var(--text-light);">Localização privilegiada com fácil acesso.</p>
+                    
                     <div class="info-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            <h4>Endereço</h4>
-                            <p>Rua Exemplo, 123 - Centro<br>Cidade - UF</p>
+                            <strong>Endereço:</strong><br>
+                            Sua Rua, 123<br>
+                            Seu Bairro, Sua Cidade - UF
                         </div>
                     </div>
+
                     <div class="info-item">
-                        <i class="fas fa-envelope"></i>
+                        <i class="fas fa-phone-alt"></i>
                         <div>
-                            <h4>Email</h4>
-                            <p>contato@formamuana.com.br</p>
+                            <strong>Telefone / WhatsApp:</strong><br>
+                            (99) 99999-9999
                         </div>
                     </div>
+
                     <div class="info-item">
-                        <i class="fas fa-phone"></i>
+                        <i class="far fa-clock"></i>
                         <div>
-                            <h4>Telefone</h4>
-                            <p>(00) 1234-5678</p>
+                            <strong>Horário de Atendimento:</strong><br>
+                            Seg - Sex: 08h às 18h
                         </div>
                     </div>
                 </div>
+
                 <div class="map-frame">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509374!2d144.9537353153169!3d-37.816279742021665!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577d22e4231b1b1!2sFederation%20Square!5e0!3m2!1sen!2sau!4v1614131686749!5m2!1sen!2sau" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.645365860427!2d-48.42899942535724!3d-1.3893519985975165!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a48b002f32a7cf%3A0x353ede76a35e88fa!2sPrev%20Dentistas!5e0!3m2!1sen!2sbr!4v1771775822488!5m2!1sen!2sbr" 
+                        width="600" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
             </div>
         </div>
     </section>
+                    -->
 
     <!-- Modal de Perfil / Complemento de Cadastro -->
     <div id="profileModal" class="modal">
