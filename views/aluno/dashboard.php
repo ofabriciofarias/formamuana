@@ -28,7 +28,7 @@ require_once __DIR__ . '/../../core/helpers.php';
             <a href="#cursos">Cursos</a>
             <a href="#equipe">Equipe</a>
 
-            <a href="index.php?action=aluno_profile" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
+            <a href="#" onclick="openModal('profileModal'); return false;" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
             <a href="index.php?action=logout" class="btn" style="background-color: #c0392b; color: white; padding: 8px 20px;">Sair</a>
         </nav>
 
@@ -251,21 +251,22 @@ require_once __DIR__ . '/../../core/helpers.php';
         </div>
     </section>
 
-    <!-- Modal de Complemento de Cadastro -->
-    <div id="completeProfileModal" class="modal">
+    <!-- Modal de Perfil / Complemento de Cadastro -->
+    <div id="profileModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
-            <span class="close-modal" onclick="closeModal('completeProfileModal')">&times;</span>
+            <span class="close-modal" onclick="closeModal('profileModal')">&times;</span>
+            <?php
+            $isEditing = isset($aluno['id']) && $aluno['id'];
+            $formAction = $isEditing ? 'index.php?action=update_aluno' : 'index.php?action=register_aluno';
+            $modalTitle = $isEditing ? 'Meu Perfil' : 'Completar Cadastro';
+            $btnText = $isEditing ? 'Salvar Alterações' : 'Concluir Cadastro';
+            ?>
             <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> Completar Cadastro</h2>
+                <h2><i class="fas fa-user-edit"></i> <?= $modalTitle ?></h2>
             </div>
             <div class="modal-body modal-body-scrollable">
-                <?php
-                $aluno = $aluno ?? [];
-                $formAction = 'index.php?action=register_aluno';
-                $btnText = 'Concluir Cadastro';
-                ?>
                 <form action="<?= htmlspecialchars($formAction) ?>" method="POST">
-                    <?php // Conteúdo de views/aluno/register.php ?>
+                    <?php // O conteúdo do formulário de views/aluno/register.php está embutido aqui ?>
                     <fieldset>
                         <legend>Dados Pessoais</legend>
                         <div class="form-group"><label for="nome">Nome Completo</label><input type="text" id="nome" name="nome" value="<?= htmlspecialchars($aluno['nome'] ?? '') ?>" required class="form-control"></div>
@@ -452,12 +453,12 @@ require_once __DIR__ . '/../../core/helpers.php';
 
         document.addEventListener('DOMContentLoaded', function() {
             <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
-                openModal('completeProfileModal');
+                openModal('profileModal');
                 
                 const msgDiv = document.createElement('div');
                 msgDiv.style = 'background: #fff3cd; color: #856404; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ffeeba;';
                 msgDiv.innerHTML = '<i class="fas fa-info-circle"></i> Por favor, complete seu cadastro para acessar todas as funcionalidades.';
-                const modalBody = document.querySelector('#completeProfileModal .modal-body');
+                const modalBody = document.querySelector('#profileModal .modal-body');
                 if (modalBody) {
                     modalBody.insertBefore(msgDiv, modalBody.firstChild);
                 }

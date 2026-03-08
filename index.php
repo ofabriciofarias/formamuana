@@ -61,10 +61,6 @@ switch ($action) {
         $alunoController->dashboard();
         break;
 
-    case 'aluno_profile':
-        $alunoController->profile();
-        break;
-
     case 'update_aluno':
         $alunoController->updateAluno();
         break;

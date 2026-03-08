@@ -174,38 +174,6 @@ class AlunoController {
     }
 
     /**
-     * Exibe o formulário de edição de perfil (mesma view do registro, mas populada).
-     */
-    public function profile() {
-        if (!is_aluno()) {
-            header('Location: index.php');
-            exit;
-        }
-
-        $db = Database::getInstance()->getConnection();
-        // Busca dados do aluno pelo ID do usuário logado
-        $stmt = $db->prepare("SELECT * FROM alunos WHERE usuarios_id = :uid");
-        $stmt->execute([':uid' => $_SESSION['user_id']]);
-        $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$aluno) {
-            // Se não existir, manda para o cadastro
-            header('Location: index.php?action=show_register_aluno_form');
-            exit;
-        }
-
-        $formAction = 'index.php?action=update_aluno';
-        $isEditing = true;
-
-        require_once __DIR__ . '/../views/layouts/header.php';
-        echo '<div class="container" style="padding-top: 120px;">
-                <div class="section-title"><h2>Meu Perfil</h2></div>';
-        require_once __DIR__ . '/../views/aluno/register.php';
-        echo '</div>';
-        require_once __DIR__ . '/../views/layouts/footer.php';
-    }
-
-    /**
      * Processa a atualização dos dados do aluno.
      */
     public function updateAluno() {
