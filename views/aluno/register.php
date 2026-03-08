@@ -15,23 +15,23 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="<?= htmlspecialchars($aluno['email'] ?? '') ?>">
+            <input type="email" id="email" name="email" value="<?= htmlspecialchars($aluno['email'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="whatsapp">WhatsApp</label>
-            <input type="text" id="whatsapp" name="whatsapp" value="<?= htmlspecialchars($aluno['whatsapp'] ?? '') ?>">
+            <input type="text" id="whatsapp" name="whatsapp" value="<?= htmlspecialchars($aluno['whatsapp'] ?? '') ?>" required>
         </div>
         <div class="form-group">
-            <label for="telefone">Outro Telefone</label>
+            <label for="telefone">Outro Telefone (Opcional)</label>
             <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($aluno['telefone'] ?? '') ?>">
         </div>
         <div class="form-group">
             <label for="data_nascimento">Data de Nascimento</label>
-            <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($aluno['data_nascimento'] ?? '') ?>">
+            <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($aluno['data_nascimento'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="estado_civil">Estado Civil</label>
-            <select id="estado_civil" name="estado_civil">
+            <select id="estado_civil" name="estado_civil" required>
                 <option value="">Selecione...</option>
                 <option value="Solteiro(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Solteiro(a)') ? 'selected' : '' ?>>Solteiro(a)</option>
                 <option value="Casado(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Casado(a)') ? 'selected' : '' ?>>Casado(a)</option>
@@ -47,7 +47,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         <legend>Identidade e Gênero</legend>
         <div class="form-group">
             <label for="sexo">Sexo</label>
-            <select id="sexo" name="sexo">
+            <select id="sexo" name="sexo" required>
                 <option value="">Selecione...</option>
                 <option value="Masculino" <?= (isset($aluno['sexo']) && $aluno['sexo'] == 'Masculino') ? 'selected' : '' ?>>Masculino</option>
                 <option value="Feminino" <?= (isset($aluno['sexo']) && $aluno['sexo'] == 'Feminino') ? 'selected' : '' ?>>Feminino</option>
@@ -56,7 +56,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="identidade_genero">Identidade de Gênero</label>
-            <select id="identidade_genero" name="identidade_genero">
+            <select id="identidade_genero" name="identidade_genero" required>
                 <option value="">Selecione...</option>
                 <option value="Homem Cis" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Homem Cis') ? 'selected' : '' ?>>Homem Cis</option>
                 <option value="Mulher Cis" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Mulher Cis') ? 'selected' : '' ?>>Mulher Cis</option>
@@ -69,7 +69,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="possui_nome_social">Possui Nome Social?</label>
-            <select id="possui_nome_social" name="possui_nome_social">
+            <select id="possui_nome_social" name="possui_nome_social" required>
                 <option value="Nao" <?= (isset($aluno['possui_nome_social']) && $aluno['possui_nome_social'] == 'Nao') ? 'selected' : '' ?>>Não</option>
                 <option value="Sim" <?= (isset($aluno['possui_nome_social']) && $aluno['possui_nome_social'] == 'Sim') ? 'selected' : '' ?>>Sim</option>
             </select>
@@ -84,7 +84,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         <legend>Questões Sociais e Étnicas</legend>
         <div class="form-group">
             <label for="cor_raca">Cor/Raça</label>
-            <select id="cor_raca" name="cor_raca">
+            <select id="cor_raca" name="cor_raca" required>
                 <option value="">Selecione...</option>
                 <option value="Branca" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Branca') ? 'selected' : '' ?>>Branca</option>
                 <option value="Preta" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Preta') ? 'selected' : '' ?>>Preta</option>
@@ -96,18 +96,18 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="possui_deficiencia">Possui Deficiência?</label>
-            <select id="possui_deficiencia" name="possui_deficiencia">
+            <select id="possui_deficiencia" name="possui_deficiencia" required>
                 <option value="Nao" <?= (isset($aluno['possui_deficiencia']) && $aluno['possui_deficiencia'] == 'Nao') ? 'selected' : '' ?>>Não</option>
                 <option value="Sim" <?= (isset($aluno['possui_deficiencia']) && $aluno['possui_deficiencia'] == 'Sim') ? 'selected' : '' ?>>Sim</option>
             </select>
         </div>
         <div class="form-group" id="tipo_deficiencia_group">
             <label for="tipo_deficiencia">Tipo da Deficiência</label>
-            <input type="text" id="tipo_deficiencia" name="tipo_deficiencia" value="<?= htmlspecialchars($aluno['tipo_deficiencia'] ?? '') ?>">
+            <input type="text" id="tipo_deficiencia" name="tipo_deficiencia" value="<?= htmlspecialchars($aluno['tipo_deficiencia'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="comunidade_tradicional">Pertence a Comunidade Tradicional?</label>
-            <select id="comunidade_tradicional" name="comunidade_tradicional">
+            <select id="comunidade_tradicional" name="comunidade_tradicional" required>
                 <option value="">Selecione...</option>
                 <option value="Nenhuma" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Nenhuma') ? 'selected' : '' ?>>Nenhuma</option>
                 <option value="Quilombola" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Quilombola') ? 'selected' : '' ?>>Quilombola</option>
@@ -122,7 +122,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         <legend>Residência</legend>
         <div class="form-group">
             <label for="zona_residencia">Zona de Residência</label>
-            <select id="zona_residencia" name="zona_residencia">
+            <select id="zona_residencia" name="zona_residencia" required>
                 <option value="">Selecione...</option>
                 <option value="Urbana" <?= (isset($aluno['zona_residencia']) && $aluno['zona_residencia'] == 'Urbana') ? 'selected' : '' ?>>Urbana</option>
                 <option value="Rural" <?= (isset($aluno['zona_residencia']) && $aluno['zona_residencia'] == 'Rural') ? 'selected' : '' ?>>Rural</option>
@@ -130,15 +130,15 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="cidade_origem">Cidade de Origem</label>
-            <input type="text" id="cidade_origem" name="cidade_origem" value="<?= htmlspecialchars($aluno['cidade_origem'] ?? '') ?>">
+            <input type="text" id="cidade_origem" name="cidade_origem" value="<?= htmlspecialchars($aluno['cidade_origem'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="cidade_atual">Cidade Atual</label>
-            <input type="text" id="cidade_atual" name="cidade_atual" value="<?= htmlspecialchars($aluno['cidade_atual'] ?? '') ?>">
+            <input type="text" id="cidade_atual" name="cidade_atual" value="<?= htmlspecialchars($aluno['cidade_atual'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="bairro_comunidade">Bairro/Comunidade</label>
-            <input type="text" id="bairro_comunidade" name="bairro_comunidade" value="<?= htmlspecialchars($aluno['bairro_comunidade'] ?? '') ?>">
+            <input type="text" id="bairro_comunidade" name="bairro_comunidade" value="<?= htmlspecialchars($aluno['bairro_comunidade'] ?? '') ?>" required>
         </div>
     </fieldset>
 
@@ -146,18 +146,18 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         <legend>Família e Escolaridade</legend>
         <div class="form-group">
             <label for="possui_filhos">Possui Filhos?</label>
-            <select id="possui_filhos" name="possui_filhos">
+            <select id="possui_filhos" name="possui_filhos" required>
                 <option value="Nao" <?= (isset($aluno['possui_filhos']) && $aluno['possui_filhos'] == 'Nao') ? 'selected' : '' ?>>Não</option>
                 <option value="Sim" <?= (isset($aluno['possui_filhos']) && $aluno['possui_filhos'] == 'Sim') ? 'selected' : '' ?>>Sim</option>
             </select>
         </div>
         <div class="form-group" id="quantidade_filhos_group">
             <label for="quantidade_filhos">Quantidade de Filhos</label>
-            <input type="number" id="quantidade_filhos" name="quantidade_filhos" min="0" value="<?= htmlspecialchars($aluno['quantidade_filhos'] ?? '') ?>">
+            <input type="number" id="quantidade_filhos" name="quantidade_filhos" min="0" value="<?= htmlspecialchars($aluno['quantidade_filhos'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="nivel_escolaridade">Nível de Escolaridade</label>
-            <select id="nivel_escolaridade" name="nivel_escolaridade">
+            <select id="nivel_escolaridade" name="nivel_escolaridade" required>
                 <option value="">Selecione...</option>
                 <option value="Ensino Fundamental Incompleto" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Fundamental Incompleto') ? 'selected' : '' ?>>Ensino Fundamental Incompleto</option>
                 <option value="Ensino Fundamental Completo" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Fundamental Completo') ? 'selected' : '' ?>>Ensino Fundamental Completo</option>
@@ -171,7 +171,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="tipo_escola_ensino_medio">Tipo de Escola no Ensino Médio</label>
-            <select id="tipo_escola_ensino_medio" name="tipo_escola_ensino_medio">
+            <select id="tipo_escola_ensino_medio" name="tipo_escola_ensino_medio" required>
                 <option value="">Selecione...</option>
                 <option value="Pública" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Pública') ? 'selected' : '' ?>>Pública</option>
                 <option value="Particular" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Particular') ? 'selected' : '' ?>>Particular</option>
@@ -186,18 +186,18 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         <legend>Informações Socioeconômicas</legend>
         <div class="form-group">
             <label for="beneficiario_programa_social">É beneficiário de programa social?</label>
-            <select id="beneficiario_programa_social" name="beneficiario_programa_social">
+            <select id="beneficiario_programa_social" name="beneficiario_programa_social" required>
                 <option value="Nao" <?= (isset($aluno['beneficiario_programa_social']) && $aluno['beneficiario_programa_social'] == 'Nao') ? 'selected' : '' ?>>Não</option>
                 <option value="Sim" <?= (isset($aluno['beneficiario_programa_social']) && $aluno['beneficiario_programa_social'] == 'Sim') ? 'selected' : '' ?>>Sim</option>
             </select>
         </div>
         <div class="form-group" id="nome_programa_social_group">
             <label for="nome_programa_social">Qual programa?</label>
-            <input type="text" id="nome_programa_social" name="nome_programa_social" value="<?= htmlspecialchars($aluno['nome_programa_social'] ?? '') ?>">
+            <input type="text" id="nome_programa_social" name="nome_programa_social" value="<?= htmlspecialchars($aluno['nome_programa_social'] ?? '') ?>" required>
         </div>
         <div class="form-group">
             <label for="acesso_internet">Tipo de Acesso à Internet</label>
-            <select id="acesso_internet" name="acesso_internet">
+            <select id="acesso_internet" name="acesso_internet" required>
                 <option value="">Selecione...</option>
                 <option value="Banda Larga Residencial" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Banda Larga Residencial') ? 'selected' : '' ?>>Banda Larga Residencial</option>
                 <option value="Dados Móveis" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Dados Móveis') ? 'selected' : '' ?>>Dados Móveis</option>
@@ -208,7 +208,7 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
         </div>
         <div class="form-group">
             <label for="dispositivo_principal">Dispositivo Principal de Acesso</label>
-            <select id="dispositivo_principal" name="dispositivo_principal">
+            <select id="dispositivo_principal" name="dispositivo_principal" required>
                 <option value="">Selecione...</option>
                 <option value="Celular" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Celular') ? 'selected' : '' ?>>Celular</option>
                 <option value="Computador (Desktop)" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Computador (Desktop)') ? 'selected' : '' ?>>Computador (Desktop)</option>
@@ -226,11 +226,14 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
 document.addEventListener('DOMContentLoaded', function() {
     // Helper function to toggle visibility
     function toggleVisibility(selectElement, targetGroup, showValue) {
+        if (!selectElement || !targetGroup) return;
+        const input = targetGroup.querySelector('input, select, textarea');
+
         function checkVisibility() {
-            if (selectElement.value === showValue) {
-                targetGroup.style.display = '';
-            } else {
-                targetGroup.style.display = 'none';
+            const isVisible = selectElement.value === showValue;
+            targetGroup.style.display = isVisible ? '' : 'none';
+            if (input) {
+                input.required = isVisible;
             }
         }
         checkVisibility();

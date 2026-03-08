@@ -30,7 +30,14 @@ class AlunoController {
         if (!$aluno) {
             // Primeiro acesso: Redireciona para concluir o cadastro
             $openCompleteProfileModal = true;
-            $aluno = []; // Garante que $aluno é um array vazio para o formulário
+
+            // Busca dados do usuário para pré-preencher nome e email
+            $userStmt = $db->prepare("SELECT nome, email, telefone FROM usuarios WHERE id = :uid");
+            $userStmt->execute([':uid' => $_SESSION['user_id']]);
+            $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+            // Garante que $aluno seja um array e pré-preenche com dados do usuário
+            $aluno = $user ? ['nome' => $user['nome'], 'email' => $user['email'], 'whatsapp' => $user['telefone']] : [];
             $alunoId = null;
         } else {
             $alunoId = $aluno['id'];
@@ -235,6 +242,11 @@ class AlunoController {
 
         if (!isset($_GET['oferta_id'])) {
             die('Erro: ID da oferta não especificado.');
+        }
+
+        $oferta = Oferta::findById($_GET['oferta_id']);
+        if (!$oferta) {
+            die('Oferta não encontrada.');
         }
 
         require_once __DIR__ . '/../views/aluno/inscrever.php';

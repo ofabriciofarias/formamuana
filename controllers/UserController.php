@@ -18,7 +18,10 @@ class UserController {
             $senha = $_POST['senha'] ?? null;
 
             if (empty($login) || empty($senha)) {
-                header('Location: index.php?error=1');
+                if (session_status() == PHP_SESSION_NONE) { session_start(); }
+                $_SESSION['flash_error'] = 'Login e senha são obrigatórios.';
+                $_SESSION['open_modal'] = 'loginRequiredModal';
+                header('Location: index.php');
                 exit;
             }
 
@@ -48,7 +51,10 @@ class UserController {
                 }
                 
                 // Se não encontrou em nenhuma tabela
-                header('Location: index.php?error=1');
+                if (session_status() == PHP_SESSION_NONE) { session_start(); }
+                $_SESSION['flash_error'] = 'Usuário não encontrado ou senha incorreta.';
+                $_SESSION['open_modal'] = 'loginRequiredModal';
+                header('Location: index.php');
                 exit;
 
             } catch (PDOException $e) {
@@ -153,7 +159,10 @@ class UserController {
             $stmt->execute();
             if ($stmt->fetch()) {
                 // Se encontrar, redireciona com um erro específico
-                header('Location: index.php?error=register_duplicate');
+                if (session_status() == PHP_SESSION_NONE) { session_start(); }
+                $_SESSION['flash_error'] = 'Este login ou email já existem no sistema. Por favor, cadastre com outro.';
+                $_SESSION['open_modal'] = 'registerModal';
+                header('Location: index.php');
                 exit;
             }
         } catch (PDOException $e) {

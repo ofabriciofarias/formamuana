@@ -1,15 +1,5 @@
 <?php require_once 'views/layouts/public_header.php'; ?>
 
-    <?php if(isset($_GET['error'])): ?>
-        <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 1100; background: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            <?php if ($_GET['error'] == 1): ?>
-                <i class="fas fa-exclamation-circle"></i> Usuário não encontrado ou senha incorreta. Tente novamente ou cadastre-se.
-            <?php elseif ($_GET['error'] == 'register_duplicate'): ?>
-                <i class="fas fa-exclamation-triangle"></i> Este login ou email já existem no sistema. Por favor, cadastre com outro.
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
-
     <section id="inicio" class="hero-slider">
         <div class="slide active" style="background-image: url('views/assets/img/certificacao.jpeg');"></div>
         <div class="slide" style="background-image: url('views/assets/img/certificacao4.jpg'); filter: hue-rotate(20deg);"></div> 
@@ -88,7 +78,7 @@
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
-                                                <button onclick="openInscricaoModal('<?= $oferta->getId() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php else: ?>
                                                 <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php endif; ?>
@@ -281,7 +271,7 @@
                     </div>
                     <div class="form-group">
                         <label for="telefone">Telefone / WhatsApp</label>
-                        <input type="text" id="telefone" name="telefone" class="form-control">
+                        <input type="text" id="telefone" name="telefone" required class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="senha">Senha</label>
@@ -395,11 +385,11 @@
                         </div>
                         <div class="form-group">
                             <label for="vinculo_atividade_modal_home">Se sim, qual o seu vínculo ou tipo de atividade?</label>
-                            <input type="text" id="vinculo_atividade_modal_home" name="vinculo_atividade" class="form-control">
+                            <input type="text" id="vinculo_atividade_modal_home" name="vinculo_atividade" class="form-control"> <!-- required é gerenciado por JS -->
                         </div>
                         <div class="form-group">
                             <label for="afinidade_atividade_curso_modal_home">Sua atividade remunerada tem afinidade com a área do curso?</label>
-                            <select id="afinidade_atividade_curso_modal_home" name="afinidade_atividade_curso" class="form-control">
+                            <select id="afinidade_atividade_curso_modal_home" name="afinidade_atividade_curso" class="form-control"> <!-- required é gerenciado por JS -->
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="Sim">Sim</option>
                                 <option value="Nao">Não</option>
@@ -407,7 +397,7 @@
                         </div>
                         <div class="form-group">
                             <label for="participacao_economica_familiar_modal_home">Qual sua principal participação na vida econômica familiar?</label>
-                            <select id="participacao_economica_familiar_modal_home" name="participacao_economica_familiar" class="form-control">
+                            <select id="participacao_economica_familiar_modal_home" name="participacao_economica_familiar" required class="form-control">
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="Responsavel_principal">Responsável principal pelo sustento da família</option>
                                 <option value="Ajuda_despesas">Ajudo a pagar as despesas</option>
@@ -417,7 +407,7 @@
                         </div>
                         <div class="form-group">
                             <label for="numero_membros_familia_modal_home">Quantas pessoas, incluindo você, moram em sua residência?</label>
-                            <select id="numero_membros_familia_modal_home" name="numero_membros_familia" class="form-control">
+                            <select id="numero_membros_familia_modal_home" name="numero_membros_familia" required class="form-control">
                                 <option value="" disabled selected>Selecione</option>
                                 <?php for ($i = 1; $i <= 20; $i++) : ?>
                                     <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
@@ -426,7 +416,7 @@
                         </div>
                         <div class="form-group">
                             <label for="renda_familiar_modal_home">Qual a renda total da sua família (incluindo você)?</label>
-                            <select id="renda_familiar_modal_home" name="renda_familiar" class="form-control">
+                            <select id="renda_familiar_modal_home" name="renda_familiar" required class="form-control">
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="Ate_1_sm">Até 1 salário mínimo</option>
                                 <option value="Entre_1_e_2_sm">Entre 1 e 2 salários mínimos</option>
@@ -440,24 +430,59 @@
 
                     <fieldset>
                         <legend>Sobre o Curso</legend>
-                        <div class="form-group"><label for="motivo_escolha_curso_modal_home">Por que você escolheu este curso? Quais habilidades espera desenvolver?</label><textarea id="motivo_escolha_curso_modal_home" name="motivo_escolha_curso" rows="4" class="form-control"></textarea></div>
-                        <div class="form-group"><label for="o_que_mais_espera_do_curso_modal_home">O que você mais espera do curso?</label><textarea id="o_que_mais_espera_do_curso_modal_home" name="o_que_mais_espera_do_curso" rows="4" class="form-control"></textarea></div>
-                        <div class="form-group"><label for="expectativas_relacao_curso_modal_home">Quais suas expectativas em relação ao curso?</label><textarea id="expectativas_relacao_curso_modal_home" name="expectativas_relacao_curso" rows="4" class="form-control"></textarea></div>
-                        <div class="form-group"><label for="expectativas_profissionais_pos_curso_modal_home">Quais suas expectativas profissionais após a conclusão do curso?</label><textarea id="expectativas_profissionais_pos_curso_modal_home" name="expectativas_profissionais_pos_curso" rows="4" class="form-control"></textarea></div>
-                        <div class="form-group"><label for="canal_informacao_curso_modal_home">Como você ficou sabendo deste curso?</label><select id="canal_informacao_curso_modal_home" name="canal_informacao_curso" class="form-control"><option value="" disabled selected>Selecione</option><option value="Redes_sociais">Redes Sociais (Instagram, Facebook, etc.)</option><option value="Amigos_familiares">Indicação de amigos ou familiares</option><option value="Site_instituicao">Site da Instituição</option><option value="Busca_internet">Busca na Internet (Google, etc.)</option><option value="Radio_tv">Rádio ou TV</option><option value="Outro">Outro</option></select></div>
-                        <div class="form-group"><label for="turno_preferencia_modal_home">Qual o seu turno de preferência para estudar?</label><select id="turno_preferencia_modal_home" name="turno_preferencia" class="form-control"><option value="" disabled selected>Selecione</option><option value="Manha">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option><option value="Indiferente">Indiferente</option></select></div>
+                        <div class="form-group"><label for="motivo_escolha_curso_modal_home">Por que você escolheu este curso? Quais habilidades espera desenvolver?</label><textarea id="motivo_escolha_curso_modal_home" name="motivo_escolha_curso" rows="4" required class="form-control"></textarea></div>
+                        <div class="form-group"><label for="o_que_mais_espera_do_curso_modal_home">O que você mais espera do curso?</label><textarea id="o_que_mais_espera_do_curso_modal_home" name="o_que_mais_espera_do_curso" rows="4" required class="form-control"></textarea></div>
+                        <div class="form-group"><label for="expectativas_relacao_curso_modal_home">Quais suas expectativas em relação ao curso?</label><textarea id="expectativas_relacao_curso_modal_home" name="expectativas_relacao_curso" rows="4" required class="form-control"></textarea></div>
+                        <div class="form-group"><label for="expectativas_profissionais_pos_curso_modal_home">Quais suas expectativas profissionais após a conclusão do curso?</label><textarea id="expectativas_profissionais_pos_curso_modal_home" name="expectativas_profissionais_pos_curso" rows="4" required class="form-control"></textarea></div>
+                        <div class="form-group"><label for="canal_informacao_curso_modal_home">Como você ficou sabendo deste curso?</label><select id="canal_informacao_curso_modal_home" name="canal_informacao_curso" required class="form-control"><option value="" disabled selected>Selecione</option><option value="Redes_sociais">Redes Sociais (Instagram, Facebook, etc.)</option><option value="Amigos_familiares">Indicação de amigos ou familiares</option><option value="Site_instituicao">Site da Instituição</option><option value="Busca_internet">Busca na Internet (Google, etc.)</option><option value="Radio_tv">Rádio ou TV</option><option value="Outro">Outro</option></select></div>
+                        <div class="form-group"><label for="turno_preferencia_modal_home">Qual o seu turno de preferência para estudar?</label><select id="turno_preferencia_modal_home" name="turno_preferencia" required class="form-control"><option value="" disabled selected>Selecione</option><option value="Manha">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option><option value="Indiferente">Indiferente</option></select></div>
                     </fieldset>
                     
                     <fieldset>
                         <legend>Termo de Aceite</legend>
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="termo_aceite_insc_modal_home" name="termo_aceite" value="Sim" required style="width: auto;">
-                            <label for="termo_aceite_insc_modal_home" style="margin-bottom: 0;">Você concorda com os termos desse projeto?</label>
+                            <input type="checkbox" id="termo_aceite_insc_modal_home" name="termo_aceite" value="Sim" required style="width: auto;"/>
+                            <label for="termo_aceite_insc_modal_home" style="margin-bottom: 0;">Li e concordo com os termos.</label>
+                            <a href="#" onclick="event.preventDefault(); openModal('inscricaoTermsModalHome');" class="terms-link">(Saber mais)</a>
                         </div>
                     </fieldset>
 
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2rem; margin-top: 20px;">Finalizar Inscrição</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Termos de Inscrição -->
+    <div id="inscricaoTermsModalHome" class="modal modal-on-top">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('inscricaoTermsModalHome')">&times;</span>
+            <div class="modal-header">
+                <h2>Termo de Aceite e Compromisso de Participação</h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <p>Ao prosseguir com esta inscrição, você declara estar ciente e concordar com as normas e diretrizes do projeto de extensão "Ilha do Marajó em Foco: Oferta de Cursos de Capacitação e Formação Técnica na Cidade de Muaná".</p>
+                <p>Este projeto é uma política pública realizada pela Universidade Federal do Pará (UFPA), com financiamento da Secretaria de Ciência, Tecnologia e Educação Profissional e Tecnológica do Estado do Pará (SECTET).</p>
+
+                <h4>1. Frequência e Desempenho</h4>
+                <ul>
+                    <li><strong>Assiduidade:</strong> Comprometo-me a participar das aulas, estando ciente de que a obtenção do certificado está condicionada à frequência mínima de 75% da carga horária total.</li>
+                    <li><strong>Comprometimento:</strong> Declaro que me empenharei na realização das atividades propostas, buscando o melhor aproveitamento técnico e pedagógico do curso.</li>
+                    <li><strong>Conduta:</strong> Manterei uma postura de respeito e urbanidade com tutores, professores, coordenadores e demais colegas de turma.</li>
+                </ul>
+
+                <h4>2. Certificação e Entrega</h4>
+                <ul>
+                    <li><strong>Cerimônia de Entrega:</strong> Responsabilizo-me a comparecer à cerimônia de certificação, momento oficial e único para a entrega física dos certificados.</li>
+                    <li><strong>Exceções:</strong> Entendo que a entrega do certificado fora desta data não é garantida, exceto em casos excepcionais devidamente comprovados mediante apresentação de atestado médico ou justificativa legal.</li>
+                    <li><strong>Via Única:</strong> Responsabilizo-me pela guarda e preservação do meu certificado original, estando ciente de que o projeto não emitirá segunda via em caso de perda, dano ou extravio por parte do cursista.</li>
+                </ul>
+
+                <h4>3. Declaração de Aceite</h4>
+                <p>Ao clicar no botão "Aceito os Termos" abaixo, confirmo que li, compreendi e aceito integralmente as condições estabelecidas acima para a minha participação nesta ação extensionista.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('inscricaoTermsModalHome')" class="btn btn-primary">Fechar</button>
             </div>
         </div>
     </div>
@@ -532,13 +557,16 @@
             openModals.push(modalId);
         }
 
-        function openInscricaoModal(ofertaId) {
+        function openInscricaoModal(ofertaId, turno) {
             const modal = document.getElementById('inscricaoOfertaModal');
             if (!modal) return;
             
             const form = modal.querySelector('form');
             form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
             
+            const turnoSelect = document.getElementById('turno_preferencia_modal_home');
+            if(turnoSelect) turnoSelect.value = turno;
+
             openModal('inscricaoOfertaModal');
         }
 
@@ -567,9 +595,62 @@
 
         // Ao carregar a página, verifica se há um erro de registro duplicado e abre o modal.
         document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('error') === 'register_duplicate') {
-                openModal('registerModal');
+            <?php
+            if (isset($_SESSION['flash_error']) && isset($_SESSION['open_modal'])) {
+                $errorMessage = $_SESSION['flash_error'];
+                $modalToOpen = $_SESSION['open_modal'];
+                unset($_SESSION['flash_error']);
+                unset($_SESSION['open_modal']);
+            ?>
+                const modalId = '<?= $modalToOpen ?>';
+                const errorMessage = '<?= addslashes($errorMessage) ?>';
+
+                openModal(modalId);
+
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    const modalBody = modal.querySelector('.modal-body');
+                    if (modalBody) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.style.background = '#e74c3c';
+                        errorDiv.style.color = 'white';
+                        errorDiv.style.padding = '15px';
+                        errorDiv.style.marginBottom = '20px';
+                        errorDiv.style.borderRadius = '5px';
+                        errorDiv.style.textAlign = 'center';
+                        errorDiv.style.transition = 'opacity 0.5s ease';
+                        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
+                        
+                        modalBody.insertBefore(errorDiv, modalBody.firstChild);
+
+                        setTimeout(() => {
+                            errorDiv.style.opacity = '0';
+                            setTimeout(() => errorDiv.remove(), 500);
+                        }, 5000); // 5 segundos
+                    }
+                }
+            <?php } ?>
+            // Lógica para campos condicionais do formulário de inscrição na home
+            const exerceAtividadeSelectHome = document.getElementById('exerce_atividade_remunerada_modal_home');
+            if (exerceAtividadeSelectHome) {
+                const vinculoInputHome = document.getElementById('vinculo_atividade_modal_home');
+                const afinidadeSelectHome = document.getElementById('afinidade_atividade_curso_modal_home');
+                const vinculoGroupHome = vinculoInputHome.closest('.form-group');
+                const afinidadeGroupHome = afinidadeSelectHome.closest('.form-group');
+
+                function toggleInscricaoFieldsHome() {
+                    const isRequired = exerceAtividadeSelectHome.value === 'Sim';
+                    vinculoGroupHome.style.display = isRequired ? 'block' : 'none';
+                    afinidadeGroupHome.style.display = isRequired ? 'block' : 'none';
+                    vinculoInputHome.required = isRequired;
+                    afinidadeSelectHome.required = isRequired;
+                    if (!isRequired) {
+                        vinculoInputHome.value = '';
+                    }
+                }
+                
+                toggleInscricaoFieldsHome(); // Executa ao carregar
+                exerceAtividadeSelectHome.addEventListener('change', toggleInscricaoFieldsHome);
             }
         });
     </script>
