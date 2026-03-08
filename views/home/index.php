@@ -88,7 +88,7 @@
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
-                                                <a href="index.php?action=show_inscricao_oferta_form&oferta_id=<?= $oferta->getId() ?>" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</a>
+                                                <button onclick="openInscricaoModal('<?= $oferta->getId() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php else: ?>
                                                 <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php endif; ?>
@@ -373,6 +373,95 @@
         </div>
     </div>
 
+    <!-- Modal de Inscrição na Oferta -->
+    <div id="inscricaoOfertaModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-modal" onclick="closeModal('inscricaoOfertaModal')">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-graduation-cap"></i> Formulário de Inscrição na Oferta</h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <form action="" method="POST"> <?php // Action é definida via JS ?>
+                    <fieldset>
+                        <legend>Informações Socioeconômicas</legend>
+                        <div class="form-group">
+                            <label for="exerce_atividade_remunerada_modal_home">Exerce alguma atividade remunerada?</label>
+                            <select id="exerce_atividade_remunerada_modal_home" name="exerce_atividade_remunerada" required class="form-control">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Sim">Sim</option>
+                                <option value="Nao">Não</option>
+                                <option value="As_vezes">Às vezes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vinculo_atividade_modal_home">Se sim, qual o seu vínculo ou tipo de atividade?</label>
+                            <input type="text" id="vinculo_atividade_modal_home" name="vinculo_atividade" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="afinidade_atividade_curso_modal_home">Sua atividade remunerada tem afinidade com a área do curso?</label>
+                            <select id="afinidade_atividade_curso_modal_home" name="afinidade_atividade_curso" class="form-control">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Sim">Sim</option>
+                                <option value="Nao">Não</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="participacao_economica_familiar_modal_home">Qual sua principal participação na vida econômica familiar?</label>
+                            <select id="participacao_economica_familiar_modal_home" name="participacao_economica_familiar" class="form-control">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Responsavel_principal">Responsável principal pelo sustento da família</option>
+                                <option value="Ajuda_despesas">Ajudo a pagar as despesas</option>
+                                <option value="Nao_contribuo">Não contribuo com as despesas</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_membros_familia_modal_home">Quantas pessoas, incluindo você, moram em sua residência?</label>
+                            <select id="numero_membros_familia_modal_home" name="numero_membros_familia" class="form-control">
+                                <option value="" disabled selected>Selecione</option>
+                                <?php for ($i = 1; $i <= 20; $i++) : ?>
+                                    <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="renda_familiar_modal_home">Qual a renda total da sua família (incluindo você)?</label>
+                            <select id="renda_familiar_modal_home" name="renda_familiar" class="form-control">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Ate_1_sm">Até 1 salário mínimo</option>
+                                <option value="Entre_1_e_2_sm">Entre 1 e 2 salários mínimos</option>
+                                <option value="Entre_2_e_3_sm">Entre 2 e 3 salários mínimos</option>
+                                <option value="Entre_3_e_5_sm">Entre 3 e 5 salários mínimos</option>
+                                <option value="Acima_5_sm">Acima de 5 salários mínimos</option>
+                                <option value="Nao_sei">Não sei informar</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Sobre o Curso</legend>
+                        <div class="form-group"><label for="motivo_escolha_curso_modal_home">Por que você escolheu este curso? Quais habilidades espera desenvolver?</label><textarea id="motivo_escolha_curso_modal_home" name="motivo_escolha_curso" rows="4" class="form-control"></textarea></div>
+                        <div class="form-group"><label for="o_que_mais_espera_do_curso_modal_home">O que você mais espera do curso?</label><textarea id="o_que_mais_espera_do_curso_modal_home" name="o_que_mais_espera_do_curso" rows="4" class="form-control"></textarea></div>
+                        <div class="form-group"><label for="expectativas_relacao_curso_modal_home">Quais suas expectativas em relação ao curso?</label><textarea id="expectativas_relacao_curso_modal_home" name="expectativas_relacao_curso" rows="4" class="form-control"></textarea></div>
+                        <div class="form-group"><label for="expectativas_profissionais_pos_curso_modal_home">Quais suas expectativas profissionais após a conclusão do curso?</label><textarea id="expectativas_profissionais_pos_curso_modal_home" name="expectativas_profissionais_pos_curso" rows="4" class="form-control"></textarea></div>
+                        <div class="form-group"><label for="canal_informacao_curso_modal_home">Como você ficou sabendo deste curso?</label><select id="canal_informacao_curso_modal_home" name="canal_informacao_curso" class="form-control"><option value="" disabled selected>Selecione</option><option value="Redes_sociais">Redes Sociais (Instagram, Facebook, etc.)</option><option value="Amigos_familiares">Indicação de amigos ou familiares</option><option value="Site_instituicao">Site da Instituição</option><option value="Busca_internet">Busca na Internet (Google, etc.)</option><option value="Radio_tv">Rádio ou TV</option><option value="Outro">Outro</option></select></div>
+                        <div class="form-group"><label for="turno_preferencia_modal_home">Qual o seu turno de preferência para estudar?</label><select id="turno_preferencia_modal_home" name="turno_preferencia" class="form-control"><option value="" disabled selected>Selecione</option><option value="Manha">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option><option value="Indiferente">Indiferente</option></select></div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Termo de Aceite</legend>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="termo_aceite_insc_modal_home" name="termo_aceite" value="Sim" required style="width: auto;">
+                            <label for="termo_aceite_insc_modal_home" style="margin-bottom: 0;">Você concorda com os termos desse projeto?</label>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2rem; margin-top: 20px;">Finalizar Inscrição</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         const mobileToggle = document.getElementById('mobile-toggle');
         const navLinks = document.getElementById('nav-links');
@@ -441,6 +530,16 @@
             
             // Adiciona o modal à pilha de modais abertos.
             openModals.push(modalId);
+        }
+
+        function openInscricaoModal(ofertaId) {
+            const modal = document.getElementById('inscricaoOfertaModal');
+            if (!modal) return;
+            
+            const form = modal.querySelector('form');
+            form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
+            
+            openModal('inscricaoOfertaModal');
         }
 
         function closeModal(modalId) {

@@ -22,23 +22,28 @@ class AlunoController {
 
         // Verifica se o aluno já completou o cadastro (tabela alunos)
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT id FROM alunos WHERE usuarios_id = :uid");
+        $stmt = $db->prepare("SELECT * FROM alunos WHERE usuarios_id = :uid");
         $stmt->execute([':uid' => $_SESSION['user_id']]);
-        $alunoRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if (!$alunoRow) {
+        $openCompleteProfileModal = false;
+        if (!$aluno) {
             // Primeiro acesso: Redireciona para concluir o cadastro
-            header('Location: index.php?action=show_register_aluno_form&msg=complete_cadastro');
-            exit;
+            $openCompleteProfileModal = true;
+            $aluno = []; // Garante que $aluno é um array vazio para o formulário
+            $alunoId = null;
+        } else {
+            $alunoId = $aluno['id'];
         }
-
-        $alunoId = $alunoRow['id'];
 
         // Busca todas as ofertas disponíveis
         $ofertas = Oferta::findAll();
 
         // Busca todas as inscrições do aluno
-        $inscricoes = AlunoOferta::findAllByAluno($alunoId);
+        $inscricoes = [];
+        if ($alunoId) {
+            $inscricoes = AlunoOferta::findAllByAluno($alunoId);
+        }
         $ofertasInscritasIds = array_column($inscricoes, 'oferta_id');
 
         // Carrega a view do dashboard do aluno
