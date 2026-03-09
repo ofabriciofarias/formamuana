@@ -70,18 +70,19 @@ require_once __DIR__ . '/../../core/helpers.php';
             }
             ?>
 
-            <div class="table-responsive" style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
+            <div class="table-responsive">
+                <table class="responsive-table">
                     <thead>
-                        <tr style="background-color: var(--primary-color); color: white; text-align: left;">
-                            <th style="padding: 12px 15px;">Nome</th>
-                            <th style="padding: 12px 15px;">Descrição</th>
-                            <th style="padding: 12px 15px;">Local</th>
-                            <th style="padding: 12px 15px;">Vagas</th>
-                            <th style="padding: 12px 15px;">Carga Horária</th>
-                            <th style="padding: 12px 15px;">Público Alvo</th>
-                            <th style="padding: 12px 15px;">Inscrições Até</th>
-                            <th style="padding: 12px 15px;">Ação</th>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Local</th>
+                            <th>Vagas</th>
+                            <th>Carga Horária</th>
+                            <th>Público Alvo</th>
+                            <th>Inscrições Até</th>
+                            <th>Detalhes</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,27 +91,46 @@ require_once __DIR__ . '/../../core/helpers.php';
                                 <?php 
                                     $hoje = date('Y-m-d');
                                     $encerrado = ($oferta->getFinalInsc() < $hoje);
+                                    $detalhes = [
+                                        'nome' => $oferta->getNome(),
+                                        'descricao' => $oferta->getDescricao(),
+                                        'eixo_tecnologico' => $oferta->getEixoTecnologico(),
+                                        'foto' => $oferta->getFoto(),
+                                        'inicio_insc' => date('d/m/Y', strtotime($oferta->getInicioInsc())),
+                                        'final_insc' => date('d/m/Y', strtotime($oferta->getFinalInsc())),
+                                        'local' => $oferta->getLocal(),
+                                        'turno' => $oferta->getTurno(),
+                                        'numero_vagas' => $oferta->getNumeroVagas(),
+                                        'publico_alvo' => $oferta->getPublicoAlvo(),
+                                        'modalidade' => $oferta->getModalidade(),
+                                        'carga_horaria' => $oferta->getCargaHoraria(),
+                                        'inicio_aulas' => $oferta->getInicioAulas() ? date('d/m/Y', strtotime($oferta->getInicioAulas())) : null,
+                                        'fim_aulas' => $oferta->getFimAulas() ? date('d/m/Y', strtotime($oferta->getFimAulas())) : null,
+                                        'inicio_hora_aula' => $oferta->getInicioHoraAula() ? date('H:i', strtotime($oferta->getInicioHoraAula())) : null,
+                                        'fim_hora_aula' => $oferta->getFimHoraAula() ? date('H:i', strtotime($oferta->getFimHoraAula())) : null,
+                                    ];
                                 ?>
-                                <tr style="border-bottom: 1px solid #dddddd;">
-                                    <td style="padding: 12px 15px; font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars(substr($oferta->getDescricao(), 0, 50)) . (strlen($oferta->getDescricao()) > 50 ? '...' : '') ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getLocal()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getNumeroVagas()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
-                                    <td style="padding: 12px 15px;"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
-                                    <td style="padding: 12px 15px;"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
-                                    <td style="padding: 12px 15px;">
+                                <tr>
+                                    <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
+                                    <td data-label="Descrição"><?= htmlspecialchars(substr($oferta->getDescricao(), 0, 50)) . (strlen($oferta->getDescricao()) > 50 ? '...' : '') ?></td>
+                                    <td data-label="Local"><?= htmlspecialchars($oferta->getLocal()) ?></td>
+                                    <td data-label="Vagas"><?= htmlspecialchars($oferta->getNumeroVagas()) ?></td>
+                                    <td data-label="Carga Horária"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
+                                    <td data-label="Público Alvo"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
+                                    <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
+                                    <td data-label="Detalhes" style="text-align: center;">
+                                        <button onclick='openDetalhesOfertaModal(<?= json_encode($detalhes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)' style="background: none; border: none; color: var(--primary-color); padding: 5px; font-size: 1.1rem; cursor: pointer;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                    <td data-label="Ação">
                                         <?php if ($encerrado): ?>
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
-                                                <?php if (in_array($oferta->getId(), $ofertasInscritasIds)): ?>
-                                                    <span style="color: #2ecc71; font-weight: bold;">Inscrito</span>
-                                                <?php else: ?>
-                                                    <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
-                                                <?php endif; ?>
+                                                <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php else: ?>
-                                                <button onclick="alert('Você precisa efetuar login para efetuar sua inscrição.')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
@@ -118,7 +138,7 @@ require_once __DIR__ . '/../../core/helpers.php';
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" style="padding: 15px; text-align: center;">Nenhuma oferta disponível no momento.</td>
+                                <td colspan="9" style="text-align: center;">Nenhuma oferta disponível no momento.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -126,6 +146,7 @@ require_once __DIR__ . '/../../core/helpers.php';
             </div>
         </div>
     </section>
+
 
     <section id="cursos" class="section-padding">
         <div class="container">
@@ -453,6 +474,34 @@ require_once __DIR__ . '/../../core/helpers.php';
         </div>
     </div>
 
+    <!-- Modal de Detalhes da Oferta -->
+    <div id="detalhesOfertaModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="closeModal('detalhesOfertaModal')">&times;</span>
+            <div class="modal-header">
+                <h2 id="detalhesOfertaNome"></h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <img id="detalhesOfertaFoto" src="" alt="Foto da Oferta" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; display: none;">
+                
+                <h4>Descrição Completa</h4>
+                <p id="detalhesOfertaDescricao" style="text-align: justify;"></p>
+
+                <h4 style="margin-top: 20px;">Detalhes do Curso</h4>
+                <div id="detalhesOfertaLista">
+                    <!-- Conteúdo injetado via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('detalhesOfertaModal')" class="btn btn-primary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/5591992220689" class="fab-whatsapp" target="_blank" title="Fale conosco no WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
     <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
 
     <script>
@@ -492,6 +541,69 @@ require_once __DIR__ . '/../../core/helpers.php';
         };
 
         // --- Lógica Específica da Página ---
+
+        function openDetalhesOfertaModal(oferta) {
+            document.getElementById('detalhesOfertaNome').innerText = oferta.nome;
+            document.getElementById('detalhesOfertaDescricao').innerText = oferta.descricao;
+
+            const fotoEl = document.getElementById('detalhesOfertaFoto');
+            if (oferta.foto && oferta.foto.trim() !== '') {
+                fotoEl.src = oferta.foto;
+                fotoEl.style.display = 'block';
+            } else {
+                fotoEl.style.display = 'none';
+            }
+
+            const detalhesLista = document.getElementById('detalhesOfertaLista');
+            detalhesLista.innerHTML = `
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div><strong>Período de Inscrição:</strong><br>${oferta.inicio_insc} até ${oferta.final_insc}</div>
+                </div>
+                ${oferta.inicio_aulas ? `
+                <div class="info-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <div><strong>Período das Aulas:</strong><br>De ${oferta.inicio_aulas} até ${oferta.fim_aulas || 'a definir'}</div>
+                </div>
+                ` : ''}
+                ${oferta.inicio_hora_aula ? `
+                <div class="info-item">
+                    <i class="far fa-clock"></i>
+                    <div><strong>Horário das Aulas:</strong><br>Das ${oferta.inicio_hora_aula} às ${oferta.fim_hora_aula || 'a definir'}</div>
+                </div>
+                ` : ''}
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div><strong>Local:</strong><br>${oferta.local || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <div><strong>Público Alvo:</strong><br>${oferta.publico_alvo || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tag"></i>
+                    <div><strong>Modalidade:</strong><br>${oferta.modalidade || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-sun"></i>
+                    <div><strong>Turno:</strong><br>${oferta.turno || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-chair"></i>
+                    <div><strong>Vagas:</strong><br>${oferta.numero_vagas || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div><strong>Carga Horária:</strong><br>${oferta.carga_horaria}h</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-sitemap"></i>
+                    <div><strong>Eixo Tecnológico:</strong><br>${oferta.eixo_tecnologico || 'Não informado'}</div>
+                </div>
+            `;
+
+            openModal('detalhesOfertaModal');
+        }
 
         function openInscricaoModal(ofertaId, turno) {
             const modal = document.getElementById('inscricaoOfertaModal');

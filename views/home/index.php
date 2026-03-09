@@ -267,7 +267,7 @@
         </div>
     </footer>
 
-    <a href="https://wa.me/5591983067459" class="fab-whatsapp" target="_blank" title="Fale conosco no WhatsApp">
+    <a href="https://wa.me/5591992220689" class="fab-whatsapp" target="_blank" title="Fale conosco no WhatsApp">
         <i class="fab fa-whatsapp"></i>
     </a>
 
