@@ -55,6 +55,7 @@
                             <th>Carga Horária</th>
                             <th>Público Alvo</th>
                             <th>Inscrições Até</th>
+                            <th>Detalhes</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -64,6 +65,20 @@
                                 <?php 
                                     $hoje = date('Y-m-d');
                                     $encerrado = ($oferta->getFinalInsc() < $hoje);
+                                    $detalhes = [
+                                        'nome' => $oferta->getNome(),
+                                        'descricao' => $oferta->getDescricao(),
+                                        'eixo_tecnologico' => $oferta->getEixoTecnologico(),
+                                        'foto' => $oferta->getFoto(),
+                                        'inicio_insc' => date('d/m/Y', strtotime($oferta->getInicioInsc())),
+                                        'final_insc' => date('d/m/Y', strtotime($oferta->getFinalInsc())),
+                                        'local' => $oferta->getLocal(),
+                                        'turno' => $oferta->getTurno(),
+                                        'numero_vagas' => $oferta->getNumeroVagas(),
+                                        'publico_alvo' => $oferta->getPublicoAlvo(),
+                                        'modalidade' => $oferta->getModalidade(),
+                                        'carga_horaria' => $oferta->getCargaHoraria(),
+                                    ];
                                 ?>
                                 <tr>
                                     <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
@@ -73,6 +88,11 @@
                                     <td data-label="Carga Horária"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
                                     <td data-label="Público Alvo"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
                                     <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
+                                    <td data-label="Detalhes" style="text-align: center;">
+                                        <button onclick='openDetalhesOfertaModal(<?= json_encode($detalhes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)' style="background: none; border: none; color: var(--primary-color); padding: 5px; font-size: 1.1rem; cursor: pointer;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
                                     <td data-label="Ação">
                                         <?php if ($encerrado): ?>
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
@@ -88,7 +108,7 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" style="text-align: center;">Nenhuma oferta disponível no momento.</td>
+                                <td colspan="9" style="text-align: center;">Nenhuma oferta disponível no momento.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -487,6 +507,30 @@
         </div>
     </div>
 
+    <!-- Modal de Detalhes da Oferta -->
+    <div id="detalhesOfertaModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-modal" onclick="closeModal('detalhesOfertaModal')">&times;</span>
+            <div class="modal-header">
+                <h2 id="detalhesOfertaNome"></h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <img id="detalhesOfertaFoto" src="" alt="Foto da Oferta" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; display: none;">
+                
+                <h4>Descrição Completa</h4>
+                <p id="detalhesOfertaDescricao" style="text-align: justify;"></p>
+
+                <h4 style="margin-top: 20px;">Detalhes do Curso</h4>
+                <div id="detalhesOfertaLista">
+                    <!-- Conteúdo injetado via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('detalhesOfertaModal')" class="btn btn-primary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const mobileToggle = document.getElementById('mobile-toggle');
         const navLinks = document.getElementById('nav-links');
@@ -568,6 +612,57 @@
             if(turnoSelect) turnoSelect.value = turno;
 
             openModal('inscricaoOfertaModal');
+        }
+
+        function openDetalhesOfertaModal(oferta) {
+            document.getElementById('detalhesOfertaNome').innerText = oferta.nome;
+            document.getElementById('detalhesOfertaDescricao').innerText = oferta.descricao;
+
+            const fotoEl = document.getElementById('detalhesOfertaFoto');
+            if (oferta.foto && oferta.foto.trim() !== '') {
+                fotoEl.src = oferta.foto;
+                fotoEl.style.display = 'block';
+            } else {
+                fotoEl.style.display = 'none';
+            }
+
+            const detalhesLista = document.getElementById('detalhesOfertaLista');
+            detalhesLista.innerHTML = `
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div><strong>Período de Inscrição:</strong><br>${oferta.inicio_insc} até ${oferta.final_insc}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div><strong>Local:</strong><br>${oferta.local || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <div><strong>Público Alvo:</strong><br>${oferta.publico_alvo || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-tag"></i>
+                    <div><strong>Modalidade:</strong><br>${oferta.modalidade || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-sun"></i>
+                    <div><strong>Turno:</strong><br>${oferta.turno || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-chair"></i>
+                    <div><strong>Vagas:</strong><br>${oferta.numero_vagas || 'Não informado'}</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div><strong>Carga Horária:</strong><br>${oferta.carga_horaria}h</div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-sitemap"></i>
+                    <div><strong>Eixo Tecnológico:</strong><br>${oferta.eixo_tecnologico || 'Não informado'}</div>
+                </div>
+            `;
+
+            openModal('detalhesOfertaModal');
         }
 
         function closeModal(modalId) {
