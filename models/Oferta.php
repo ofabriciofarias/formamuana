@@ -17,6 +17,10 @@ class Oferta {
     private $modalidade;
     private $carga_horaria;
     private $upload_relatorio;
+    private $inicio_aulas;
+    private $fim_aulas;
+    private $inicio_hora_aula;
+    private $fim_hora_aula;
 
     public function getId() {
         return $this->id;
@@ -142,12 +146,44 @@ class Oferta {
         $this->upload_relatorio = $upload_relatorio;
     }
 
+    public function getInicioAulas() {
+        return $this->inicio_aulas;
+    }
+
+    public function setInicioAulas($inicio_aulas) {
+        $this->inicio_aulas = $inicio_aulas;
+    }
+
+    public function getFimAulas() {
+        return $this->fim_aulas;
+    }
+
+    public function setFimAulas($fim_aulas) {
+        $this->fim_aulas = $fim_aulas;
+    }
+
+    public function getInicioHoraAula() {
+        return $this->inicio_hora_aula;
+    }
+
+    public function setInicioHoraAula($inicio_hora_aula) {
+        $this->inicio_hora_aula = $inicio_hora_aula;
+    }
+
+    public function getFimHoraAula() {
+        return $this->fim_hora_aula;
+    }
+
+    public function setFimHoraAula($fim_hora_aula) {
+        $this->fim_hora_aula = $fim_hora_aula;
+    }
+
     public function save() {
         $db = Database::getInstance();
         $conn = $db->getConnection();
 
-        $sql = "INSERT INTO oferta (nome, descricao, eixo_tecnologico, foto, inicio_insc, final_insc, status_oferta, usuarios_id, local, turno, numero_vagas, publico_alvo, modalidade, carga_horaria, upload_relatorio) 
-                VALUES (:nome, :descricao, :eixo_tecnologico, :foto, :inicio_insc, :final_insc, :status_oferta, :usuarios_id, :local, :turno, :numero_vagas, :publico_alvo, :modalidade, :carga_horaria, :upload_relatorio)";
+        $sql = "INSERT INTO oferta (nome, descricao, eixo_tecnologico, foto, inicio_insc, final_insc, status_oferta, usuarios_id, local, turno, numero_vagas, publico_alvo, modalidade, carga_horaria, upload_relatorio, inicio_aulas, fim_aulas, inicio_hora_aula, fim_hora_aula) 
+                VALUES (:nome, :descricao, :eixo_tecnologico, :foto, :inicio_insc, :final_insc, :status_oferta, :usuarios_id, :local, :turno, :numero_vagas, :publico_alvo, :modalidade, :carga_horaria, :upload_relatorio, :inicio_aulas, :fim_aulas, :inicio_hora_aula, :fim_hora_aula)";
         
         $stmt = $conn->prepare($sql);
 
@@ -166,6 +202,10 @@ class Oferta {
         $stmt->bindParam(':modalidade', $this->modalidade);
         $stmt->bindParam(':carga_horaria', $this->carga_horaria);
         $stmt->bindParam(':upload_relatorio', $this->upload_relatorio);
+        $stmt->bindParam(':inicio_aulas', $this->inicio_aulas);
+        $stmt->bindParam(':fim_aulas', $this->fim_aulas);
+        $stmt->bindParam(':inicio_hora_aula', $this->inicio_hora_aula);
+        $stmt->bindParam(':fim_hora_aula', $this->fim_hora_aula);
 
         return $stmt->execute();
     }

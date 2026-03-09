@@ -78,6 +78,10 @@
                                         'publico_alvo' => $oferta->getPublicoAlvo(),
                                         'modalidade' => $oferta->getModalidade(),
                                         'carga_horaria' => $oferta->getCargaHoraria(),
+                                        'inicio_aulas' => $oferta->getInicioAulas() ? date('d/m/Y', strtotime($oferta->getInicioAulas())) : null,
+                                        'fim_aulas' => $oferta->getFimAulas() ? date('d/m/Y', strtotime($oferta->getFimAulas())) : null,
+                                        'inicio_hora_aula' => $oferta->getInicioHoraAula() ? date('H:i', strtotime($oferta->getInicioHoraAula())) : null,
+                                        'fim_hora_aula' => $oferta->getFimHoraAula() ? date('H:i', strtotime($oferta->getFimHoraAula())) : null,
                                     ];
                                 ?>
                                 <tr>
@@ -632,6 +636,18 @@
                     <i class="fas fa-calendar-alt"></i>
                     <div><strong>Período de Inscrição:</strong><br>${oferta.inicio_insc} até ${oferta.final_insc}</div>
                 </div>
+                ${oferta.inicio_aulas ? `
+                <div class="info-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <div><strong>Período das Aulas:</strong><br>De ${oferta.inicio_aulas} até ${oferta.fim_aulas || 'a definir'}</div>
+                </div>
+                ` : ''}
+                ${oferta.inicio_hora_aula ? `
+                <div class="info-item">
+                    <i class="far fa-clock"></i>
+                    <div><strong>Horário das Aulas:</strong><br>Das ${oferta.inicio_hora_aula} às ${oferta.fim_hora_aula || 'a definir'}</div>
+                </div>
+                ` : ''}
                 <div class="info-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <div><strong>Local:</strong><br>${oferta.local || 'Não informado'}</div>

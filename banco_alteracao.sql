@@ -24,3 +24,9 @@ ADD CONSTRAINT `fk_alunos_usuarios`
   ON DELETE SET NULL  -- Se um usuário for deletado, o vínculo no aluno se torna nulo.
   ON UPDATE CASCADE;  -- Se o ID do usuário for alterado, o vínculo no aluno é atualizado.
 
+-- Passo 4: Adicionar campos de data e hora das aulas na tabela 'oferta'.
+ALTER TABLE `oferta`
+ADD COLUMN `inicio_aulas` DATE NULL DEFAULT NULL AFTER `carga_horaria`,
+ADD COLUMN `fim_aulas` DATE NULL DEFAULT NULL AFTER `inicio_aulas`,
+ADD COLUMN `inicio_hora_aula` TIME NULL DEFAULT NULL AFTER `fim_aulas`,
+ADD COLUMN `fim_hora_aula` TIME NULL DEFAULT NULL AFTER `inicio_hora_aula`;

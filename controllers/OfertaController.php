@@ -58,6 +58,12 @@ class OfertaController {
         $oferta->setModalidade(htmlspecialchars($_POST['modalidade']));
         $oferta->setCargaHoraria(htmlspecialchars($_POST['carga_horaria']));
 
+        // Processa os campos de data e hora das aulas, permitindo valores nulos
+        $oferta->setInicioAulas(!empty($_POST['inicio_aulas']) ? htmlspecialchars($_POST['inicio_aulas']) : null);
+        $oferta->setFimAulas(!empty($_POST['fim_aulas']) ? htmlspecialchars($_POST['fim_aulas']) : null);
+        $oferta->setInicioHoraAula(!empty($_POST['inicio_hora_aula']) ? htmlspecialchars($_POST['inicio_hora_aula']) : null);
+        $oferta->setFimHoraAula(!empty($_POST['fim_hora_aula']) ? htmlspecialchars($_POST['fim_hora_aula']) : null);
+
         try {
             if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
                 $foto_path = 'uploads/' . uniqid() . '-' . basename($_FILES['foto']['name']);

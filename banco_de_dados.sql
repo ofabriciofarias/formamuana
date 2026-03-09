@@ -68,6 +68,10 @@ CREATE TABLE IF NOT EXISTS `forma_muana`.`oferta` (
   `publico_alvo` VARCHAR(100) NULL,
   `modalidade` VARCHAR(45) NULL, -- Ex: Presencial, EAD, Híbrido
   `carga_horaria` INT NULL,
+  `inicio_aulas` DATE NULL,
+  `fim_aulas` DATE NULL,
+  `inicio_hora_aula` TIME NULL,
+  `fim_hora_aula` TIME NULL,
   `upload_relatorio` VARCHAR(255) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_oferta_usuarios1_idx` (`usuarios_id` ASC),

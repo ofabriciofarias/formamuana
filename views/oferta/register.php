@@ -78,12 +78,53 @@ unset($_SESSION['errors'], $_SESSION['old_data']);
             <input type="number" name="carga_horaria" id="carga_horaria" class="form-control" required value="<?= htmlspecialchars($old_data['carga_horaria'] ?? '') ?>">
         </div>
         <div class="form-group">
+            <label for="inicio_aulas">Início das Aulas:</label>
+            <input type="date" name="inicio_aulas" id="inicio_aulas" class="form-control" value="<?= htmlspecialchars($old_data['inicio_aulas'] ?? '') ?>">
+        </div>
+        <div class="form-group">
+            <label for="fim_aulas">Fim das Aulas:</label>
+            <input type="date" name="fim_aulas" id="fim_aulas" class="form-control" value="<?= htmlspecialchars($old_data['fim_aulas'] ?? '') ?>">
+        </div>
+        <div class="form-group">
+            <label for="inicio_hora_aula">Horário de Início da Aula:</label>
+            <input type="time" name="inicio_hora_aula" id="inicio_hora_aula" class="form-control" value="<?= htmlspecialchars($old_data['inicio_hora_aula'] ?? '') ?>">
+        </div>
+        <div class="form-group">
+            <label for="fim_hora_aula">Horário de Fim da Aula:</label>
+            <input type="time" name="fim_hora_aula" id="fim_hora_aula" class="form-control" value="<?= htmlspecialchars($old_data['fim_hora_aula'] ?? '') ?>">
+        </div>
+        <div class="form-group">
             <label for="upload_relatorio">Relatório:</label>
             <input type="file" name="upload_relatorio" id="upload_relatorio" class="form-control">
         </div>
         <button type="submit" class="btn btn-primary">Cadastrar</button>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action="index.php?action=store-oferta"]');
+    const inicioAulas = document.getElementById('inicio_aulas');
+    const fimAulas = document.getElementById('fim_aulas');
+    const inicioHora = document.getElementById('inicio_hora_aula');
+    const fimHora = document.getElementById('fim_hora_aula');
+
+    form.addEventListener('submit', function(event) {
+        // Validar datas: A data de fim deve ser maior que a de início
+        if (inicioAulas.value && fimAulas.value && fimAulas.value <= inicioAulas.value) {
+            alert('A data de fim das aulas deve ser posterior à data de início.');
+            event.preventDefault(); // Impede o envio do formulário
+            return;
+        }
+
+        // Validar horários: O horário de fim deve ser maior que o de início
+        if (inicioHora.value && fimHora.value && fimHora.value <= inicioHora.value) {
+            alert('O horário de fim da aula deve ser posterior ao horário de início.');
+            event.preventDefault(); // Impede o envio do formulário
+        }
+    });
+});
+</script>
 
 <?php
 require_once 'views/layouts/admin_footer.php';
