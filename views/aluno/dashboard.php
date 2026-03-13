@@ -128,7 +128,11 @@ require_once __DIR__ . '/../../core/helpers.php';
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
-                                                <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                <?php if (isset($ofertasInscritasIds) && in_array($oferta->getId(), $ofertasInscritasIds)): ?>
+                                                    <span style="color: var(--secondary-color); font-weight: bold;">Inscrito como Sucesso</span>
+                                                <?php else: ?>
+                                                    <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                             <?php endif; ?>
@@ -652,6 +656,21 @@ require_once __DIR__ . '/../../core/helpers.php';
             toggleVisibility(document.getElementById('possui_deficiencia'), document.getElementById('tipo_deficiencia_group'), 'Sim');
             toggleVisibility(document.getElementById('possui_filhos'), document.getElementById('quantidade_filhos_group'), 'Sim');
             toggleVisibility(document.getElementById('beneficiario_programa_social'), document.getElementById('nome_programa_social_group'), 'Sim');
+
+            // Adiciona lógica para zerar a quantidade de filhos no modal de perfil
+            const possuiFilhosSelect = document.getElementById('possui_filhos');
+            if (possuiFilhosSelect) {
+                const quantidadeFilhosInput = document.getElementById('quantidade_filhos');
+
+                const setFilhosValue = () => {
+                    if (possuiFilhosSelect.value === 'Nao') {
+                        quantidadeFilhosInput.value = 0;
+                    }
+                };
+
+                possuiFilhosSelect.addEventListener('change', setFilhosValue);
+                setFilhosValue(); // Garante o valor correto no carregamento
+            }
 
             // Lógica para campos condicionais do formulário de inscrição
             const exerceAtividadeSelect = document.getElementById('exerce_atividade_remunerada_modal');

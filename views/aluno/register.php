@@ -259,5 +259,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var beneficiarioSelect = document.getElementById('beneficiario_programa_social');
     var nomeProgramaGroup = document.getElementById('nome_programa_social_group');
     toggleVisibility(beneficiarioSelect, nomeProgramaGroup, 'Sim');
+
+    // Adiciona lógica para zerar a quantidade de filhos
+    if (possuiFilhosSelect) {
+        const quantidadeFilhosInput = document.getElementById('quantidade_filhos');
+
+        const setFilhosValue = () => {
+            if (possuiFilhosSelect.value === 'Nao') {
+                quantidadeFilhosInput.value = 0;
+            }
+        };
+
+        possuiFilhosSelect.addEventListener('change', setFilhosValue);
+        setFilhosValue(); // Executa ao carregar a página
+    }
 });
 </script>

@@ -110,6 +110,11 @@ class AlunoController {
              exit;
         }
 
+        // Garante que a quantidade de filhos seja 0 se o usuário marcar "Não"
+        if (isset($_POST['possui_filhos']) && $_POST['possui_filhos'] === 'Nao') {
+            $_POST['quantidade_filhos'] = 0;
+        }
+
         // Mapeia todos os campos do formulário para variáveis
         $fields = [
             'nome', 'whatsapp', 'telefone', 'email', 'data_nascimento', 'sexo', 
@@ -187,6 +192,11 @@ class AlunoController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !is_aluno()) {
             header('Location: index.php');
             exit;
+        }
+
+        // Garante que a quantidade de filhos seja 0 se o usuário marcar "Não"
+        if (isset($_POST['possui_filhos']) && $_POST['possui_filhos'] === 'Nao') {
+            $_POST['quantidade_filhos'] = 0;
         }
 
         $fields = [
