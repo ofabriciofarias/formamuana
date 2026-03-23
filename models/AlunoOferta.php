@@ -229,7 +229,9 @@ class AlunoOferta {
     public static function getRelatorio($ofertaId = null, $buscaNome = null) {
         $db = Database::getInstance()->getConnection();
         
-        $sql = "SELECT aho.*, a.nome as nome_aluno, a.email, a.whatsapp, o.nome as nome_oferta 
+        // MODIFICADO: Seleciona todos os campos de 'alunos' (a.*) e 'oferta' (o.numero_vagas)
+        // para permitir o cálculo de fitness e determinar o número de vagas.
+        $sql = "SELECT aho.*, a.*, o.nome as nome_oferta, o.numero_vagas, o.final_insc AS data_fim_inscricao
                 FROM alunos_has_oferta aho
                 JOIN alunos a ON aho.alunos_id = a.id
                 JOIN oferta o ON aho.oferta_id = o.id

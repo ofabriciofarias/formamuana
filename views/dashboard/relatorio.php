@@ -67,25 +67,30 @@
                 <tbody>
                     <?php foreach ($inscritos as $inscrito): ?>
                         <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['nome_aluno']) ?></td>
+                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['nome']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['nome_oferta']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['email']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['whatsapp']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['renda_familiar']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['turno_preferencia']) ?></td>
                             <td style="padding: 12px;">
-                                <form action="index.php?action=update_status" method="POST">
+                                <form action="index.php?action=updateStatus" method="POST">
                                     <input type="hidden" name="aluno_id" value="<?= $inscrito['alunos_id'] ?>">
                                     <input type="hidden" name="oferta_id" value="<?= $inscrito['oferta_id'] ?>">
                                     <input type="hidden" name="current_oferta_id" value="<?= $_GET['oferta_id'] ?? '' ?>">
                                     <input type="hidden" name="current_busca" value="<?= $_GET['busca'] ?? '' ?>">
-                                    
+                                    <?php
+                                        $status = strtolower($inscrito['status_selecao']);
+                                        $bgColor = '#fff3cd'; // Cor padrão para Pendente/Lista de Espera
+                                        if ($status == 'aprovado') $bgColor = '#d4edda'; // Verde para Aprovado
+                                        else if ($status == 'reprovado' || $status == 'cancelado') $bgColor = '#f8d7da'; // Vermelho para Reprovado/Cancelado
+                                    ?>
                                     <select name="status_selecao" onchange="this.form.submit()" 
-                                            style="padding: 5px; border-radius: 4px; width: 100%; 
-                                            background-color: <?= $inscrito['status_selecao'] == 'aprovado' ? '#d4edda' : ($inscrito['status_selecao'] == 'cancelado' ? '#f8d7da' : '#fff3cd') ?>;">
+                                            style="padding: 5px; border-radius: 4px; width: 100%; background-color: <?= $bgColor ?>;">
                                         <option value="pendente" <?= $inscrito['status_selecao'] == 'pendente' ? 'selected' : '' ?>>Pendente</option>
-                                        <option value="aprovado" <?= $inscrito['status_selecao'] == 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
-                                        <option value="cancelado" <?= $inscrito['status_selecao'] == 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                                        <option value="Aprovado" <?= $inscrito['status_selecao'] == 'Aprovado' || $inscrito['status_selecao'] == 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
+                                        <option value="Lista de Espera" <?= $inscrito['status_selecao'] == 'Lista de Espera' ? 'selected' : '' ?>>Lista de Espera</option>
+                                        <option value="Reprovado" <?= $inscrito['status_selecao'] == 'Reprovado' || $inscrito['status_selecao'] == 'cancelado' ? 'selected' : '' ?>>Reprovado</option>
                                     </select>
                                 </form>
                             </td>

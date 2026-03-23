@@ -33,11 +33,11 @@ if (!is_admin()) {
                     <a href="index.php?action=register">Usuário</a>
                 </div>
             </div>
-        <nav class="nav-links">
             <div class="dropdown">
                 <a href="#">Ações<i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
+                    <a href="index.php?action=comunicacao">Comunicação</a>
                 </div>
             </div>
             <div class="dropdown">

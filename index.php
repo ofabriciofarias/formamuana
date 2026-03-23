@@ -1,9 +1,13 @@
 <?php
 // Main Front Controller
 
+// 0. Carregar o autoloader do Composer
+require_once __DIR__ . '/vendor/autoload.php';
+
 // 1. Carregar arquivos de configuração e núcleo
 require_once __DIR__ . '/config/session.php';
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/mail.php';
 require_once __DIR__ . '/core/Database.php';
 require_once __DIR__ . '/core/helpers.php';
 
@@ -87,6 +91,18 @@ switch ($action) {
 
     case 'updateStatusAjax':
         $dashboardController->updateStatusAjax();
+        break;
+
+    case 'run_ga_selection':
+        $dashboardController->runGASelection();
+        break;
+
+    case 'send_email_notification':
+        $dashboardController->sendEmailNotification();
+        break;
+
+    case 'comunicacao':
+        $dashboardController->comunicacao();
         break;
 
     case 'registro-sucesso':
