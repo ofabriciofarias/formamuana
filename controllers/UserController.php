@@ -222,9 +222,9 @@ class UserController {
                 echo "<div><h2>Usuário cadastrado com sucesso!</h2><p>Todos os dados e documentos foram salvos.</p><a href='index.php?action=register' class='btn'>Cadastrar Outro Usuário</a></div>";
                 require_once __DIR__ . '/../views/layouts/admin_footer.php';
             } else {
-                 require_once __DIR__ . '/../views/layouts/header.php';
+                 require_once __DIR__ . '/../views/layouts/public_header.php';
                  echo "<div class='container' style='padding-top: 100px; text-align: center;'><h2>Cadastro realizado com sucesso!</h2><p>Você já pode fazer o login.</p><a href='index.php' class='btn'>Voltar para a página inicial</a></div>";
-                 require_once __DIR__ . '/../views/layouts/footer.php';
+                 require_once __DIR__ . '/../views/layouts/public_footer.php';
             }
 
         } catch (PDOException $e) {
@@ -248,5 +248,94 @@ class UserController {
             }
         }
         return null;
+    }
+
+    public function get_profile() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Usuário não logado.']);
+            exit;
+        }
+
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id, nome, login, email, telefone FROM usuarios WHERE id = :id");
+            $stmt->bindParam(':id', $_SESSION['user_id']);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                echo json_encode(['success' => true, 'data' => $user]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado.']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro no banco de dados.']);
+        }
+        exit;
+    }
+
+    public function update_profile() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Acesso negado.']);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método inválido.']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $nome = $_POST['nome'] ?? '';
+        $login = $_POST['login'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $telefone = $_POST['telefone'] ?? '';
+        $senha = $_POST['senha'] ?? '';
+
+        if (empty($nome) || empty($login) || empty($email)) {
+            echo json_encode(['success' => false, 'message' => 'Nome, login e email são obrigatórios.']);
+            exit;
+        }
+        
+        try {
+            $db = Database::getInstance()->getConnection();
+            
+            if (!empty($senha)) {
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+                $stmt = $db->prepare("UPDATE usuarios SET nome = :nome, login = :login, email = :email, telefone = :telefone, senha = :senha WHERE id = :id");
+                $stmt->bindParam(':senha', $senhaHash);
+            } else {
+                $stmt = $db->prepare("UPDATE usuarios SET nome = :nome, login = :login, email = :email, telefone = :telefone WHERE id = :id");
+            }
+
+            $stmt->bindParam(':nome', $nome);
+            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':telefone', $telefone);
+            $stmt->bindParam(':id', $userId);
+
+            if ($stmt->execute()) {
+                $_SESSION['user_name'] = $nome; // Atualiza o nome na sessão
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Não foi possível atualizar o perfil.']);
+            }
+        } catch (PDOException $e) {
+            // Tratamento de erro de duplicidade de login/email
+            if ($e->getCode() == 23000) { // Código de erro para violação de constraint de unicidade
+                echo json_encode(['success' => false, 'message' => 'Login ou email já cadastrado.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erro de banco de dados: ' . $e->getMessage()]);
+            }
+        }
+        exit;
     }
 }

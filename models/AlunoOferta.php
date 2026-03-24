@@ -272,6 +272,44 @@ class AlunoOferta {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Busca todas as inscrições de um aluno, incluindo detalhes da oferta.
+     * @param int $alunoId ID do aluno.
+     * @return array Lista de inscrições com dados da oferta.
+     */
+    public static function findInscricoesByAlunoId($alunoId) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT 
+                    o.id,
+                    o.nome,
+                    o.descricao,
+                    o.eixo_tecnologico,
+                    o.foto,
+                    o.inicio_insc,
+                    o.final_insc,
+                    o.status_oferta,
+                    o.local,
+                    o.turno,
+                    o.numero_vagas,
+                    o.publico_alvo,
+                    o.modalidade,
+                    o.carga_horaria,
+                    o.inicio_aulas,
+                    o.fim_aulas,
+                    o.inicio_hora_aula,
+                    o.fim_hora_aula,
+                    aho.status_selecao,
+                    aho.data_insc
+                FROM alunos_has_oferta AS aho
+                JOIN oferta AS o ON aho.oferta_id = o.id
+                WHERE aho.alunos_id = :alunoId
+                ORDER BY o.nome ASC";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':alunoId' => $alunoId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public static function updateStatus($alunoId, $ofertaId, $status) {
         $db = Database::getInstance()->getConnection();
         $sql = "UPDATE alunos_has_oferta SET status_selecao = :status 

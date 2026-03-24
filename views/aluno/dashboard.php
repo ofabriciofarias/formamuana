@@ -1,45 +1,5 @@
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-require_once __DIR__ . '/../../core/helpers.php';
-?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forma Muana - Painel do Aluno</title>
-    <link rel="stylesheet" href="views/assets/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-
-<header>
-    <div class="container nav-flex">
-        <div class="logo">
-            <a href="index.php#inicio"><i class="fas fa-graduation-cap"></i> Forma Muana</a>
-        </div>
-        
-        <nav class="nav-links" id="nav-links">
-            <a href="index.php#inicio">Início</a>
-            <a href="#ofertas">Vagas</a>
-            <a href="#cursos">Cursos</a>
-            <a href="#equipe">Realização</a>
-
-            <a href="#" onclick="openModal('profileModal'); return false;" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
-            <a href="index.php?action=logout" class="btn" style="background-color: #c0392b; color: white; padding: 8px 20px;">Sair</a>
-        </nav>
-
-        <div class="mobile-toggle" id="mobile-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </div>
-</header>
-
     <!-- Hero Slider (Simulando a Home) -->
-    <section class="hero-slider">
+    <section id = "inicio" class="hero-slider">
         <div class="slide active" style="background-image: url('views/assets/img/certificacao.jpeg'); background-color: #222;">
             <div class="container hero-content">
                 <h1>Bem-vindo ao Forma Muana</h1>
@@ -59,17 +19,6 @@ require_once __DIR__ . '/../../core/helpers.php';
                 Nossos cursos são ministrados por especialistas dedicados a proporcionar a melhor formação para você.
             </p>
             
-            <?php
-            // Ensure we have the model and helpers
-            require_once 'models/Oferta.php';
-            require_once 'core/helpers.php';
-            
-            // Fetch offers if not already passed by controller
-            if (!isset($ofertas)) {
-                $ofertas = Oferta::findAll();
-            }
-            ?>
-
             <div class="table-responsive">
                 <table class="responsive-table">
                     <thead>
@@ -148,6 +97,83 @@ require_once __DIR__ . '/../../core/helpers.php';
                     </tbody>
                 </table>
             </div>
+        </div>
+    </section>
+
+
+    <!-- Seção de Minhas Inscrições -->
+    <section id="minhas_inscricoes" class="section-padding" style="background-color: var(--bg-light);">
+        <div class="container">
+            <h2 class="section-title">Minhas Inscrições</h2>
+            
+            <div class="alert-info" style="margin-bottom: 30px; text-align: center;">
+                <p style="margin: 0;">Acompanhe o status das suas inscrições. As inscrições são gratuitas e você pode se inscrever em quantas vagas forem de seu interesse!</p>
+            </div>
+
+            <?php if (!empty($minhasInscricoes)): ?>
+                <div class="table-responsive">
+                    <table class="responsive-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Local</th>
+                                <th>Vagas</th>
+                                <th>Carga Horária</th>
+                                <th>Público Alvo</th>
+                                <th>Inscrições Até</th>
+                                <th>Detalhes</th>
+                                <th>Status da Seleção</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($minhasInscricoes as $inscricao): ?>
+                                <?php
+                                    // Preparar dados para o modal de detalhes
+                                    $detalhesInscricao = [
+                                        'nome' => $inscricao['nome'],
+                                        'descricao' => $inscricao['descricao'],
+                                        'eixo_tecnologico' => $inscricao['eixo_tecnologico'],
+                                        'foto' => $inscricao['foto'],
+                                        'inicio_insc' => date('d/m/Y', strtotime($inscricao['inicio_insc'])),
+                                        'final_insc' => date('d/m/Y', strtotime($inscricao['final_insc'])),
+                                        'local' => $inscricao['local'],
+                                        'turno' => $inscricao['turno'],
+                                        'numero_vagas' => $inscricao['numero_vagas'],
+                                        'publico_alvo' => $inscricao['publico_alvo'],
+                                        'modalidade' => $inscricao['modalidade'],
+                                        'carga_horaria' => $inscricao['carga_horaria'],
+                                        'inicio_aulas' => $inscricao['inicio_aulas'] ? date('d/m/Y', strtotime($inscricao['inicio_aulas'])) : null,
+                                        'fim_aulas' => $inscricao['fim_aulas'] ? date('d/m/Y', strtotime($inscricao['fim_aulas'])) : null,
+                                        'inicio_hora_aula' => $inscricao['inicio_hora_aula'] ? date('H:i', strtotime($inscricao['inicio_hora_aula'])) : null,
+                                        'fim_hora_aula' => $inscricao['fim_hora_aula'] ? date('H:i', strtotime($inscricao['fim_hora_aula'])) : null,
+                                    ];
+                                ?>
+                                <tr>
+                                    <td data-label="Nome"><?= htmlspecialchars($inscricao['nome']) ?></td>
+                                    <td data-label="Descrição"><?= htmlspecialchars(substr($inscricao['descricao'], 0, 100)) . '...' ?></td>
+                                    <td data-label="Local"><?= htmlspecialchars($inscricao['local']) ?></td>
+                                    <td data-label="Vagas"><?= htmlspecialchars($inscricao['numero_vagas']) ?></td>
+                                    <td data-label="Carga Horária"><?= htmlspecialchars($inscricao['carga_horaria']) ?>h</td>
+                                    <td data-label="Público Alvo"><?= htmlspecialchars($inscricao['publico_alvo']) ?></td>
+                                    <td data-label="Inscrições Até"><?= htmlspecialchars(date('d/m/Y', strtotime($inscricao['final_insc']))) ?></td>
+                                    <td data-label="Detalhes" style="text-align: center;">
+                                        <button onclick='openDetalhesOfertaModal(<?= json_encode($detalhesInscricao, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)' class="btn-view-details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                    <td data-label="Status da Seleção"><strong><?= htmlspecialchars(ucfirst($inscricao['status_selecao'])) ?></strong></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div style="background: #eaf6ff; border-left: 5px solid #63a3d4; padding: 20px; margin-top: 20px; text-align: center; border-radius: 5px;">
+                    <p style="font-size: 1.1rem; margin:0;">Você ainda não se inscreveu em nenhuma vaga.</p>
+                    <a href="#ofertas" class="btn btn-primary" style="margin-top: 15px;">Ver Vagas Disponíveis</a>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -292,67 +318,6 @@ require_once __DIR__ . '/../../core/helpers.php';
         </div>
     </section>
                     -->
-
-    <!-- Modal de Perfil / Complemento de Cadastro -->
-    <div id="profileModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <span class="close-modal" onclick="closeModal('profileModal')">&times;</span>
-            <?php
-            $isEditing = isset($aluno['id']) && $aluno['id'];
-            $formAction = $isEditing ? 'index.php?action=update_aluno' : 'index.php?action=register_aluno';
-            $modalTitle = $isEditing ? 'Meu Perfil' : 'Completar Cadastro';
-            $btnText = $isEditing ? 'Salvar Alterações' : 'Concluir Cadastro';
-            ?>
-            <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> <?= $modalTitle ?></h2>
-            </div>
-            <div class="modal-body modal-body-scrollable">
-                <form action="<?= htmlspecialchars($formAction) ?>" method="POST">
-                    <?php // O conteúdo do formulário de views/aluno/register.php está embutido aqui ?>
-                    <fieldset>
-                        <legend>Dados Pessoais</legend>
-                        <div class="form-group"><label for="nome">Nome Completo</label><input type="text" id="nome" name="nome" value="<?= htmlspecialchars($aluno['nome'] ?? '') ?>" required class="form-control" readonly style="background-color: #e9ecef;"></div>
-                        <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" value="<?= htmlspecialchars($aluno['email'] ?? '') ?>" required class="form-control" readonly style="background-color: #e9ecef;"></div>
-                        <div class="form-group"><label for="whatsapp">WhatsApp</label><input type="text" id="whatsapp" name="whatsapp" value="<?= htmlspecialchars($aluno['whatsapp'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="telefone">Outro Telefone (Opcional)</label><input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($aluno['telefone'] ?? '') ?>" class="form-control"></div>
-                        <div class="form-group"><label for="data_nascimento">Data de Nascimento</label><input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($aluno['data_nascimento'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="estado_civil">Estado Civil</label><select id="estado_civil" name="estado_civil" required class="form-control"><option value="">Selecione...</option><option value="Solteiro(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Solteiro(a)') ? 'selected' : '' ?>>Solteiro(a)</option><option value="Casado(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Casado(a)') ? 'selected' : '' ?>>Casado(a)</option><option value="Divorciado(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Divorciado(a)') ? 'selected' : '' ?>>Divorciado(a)</option><option value="Viúvo(a)" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Viúvo(a)') ? 'selected' : '' ?>>Viúvo(a)</option><option value="União Estável" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'União Estável') ? 'selected' : '' ?>>União Estável</option><option value="Não informado" <?= (isset($aluno['estado_civil']) && $aluno['estado_civil'] == 'Não informado') ? 'selected' : '' ?>>Não informado</option></select></div>
-                    </fieldset>
-                    <fieldset><legend>Identidade e Gênero</legend>
-                        <div class="form-group"><label for="sexo">Sexo</label><select id="sexo" name="sexo" required class="form-control"><option value="">Selecione...</option><option value="Masculino" <?= (isset($aluno['sexo']) && $aluno['sexo'] == 'Masculino') ? 'selected' : '' ?>>Masculino</option><option value="Feminino" <?= (isset($aluno['sexo']) && $aluno['sexo'] == 'Feminino') ? 'selected' : '' ?>>Feminino</option><option value="Não declarado" <?= (isset($aluno['sexo']) && $aluno['sexo'] == 'Não declarado') ? 'selected' : '' ?>>Não declarado</option></select></div>
-                        <div class="form-group"><label for="identidade_genero">Identidade de Gênero</label><select id="identidade_genero" name="identidade_genero" required class="form-control"><option value="">Selecione...</option><option value="Homem Cis" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Homem Cis') ? 'selected' : '' ?>>Homem Cis</option><option value="Mulher Cis" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Mulher Cis') ? 'selected' : '' ?>>Mulher Cis</option><option value="Homem Trans" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Homem Trans') ? 'selected' : '' ?>>Homem Trans</option><option value="Mulher Trans" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Mulher Trans') ? 'selected' : '' ?>>Mulher Trans</option><option value="Não-binário" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Não-binário') ? 'selected' : '' ?>>Não-binário</option><option value="Outro" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Outro') ? 'selected' : '' ?>>Outro</option><option value="Não informado" <?= (isset($aluno['identidade_genero']) && $aluno['identidade_genero'] == 'Não informado') ? 'selected' : '' ?>>Não informado</option></select></div>
-                        <div class="form-group"><label for="possui_nome_social">Possui Nome Social?</label><select id="possui_nome_social" name="possui_nome_social" required class="form-control"><option value="Nao" <?= (isset($aluno['possui_nome_social']) && $aluno['possui_nome_social'] == 'Nao') ? 'selected' : '' ?>>Não</option><option value="Sim" <?= (isset($aluno['possui_nome_social']) && $aluno['possui_nome_social'] == 'Sim') ? 'selected' : '' ?>>Sim</option></select></div>
-                        <div class="form-group" id="nome_social_group"><label for="nome_social">Nome Social</label><input type="text" id="nome_social" name="nome_social" value="<?= htmlspecialchars($aluno['nome_social'] ?? '') ?>" class="form-control"></div>
-                    </fieldset>
-                    <fieldset><legend>Questões Sociais e Étnicas</legend>
-                        <div class="form-group"><label for="cor_raca">Cor/Raça</label><select id="cor_raca" name="cor_raca" required class="form-control"><option value="">Selecione...</option><option value="Branca" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Branca') ? 'selected' : '' ?>>Branca</option><option value="Preta" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Preta') ? 'selected' : '' ?>>Preta</option><option value="Parda" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Parda') ? 'selected' : '' ?>>Parda</option><option value="Amarela" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Amarela') ? 'selected' : '' ?>>Amarela</option><option value="Indígena" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Indígena') ? 'selected' : '' ?>>Indígena</option><option value="Não declarado" <?= (isset($aluno['cor_raca']) && $aluno['cor_raca'] == 'Não declarado') ? 'selected' : '' ?>>Não declarado</option></select></div>
-                        <div class="form-group"><label for="possui_deficiencia">Possui Deficiência?</label><select id="possui_deficiencia" name="possui_deficiencia" required class="form-control"><option value="Nao" <?= (isset($aluno['possui_deficiencia']) && $aluno['possui_deficiencia'] == 'Nao') ? 'selected' : '' ?>>Não</option><option value="Sim" <?= (isset($aluno['possui_deficiencia']) && $aluno['possui_deficiencia'] == 'Sim') ? 'selected' : '' ?>>Sim</option></select></div>
-                        <div class="form-group" id="tipo_deficiencia_group"><label for="tipo_deficiencia">Tipo da Deficiência</label><input type="text" id="tipo_deficiencia" name="tipo_deficiencia" value="<?= htmlspecialchars($aluno['tipo_deficiencia'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="comunidade_tradicional">Pertence a Comunidade Tradicional?</label><select id="comunidade_tradicional" name="comunidade_tradicional" required class="form-control"><option value="">Selecione...</option><option value="Nenhuma" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Nenhuma') ? 'selected' : '' ?>>Nenhuma</option><option value="Quilombola" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Quilombola') ? 'selected' : '' ?>>Quilombola</option><option value="Indígena" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Indígena') ? 'selected' : '' ?>>Indígena</option><option value="Ribeirinha" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Ribeirinha') ? 'selected' : '' ?>>Ribeirinha</option><option value="Outra" <?= (isset($aluno['comunidade_tradicional']) && $aluno['comunidade_tradicional'] == 'Outra') ? 'selected' : '' ?>>Outra</option></select></div>
-                    </fieldset>
-                    <fieldset><legend>Residência</legend>
-                        <div class="form-group"><label for="zona_residencia">Zona de Residência</label><select id="zona_residencia" name="zona_residencia" required class="form-control"><option value="">Selecione...</option><option value="Urbana" <?= (isset($aluno['zona_residencia']) && $aluno['zona_residencia'] == 'Urbana') ? 'selected' : '' ?>>Urbana</option><option value="Rural" <?= (isset($aluno['zona_residencia']) && $aluno['zona_residencia'] == 'Rural') ? 'selected' : '' ?>>Rural</option></select></div>
-                        <div class="form-group"><label for="cidade_origem">Cidade de Origem</label><input type="text" id="cidade_origem" name="cidade_origem" value="<?= htmlspecialchars($aluno['cidade_origem'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="cidade_atual">Cidade Atual</label><input type="text" id="cidade_atual" name="cidade_atual" value="<?= htmlspecialchars($aluno['cidade_atual'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="bairro_comunidade">Bairro/Comunidade</label><input type="text" id="bairro_comunidade" name="bairro_comunidade" value="<?= htmlspecialchars($aluno['bairro_comunidade'] ?? '') ?>" required class="form-control"></div>
-                    </fieldset>
-                    <fieldset><legend>Família e Escolaridade</legend>
-                        <div class="form-group"><label for="possui_filhos">Possui Filhos?</label><select id="possui_filhos" name="possui_filhos" required class="form-control"><option value="Nao" <?= (isset($aluno['possui_filhos']) && $aluno['possui_filhos'] == 'Nao') ? 'selected' : '' ?>>Não</option><option value="Sim" <?= (isset($aluno['possui_filhos']) && $aluno['possui_filhos'] == 'Sim') ? 'selected' : '' ?>>Sim</option></select></div>
-                        <div class="form-group" id="quantidade_filhos_group"><label for="quantidade_filhos">Quantidade de Filhos</label><input type="number" id="quantidade_filhos" name="quantidade_filhos" min="0" value="<?= htmlspecialchars($aluno['quantidade_filhos'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="nivel_escolaridade">Nível de Escolaridade</label><select id="nivel_escolaridade" name="nivel_escolaridade" required class="form-control"><option value="">Selecione...</option><option value="Ensino Fundamental Incompleto" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Fundamental Incompleto') ? 'selected' : '' ?>>Ensino Fundamental Incompleto</option><option value="Ensino Fundamental Completo" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Fundamental Completo') ? 'selected' : '' ?>>Ensino Fundamental Completo</option><option value="Ensino Médio Incompleto" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Médio Incompleto') ? 'selected' : '' ?>>Ensino Médio Incompleto</option><option value="Ensino Médio Completo" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Médio Completo') ? 'selected' : '' ?>>Ensino Médio Completo</option><option value="Ensino Superior Incompleto" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Superior Incompleto') ? 'selected' : '' ?>>Ensino Superior Incompleto</option><option value="Ensino Superior Completo" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Ensino Superior Completo') ? 'selected' : '' ?>>Ensino Superior Completo</option><option value="Pós-graduação" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Pós-graduação') ? 'selected' : '' ?>>Pós-graduação</option><option value="Não informado" <?= (isset($aluno['nivel_escolaridade']) && $aluno['nivel_escolaridade'] == 'Não informado') ? 'selected' : '' ?>>Não informado</option></select></div>
-                        <div class="form-group"><label for="tipo_escola_ensino_medio">Tipo de Escola no Ensino Médio</label><select id="tipo_escola_ensino_medio" name="tipo_escola_ensino_medio" required class="form-control"><option value="">Selecione...</option><option value="Pública" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Pública') ? 'selected' : '' ?>>Pública</option><option value="Particular" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Particular') ? 'selected' : '' ?>>Particular</option><option value="Bolsista em escola particular" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Bolsista em escola particular') ? 'selected' : '' ?>>Bolsista em escola particular</option><option value="Outro" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Outro') ? 'selected' : '' ?>>Outro</option><option value="Não se aplica" <?= (isset($aluno['tipo_escola_ensino_medio']) && $aluno['tipo_escola_ensino_medio'] == 'Não se aplica') ? 'selected' : '' ?>>Não se aplica</option></select></div>
-                    </fieldset>
-                    <fieldset><legend>Informações Socioeconômicas</legend>
-                        <div class="form-group"><label for="beneficiario_programa_social">É beneficiário de programa social?</label><select id="beneficiario_programa_social" name="beneficiario_programa_social" required class="form-control"><option value="Nao" <?= (isset($aluno['beneficiario_programa_social']) && $aluno['beneficiario_programa_social'] == 'Nao') ? 'selected' : '' ?>>Não</option><option value="Sim" <?= (isset($aluno['beneficiario_programa_social']) && $aluno['beneficiario_programa_social'] == 'Sim') ? 'selected' : '' ?>>Sim</option></select></div>
-                        <div class="form-group" id="nome_programa_social_group"><label for="nome_programa_social">Qual programa?</label><input type="text" id="nome_programa_social" name="nome_programa_social" value="<?= htmlspecialchars($aluno['nome_programa_social'] ?? '') ?>" required class="form-control"></div>
-                        <div class="form-group"><label for="acesso_internet">Tipo de Acesso à Internet</label><select id="acesso_internet" name="acesso_internet" required class="form-control"><option value="">Selecione...</option><option value="Banda Larga Residencial" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Banda Larga Residencial') ? 'selected' : '' ?>>Banda Larga Residencial</option><option value="Dados Móveis" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Dados Móveis') ? 'selected' : '' ?>>Dados Móveis</option><option value="Internet via Rádio" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Internet via Rádio') ? 'selected' : '' ?>>Internet via Rádio</option><option value="Não possui acesso" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Não possui acesso') ? 'selected' : '' ?>>Não possui acesso</option><option value="Outro" <?= (isset($aluno['acesso_internet']) && $aluno['acesso_internet'] == 'Outro') ? 'selected' : '' ?>>Outro</option></select></div>
-                        <div class="form-group"><label for="dispositivo_principal">Dispositivo Principal de Acesso</label><select id="dispositivo_principal" name="dispositivo_principal" required class="form-control"><option value="">Selecione...</option><option value="Celular" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Celular') ? 'selected' : '' ?>>Celular</option><option value="Computador (Desktop)" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Computador (Desktop)') ? 'selected' : '' ?>>Computador (Desktop)</option><option value="Notebook" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Notebook') ? 'selected' : '' ?>>Notebook</option><option value="Tablet" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Tablet') ? 'selected' : '' ?>>Tablet</option><option value="Outro" <?= (isset($aluno['dispositivo_principal']) && $aluno['dispositivo_principal'] == 'Outro') ? 'selected' : '' ?>>Outro</option></select></div>
-                    </fieldset>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2rem; margin-top: 20px;"><?= $btnText ?></button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal de Inscrição na Oferta -->
     <div id="inscricaoOfertaModal" class="modal">
@@ -506,8 +471,6 @@ require_once __DIR__ . '/../../core/helpers.php';
         <i class="fab fa-whatsapp"></i>
     </a>
     
-    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
-
     <script>
         // --- Lógica do Modal ---
         let openModals = [];
@@ -694,25 +657,5 @@ require_once __DIR__ . '/../../core/helpers.php';
                 toggleInscricaoFields(); // Executa ao carregar
                 exerceAtividadeSelect.addEventListener('change', toggleInscricaoFields);
             }
-        });
-
-        // --- Lógica do Menu Mobile ---
-        const mobileToggle = document.getElementById('mobile-toggle');
-        const navLinks = document.getElementById('nav-links');
-
-        if (mobileToggle) {
-            mobileToggle.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-                const icon = mobileToggle.querySelector('i');
-                if(navLinks.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-        }
+        });       
     </script>
-</body>
-</html>

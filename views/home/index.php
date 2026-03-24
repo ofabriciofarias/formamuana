@@ -8,7 +8,7 @@
         <div class="container hero-content">
             <div class="hero-text-wrap">
                 <h1>Qualifique seu futuro<br>com nossos cursos!</h1>
-                <p>Na <strong>Forma Muana</strong>, unimos tecnologia de ponta e ensino humanizado para impulsionar sua carreira.</p>
+                <p>No <strong>Forma Muaná</strong>, unimos tecnologia de ponta e ensino humanizado para impulsionar sua carreira.</p>
                 
                 <div class="hero-features">
                     <span class="hero-tag"><i class="fas fa-check-circle"></i> Cursos Práticos</span>
@@ -263,7 +263,7 @@
                     -->
     <footer>
         <div class="container">
-            <p>© <?= date('Y') ?> Forma Muana. Feito com <i class="fas fa-heart" style="color: #fab1a0;"></i> para o seu futuro.</p>
+            <p>© <?= date('Y') ?> Forma Muaná. Feito com <i class="fas fa-heart" style="color: #fab1a0;"></i> para o seu futuro.</p>
         </div>
     </footer>
 

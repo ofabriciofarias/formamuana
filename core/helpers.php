@@ -14,3 +14,7 @@ function is_professor() {
 function is_aluno() {
     return isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 3; // 3 = Aluno
 }
+
+function is_logged_in() {
+    return isset($_SESSION['user_id']);
+}

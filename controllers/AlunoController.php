@@ -46,15 +46,20 @@ class AlunoController {
         // Busca todas as ofertas disponíveis
         $ofertas = Oferta::findAll();
 
-        // Busca todas as inscrições do aluno
+        // Busca dados das inscrições do aluno
         $inscricoes = [];
+        $minhasInscricoes = [];
         if ($alunoId) {
             $inscricoes = AlunoOferta::findAllByAluno($alunoId);
+            // Busca inscrições com detalhes para a seção "Minhas Inscrições"
+            $minhasInscricoes = AlunoOferta::findInscricoesByAlunoId($alunoId);
         }
         $ofertasInscritasIds = array_column($inscricoes, 'oferta_id');
 
-        // Carrega a view do dashboard do aluno
+        // Carrega o layout e a view do dashboard do aluno
+        require_once __DIR__ . '/../views/layouts/aluno_header.php';
         require_once __DIR__ . '/../views/aluno/dashboard.php';
+        require_once __DIR__ . '/../views/layouts/footer.php';
     }
 
 
@@ -76,7 +81,7 @@ class AlunoController {
         if (is_admin()) {
             require_once __DIR__ . '/../views/layouts/admin_header.php';
         } else {
-            require_once __DIR__ . '/../views/layouts/header.php';
+            require_once __DIR__ . '/../views/layouts/aluno_header.php';
             echo '<div class="container" style="padding-top: 120px;">';
             if (isset($_GET['msg']) && $_GET['msg'] == 'complete_cadastro') {
                 echo '<div class="alert" style="background: #fff3cd; color: #856404; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ffeeba;">
@@ -163,7 +168,7 @@ class AlunoController {
                 require_once __DIR__ . '/../views/layouts/admin_header.php';
                 $redirectUrl = 'index.php?action=register';
             } else {
-                require_once __DIR__ . '/../views/layouts/header.php';
+                require_once __DIR__ . '/../views/layouts/aluno_header.php';
                 $redirectUrl = 'index.php?action=aluno_dashboard';
             }
 
@@ -178,8 +183,10 @@ class AlunoController {
                           window.location.href = '$redirectUrl';
                       }, 2000); 
                   </script>";
-            // Footer é opcional aqui pois vai redirecionar, mas mantemos a boa prática se necessário
 
+            if (!is_admin()) {
+                require_once __DIR__ . '/../views/layouts/footer.php';
+            }
         } catch (PDOException $e) {
             die("Erro ao cadastrar aluno: " . $e->getMessage());
         }

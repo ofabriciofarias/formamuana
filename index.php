@@ -105,6 +105,14 @@ switch ($action) {
         $dashboardController->comunicacao();
         break;
 
+    case 'get_profile':
+        $userController->get_profile();
+        break;
+
+    case 'update_profile':
+        $userController->update_profile();
+        break;
+
     case 'registro-sucesso':
         echo "Registro efetuado com sucesso!";
         echo '<a href="index.php?action=retistro.php">Voltar</a>';

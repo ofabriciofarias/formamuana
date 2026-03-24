@@ -21,7 +21,7 @@ if (!defined('BASE_URL')) define('BASE_URL', '/formamuana/');
     <header>
         <div class="container nav-flex">
             <div class="logo">
-                <a href="#"><i class="fas fa-graduation-cap"></i> Forma Muana</a>
+                <a href="#"><i class="fas fa-graduation-cap"></i> Forma Muaná</a>
             </div>
             
             <div class="mobile-toggle" id="mobile-toggle">
