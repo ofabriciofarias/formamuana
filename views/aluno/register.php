@@ -225,14 +225,14 @@ $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir C
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Helper function to toggle visibility
-    function toggleVisibility(selectElement, targetGroup, showValue) {
+    function toggleVisibility(selectElement, targetGroup, showValue, makeRequired = true) {
         if (!selectElement || !targetGroup) return;
         const input = targetGroup.querySelector('input, select, textarea');
 
         function checkVisibility() {
             const isVisible = selectElement.value === showValue;
             targetGroup.style.display = isVisible ? '' : 'none';
-            if (input) {
+            if (input && makeRequired) {
                 input.required = isVisible;
             }
         }
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Conditional visibility for social name
     var possuiNomeSocialSelect = document.getElementById('possui_nome_social');
     var nomeSocialGroup = document.getElementById('nome_social_group');
-    toggleVisibility(possuiNomeSocialSelect, nomeSocialGroup, 'Sim');
+    toggleVisibility(possuiNomeSocialSelect, nomeSocialGroup, 'Sim', false); // Nome Social é opcional
 
     // Conditional visibility for disability type
     var possuiDeficienciaSelect = document.getElementById('possui_deficiencia');

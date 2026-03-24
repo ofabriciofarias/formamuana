@@ -44,7 +44,7 @@
                                         'nome' => $oferta->getNome(),
                                         'descricao' => $oferta->getDescricao(),
                                         'eixo_tecnologico' => $oferta->getEixoTecnologico(),
-                                        'foto' => $oferta->getFoto(),
+                                        'foto' => $oferta->getFoto() ? BASE_URL . $oferta->getFoto() : null,
                                         'inicio_insc' => date('d/m/Y', strtotime($oferta->getInicioInsc())),
                                         'final_insc' => date('d/m/Y', strtotime($oferta->getFinalInsc())),
                                         'local' => $oferta->getLocal(),
@@ -68,7 +68,7 @@
                                     <td data-label="Público Alvo"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
                                     <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
                                     <td data-label="Detalhes" style="text-align: center;">
-                                        <button onclick='openDetalhesOfertaModal(<?= json_encode($detalhes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)' style="background: none; border: none; color: var(--primary-color); padding: 5px; font-size: 1.1rem; cursor: pointer;">
+                                        <button class="btn-detalhes" data-detalhes='<?= json_encode($detalhes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>' style="background: none; border: none; color: var(--primary-color); padding: 5px; font-size: 1.1rem; cursor: pointer;">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -78,9 +78,13 @@
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
                                                 <?php if (isset($ofertasInscritasIds) && in_array($oferta->getId(), $ofertasInscritasIds)): ?>
-                                                    <span style="color: var(--secondary-color); font-weight: bold;">Inscrito como Sucesso</span>
+                                                    <span style="color: var(--secondary-color); font-weight: bold;">Inscrito</span>
                                                 <?php else: ?>
-                                                    <button onclick="openInscricaoModal('<?= $oferta->getId() ?>', '<?= $oferta->getTurno() ?>')" class="btn btn-success" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                    <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
+                                                        <button class="btn btn-success" disabled title="Complete seu cadastro para se inscrever" style="padding: 5px 15px; font-size: 0.8rem; cursor: not-allowed; background-color: #ccc;">Inscrever</button>
+                                                    <?php else: ?>
+                                                        <button class="btn btn-success btn-inscrever" data-oferta-id="<?= $oferta->getId() ?>" data-turno="<?= $oferta->getTurno() ?>" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                             <?php else: ?>
                                                 <button onclick="openModal('loginRequiredModal')" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
@@ -134,7 +138,7 @@
                                         'nome' => $inscricao['nome'],
                                         'descricao' => $inscricao['descricao'],
                                         'eixo_tecnologico' => $inscricao['eixo_tecnologico'],
-                                        'foto' => $inscricao['foto'],
+                                        'foto' => $inscricao['foto'] ? BASE_URL . $inscricao['foto'] : null,
                                         'inicio_insc' => date('d/m/Y', strtotime($inscricao['inicio_insc'])),
                                         'final_insc' => date('d/m/Y', strtotime($inscricao['final_insc'])),
                                         'local' => $inscricao['local'],
@@ -158,7 +162,7 @@
                                     <td data-label="Público Alvo"><?= htmlspecialchars($inscricao['publico_alvo']) ?></td>
                                     <td data-label="Inscrições Até"><?= htmlspecialchars(date('d/m/Y', strtotime($inscricao['final_insc']))) ?></td>
                                     <td data-label="Detalhes" style="text-align: center;">
-                                        <button onclick='openDetalhesOfertaModal(<?= json_encode($detalhesInscricao, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>)' class="btn-view-details">
+                                        <button class="btn-detalhes btn-view-details" data-detalhes='<?= json_encode($detalhesInscricao, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>'>
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -319,6 +323,28 @@
     </section>
                     -->
 
+    <!-- Modal para Completar Cadastro (Aparece no primeiro login) -->
+    <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
+    <div id="completeProfileModal" class="modal non-closable">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-check"></i> Complete seu Cadastro</h2>
+            </div>
+            <div class="modal-body modal-body-scrollable">
+                <div class="alert-info" style="margin-bottom: 20px; text-align: left;">
+                    <p style="margin:0;"><strong>Bem-vindo(a)!</strong> Para poder se inscrever nas vagas, por favor, complete seu cadastro abaixo. Todos os campos são importantes para o processo de seleção.</p>
+                </div>
+                <?php
+                    // Inclui o formulário de cadastro do aluno
+                    $formAction = 'index.php?action=register_aluno';
+                    $btnText = 'Salvar e Concluir Cadastro';
+                    require __DIR__ . '/../aluno/register.php';
+                ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Modal de Inscrição na Oferta -->
     <div id="inscricaoOfertaModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
@@ -472,190 +498,124 @@
     </a>
     
     <script>
-        // --- Lógica do Modal ---
-        let openModals = [];
+    document.addEventListener('DOMContentLoaded', function() {
+        const detalhesModal = document.getElementById('detalhesOfertaModal');
+        const inscricaoModal = document.getElementById('inscricaoOfertaModal');
+        const completeProfileModal = document.getElementById('completeProfileModal');
 
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            modal.style.display = "block";
-            
-            if (openModals.length === 0) {
-                document.body.style.overflow = "hidden";
-            }
-            
-            openModals.push(modalId);
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            modal.style.display = "none";
-            
-            openModals = openModals.filter(id => id !== modalId);
-
-            if (openModals.length === 0) {
-                document.body.style.overflow = "auto";
+        // --- General Modal Functions ---
+        function openModal(modal) {
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
             }
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal(event.target.id);
-            }
-        };
-
-        // --- Lógica Específica da Página ---
-
-        function openDetalhesOfertaModal(oferta) {
-            document.getElementById('detalhesOfertaNome').innerText = oferta.nome;
-            document.getElementById('detalhesOfertaDescricao').innerText = oferta.descricao;
-
-            const fotoEl = document.getElementById('detalhesOfertaFoto');
-            if (oferta.foto && oferta.foto.trim() !== '') {
-                fotoEl.src = oferta.foto;
-                fotoEl.style.display = 'block';
-            } else {
-                fotoEl.style.display = 'none';
-            }
-
-            const detalhesLista = document.getElementById('detalhesOfertaLista');
-            detalhesLista.innerHTML = `
-                <div class="info-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <div><strong>Período de Inscrição:</strong><br>${oferta.inicio_insc} até ${oferta.final_insc}</div>
-                </div>
-                ${oferta.inicio_aulas ? `
-                <div class="info-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <div><strong>Período das Aulas:</strong><br>De ${oferta.inicio_aulas} até ${oferta.fim_aulas || 'a definir'}</div>
-                </div>
-                ` : ''}
-                ${oferta.inicio_hora_aula ? `
-                <div class="info-item">
-                    <i class="far fa-clock"></i>
-                    <div><strong>Horário das Aulas:</strong><br>Das ${oferta.inicio_hora_aula} às ${oferta.fim_hora_aula || 'a definir'}</div>
-                </div>
-                ` : ''}
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div><strong>Local:</strong><br>${oferta.local || 'Não informado'}</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-users"></i>
-                    <div><strong>Público Alvo:</strong><br>${oferta.publico_alvo || 'Não informado'}</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-tag"></i>
-                    <div><strong>Modalidade:</strong><br>${oferta.modalidade || 'Não informado'}</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-sun"></i>
-                    <div><strong>Turno:</strong><br>${oferta.turno || 'Não informado'}</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-chair"></i>
-                    <div><strong>Vagas:</strong><br>${oferta.numero_vagas || 'Não informado'}</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <div><strong>Carga Horária:</strong><br>${oferta.carga_horaria}h</div>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-sitemap"></i>
-                    <div><strong>Eixo Tecnológico:</strong><br>${oferta.eixo_tecnologico || 'Não informado'}</div>
-                </div>
-            `;
-
-            openModal('detalhesOfertaModal');
-        }
-
-        function openInscricaoModal(ofertaId, turno) {
-            const modal = document.getElementById('inscricaoOfertaModal');
-            if (!modal) return;
-            
-            const form = modal.querySelector('form');
-            form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
-            
-            const turnoSelect = document.getElementById('turno_preferencia_modal');
-            if(turnoSelect) turnoSelect.value = turno;
-
-            openModal('inscricaoOfertaModal');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
-                openModal('profileModal');
-                
-                const msgDiv = document.createElement('div');
-                msgDiv.style = 'background: #fff3cd; color: #856404; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ffeeba;';
-                msgDiv.innerHTML = '<i class="fas fa-info-circle"></i> Por favor, complete seu cadastro para acessar todas as funcionalidades.';
-                const modalBody = document.querySelector('#profileModal .modal-body');
-                if (modalBody) {
-                    modalBody.insertBefore(msgDiv, modalBody.firstChild);
+        function closeModal(modal) {
+            if (modal) {
+                modal.style.display = 'none';
+                const anyModalOpen = document.querySelector('.modal[style*="display: block"]');
+                if (!anyModalOpen) {
+                    document.body.style.overflow = 'auto';
                 }
-            <?php endif; ?>
+            }
+        }
 
-            // Script para campos condicionais do formulário de perfil
-            function toggleVisibility(selectElement, targetGroup, showValue) {
-                if (!selectElement || !targetGroup) return;
-                
-                const input = targetGroup.querySelector('input, select, textarea');
-
-                function checkVisibility() {
-                    const isVisible = selectElement.value === showValue;
-                    targetGroup.style.display = isVisible ? '' : 'none';
-                    if (input) {
-                        input.required = isVisible;
-                    }
+        // Close modal via close button or background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            // Impede que o modal de completar perfil seja fechado
+            if (modal.classList.contains('non-closable')) {
+                return;
+            }
+            modal.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal') || e.target.classList.contains('close-modal')) {
+                    closeModal(modal);
                 }
-                checkVisibility();
-                selectElement.addEventListener('change', checkVisibility);
+            });
+        });
+
+        // --- Open Profile Modal if needed ---
+        <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
+            if (completeProfileModal) {
+                openModal(completeProfileModal);
             }
+        <?php endif; ?>
 
-            toggleVisibility(document.getElementById('possui_nome_social'), document.getElementById('nome_social_group'), 'Sim');
-            toggleVisibility(document.getElementById('possui_deficiencia'), document.getElementById('tipo_deficiencia_group'), 'Sim');
-            toggleVisibility(document.getElementById('possui_filhos'), document.getElementById('quantidade_filhos_group'), 'Sim');
-            toggleVisibility(document.getElementById('beneficiario_programa_social'), document.getElementById('nome_programa_social_group'), 'Sim');
+        // --- Event Delegation for Table Buttons ---
+        document.body.addEventListener('click', function(e) {
+            const target = e.target;
 
-            // Adiciona lógica para zerar a quantidade de filhos no modal de perfil
-            const possuiFilhosSelect = document.getElementById('possui_filhos');
-            if (possuiFilhosSelect) {
-                const quantidadeFilhosInput = document.getElementById('quantidade_filhos');
-
-                const setFilhosValue = () => {
-                    if (possuiFilhosSelect.value === 'Nao') {
-                        quantidadeFilhosInput.value = 0;
-                    }
-                };
-
-                possuiFilhosSelect.addEventListener('change', setFilhosValue);
-                setFilhosValue(); // Garante o valor correto no carregamento
-            }
-
-            // Lógica para campos condicionais do formulário de inscrição
-            const exerceAtividadeSelect = document.getElementById('exerce_atividade_remunerada_modal');
-            if (exerceAtividadeSelect) {
-                const vinculoInput = document.getElementById('vinculo_atividade_modal');
-                const afinidadeSelect = document.getElementById('afinidade_atividade_curso_modal');
-                const vinculoGroup = vinculoInput.closest('.form-group');
-                const afinidadeGroup = afinidadeSelect.closest('.form-group');
-
-                function toggleInscricaoFields() {
-                    const isRequired = exerceAtividadeSelect.value === 'Sim';
-                    vinculoGroup.style.display = isRequired ? 'block' : 'none';
-                    afinidadeGroup.style.display = isRequired ? 'block' : 'none';
-                    vinculoInput.required = isRequired;
-                    afinidadeSelect.required = isRequired;
-                    if (!isRequired) {
-                        vinculoInput.value = '';
-                    }
-                }
+            // --- Handle Details Button Click ---
+            const detalhesBtn = target.closest('.btn-detalhes');
+            if (detalhesBtn) {
+                const oferta = JSON.parse(detalhesBtn.dataset.detalhes);
                 
-                toggleInscricaoFields(); // Executa ao carregar
-                exerceAtividadeSelect.addEventListener('change', toggleInscricaoFields);
+                document.getElementById('detalhesOfertaNome').innerText = oferta.nome;
+                document.getElementById('detalhesOfertaDescricao').innerText = oferta.descricao;
+
+                const fotoEl = document.getElementById('detalhesOfertaFoto');
+                if (oferta.foto && oferta.foto.trim() !== '') {
+                    fotoEl.src = oferta.foto;
+                    fotoEl.style.display = 'block';
+                } else {
+                    fotoEl.style.display = 'none';
+                }
+
+                const detalhesLista = document.getElementById('detalhesOfertaLista');
+                detalhesLista.innerHTML = `
+                    <div class="info-item"><i class="fas fa-calendar-alt"></i><div><strong>Período de Inscrição:</strong><br>${oferta.inicio_insc} até ${oferta.final_insc}</div></div>
+                    ${oferta.inicio_aulas ? `<div class="info-item"><i class="fas fa-calendar-check"></i><div><strong>Período das Aulas:</strong><br>De ${oferta.inicio_aulas} até ${oferta.fim_aulas || 'a definir'}</div></div>` : ''}
+                    ${oferta.inicio_hora_aula ? `<div class="info-item"><i class="far fa-clock"></i><div><strong>Horário das Aulas:</strong><br>Das ${oferta.inicio_hora_aula} às ${oferta.fim_hora_aula || 'a definir'}</div></div>` : ''}
+                    <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><strong>Local:</strong><br>${oferta.local || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-users"></i><div><strong>Público Alvo:</strong><br>${oferta.publico_alvo || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-tag"></i><div><strong>Modalidade:</strong><br>${oferta.modalidade || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-sun"></i><div><strong>Turno:</strong><br>${oferta.turno || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-chair"></i><div><strong>Vagas:</strong><br>${oferta.numero_vagas || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-clock"></i><div><strong>Carga Horária:</strong><br>${oferta.carga_horaria}h</div></div>
+                    <div class="info-item"><i class="fas fa-sitemap"></i><div><strong>Eixo Tecnológico:</strong><br>${oferta.eixo_tecnologico || 'Não informado'}</div></div>
+                `;
+
+                openModal(detalhesModal);
             }
-        });       
+
+            // --- Handle Inscription Button Click ---
+            const inscreverBtn = target.closest('.btn-inscrever');
+            if (inscreverBtn) {
+                const ofertaId = inscreverBtn.dataset.ofertaId;
+                const turno = inscreverBtn.dataset.turno;
+
+                const form = inscricaoModal.querySelector('form');
+                form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
+                
+                const turnoInput = document.getElementById('turno_preferencia_modal');
+                if (turnoInput) turnoInput.value = turno;
+
+                openModal(inscricaoModal);
+            }
+        });
+
+        // --- Logic for conditional fields in inscription form ---
+        const exerceAtividadeSelect = document.getElementById('exerce_atividade_remunerada_modal');
+        if (exerceAtividadeSelect) {
+            const vinculoInput = document.getElementById('vinculo_atividade_modal');
+            const afinidadeSelect = document.getElementById('afinidade_atividade_curso_modal');
+            const vinculoGroup = vinculoInput ? vinculoInput.closest('.form-group') : null;
+            const afinidadeGroup = afinidadeSelect ? afinidadeSelect.closest('.form-group') : null;
+
+            function toggleInscricaoFields() {
+                if (!vinculoGroup || !afinidadeGroup || !vinculoInput || !afinidadeSelect) return;
+                const isRequired = exerceAtividadeSelect.value === 'Sim';
+                vinculoGroup.style.display = isRequired ? 'block' : 'none';
+                afinidadeGroup.style.display = isRequired ? 'block' : 'none';
+                vinculoInput.required = isRequired;
+                afinidadeSelect.required = isRequired;
+                if (!isRequired) {
+                    vinculoInput.value = '';
+                }
+            }
+            
+            toggleInscricaoFields();
+            exerceAtividadeSelect.addEventListener('change', toggleInscricaoFields);
+        }
+    });
     </script>

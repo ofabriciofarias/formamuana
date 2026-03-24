@@ -252,20 +252,28 @@ class AlunoController {
      * Exibe o formulário de inscrição em uma oferta.
      */
     public function showInscricaoForm() {
+        // Garante que apenas alunos logados acessem
         if (!is_aluno()) {
-            header('Location: index.php');
+            header('HTTP/1.1 403 Forbidden');
+            echo 'Acesso negado. Por favor, faça o login como aluno.';
             exit;
         }
 
+        // Valida a presença do ID da oferta
         if (!isset($_GET['oferta_id'])) {
-            die('Erro: ID da oferta não especificado.');
+            header('HTTP/1.1 400 Bad Request');
+            echo 'Erro: ID da oferta não especificado.';
+            exit;
         }
 
         $oferta = Oferta::findById($_GET['oferta_id']);
         if (!$oferta) {
-            die('Oferta não encontrada.');
+            header('HTTP/1.1 404 Not Found');
+            echo 'Oferta não encontrada.';
+            exit;
         }
 
+        // Carrega apenas a view do formulário, que será injetada no modal via AJAX.
         require_once __DIR__ . '/../views/aluno/inscrever.php';
     }
 
@@ -273,22 +281,34 @@ class AlunoController {
      * Processa a submissão do formulário de inscrição em uma oferta.
      */
     public function doInscricaoOferta() {
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php');
             exit;
         }
 
         if (!is_aluno()) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Acesso negado. Faça o login novamente.']);
+                exit;
+            }
             header('Location: index.php?action=login');
             exit;
         }
 
         if (!isset($_GET['oferta_id'])) {
-            die('Erro: ID da oferta ausente.');
+            $message = 'Erro: ID da oferta ausente.';
+            if ($isAjax) { http_response_code(400); header('Content-Type: application/json'); echo json_encode(['success' => false, 'message' => $message]); exit; }
+            die($message);
         }
 
         if (!isset($_SESSION['user_id'])) {
-            die('Erro: Sessão de usuário inválida. Faça o login novamente.');
+            $message = 'Erro: Sessão de usuário inválida. Faça o login novamente.';
+            if ($isAjax) { http_response_code(401); header('Content-Type: application/json'); echo json_encode(['success' => false, 'message' => $message]); exit; }
+            die($message);
         }
 
         $alunoId = null;
@@ -307,13 +327,24 @@ class AlunoController {
         }
 
         if (!$alunoId) {
-            die('Erro: Não foi possível identificar os dados do aluno para a inscrição. Verifique se seu cadastro está completo.');
+            $message = 'Erro: Não foi possível identificar os dados do aluno para a inscrição. Verifique se seu cadastro está completo.';
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $message]);
+                exit;
+            }
+            die($message);
         }
 
         // Verifica se já existe uma inscrição
         $ofertaId = $_GET['oferta_id'];
         $existingInscricao = AlunoOferta::findByAlunoAndOferta($alunoId, $ofertaId);
         if ($existingInscricao) {
+            if ($isAjax) {
+                http_response_code(409); // Conflict
+                header('Content-Type: application/json'); echo json_encode(['success' => false, 'message' => 'Sua inscrição para esta vaga já foi realizada.']); exit;
+            }
             echo "<script>alert('Sua inscrição para esta vaga já foi realizada.'); window.location.href = 'index.php?action=aluno_dashboard';</script>";
             exit;
         }
@@ -342,8 +373,18 @@ class AlunoController {
         $inscricao->setTermoAceite($termo);
 
         if ($inscricao->save()) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Inscrição realizada com sucesso!']);
+                exit;
+            }
             echo "<script>alert('Inscrição realizada com sucesso!'); window.location.href = 'index.php?action=aluno_dashboard';</script>";
         } else {
+            $message = 'Não foi possível realizar a inscrição. Você já pode estar inscrito nesta oferta ou ocorreu um erro.';
+            if ($isAjax) {
+                http_response_code(500);
+                header('Content-Type: application/json'); echo json_encode(['success' => false, 'message' => $message]); exit;
+            }
             // Caso retorne false (ex: já inscrito)
             echo "<div class='container' style='padding-top: 100px; text-align: center; font-family: sans-serif;'>
                     <h2 style='color: #c0392b;'>Atenção</h2>
