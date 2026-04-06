@@ -15,8 +15,8 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             <option value="">-- Escolha uma oferta --</option>
             <?php if (isset($ofertas) && is_array($ofertas)): ?>
                 <?php foreach ($ofertas as $oferta): ?>
-                    <option value="<?= htmlspecialchars($oferta->getId()) ?>" <?= (isset($ofertaId) && $ofertaId == $oferta->getId()) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($oferta->getNome()) ?>
+                    <option value="<?= htmlspecialchars($oferta['id']) ?>" <?= (isset($ofertaId) && $ofertaId == $oferta['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($oferta['nome']) ?>
                     </option>
                 <?php endforeach; ?>
             <?php endif; ?>

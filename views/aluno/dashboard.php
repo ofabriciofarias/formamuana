@@ -39,34 +39,34 @@
                             <?php foreach ($ofertas as $oferta): ?>
                                 <?php 
                                     $hoje = date('Y-m-d');
-                                    $encerrado = ($oferta->getFinalInsc() < $hoje);
+                                    $encerrado = ($oferta['final_insc'] < $hoje);
                                     $detalhes = [
-                                        'nome' => $oferta->getNome(),
-                                        'descricao' => $oferta->getDescricao(),
-                                        'eixo_tecnologico' => $oferta->getEixoTecnologico(),
-                                        'foto' => $oferta->getFoto() ? BASE_URL . $oferta->getFoto() : null,
-                                        'inicio_insc' => date('d/m/Y', strtotime($oferta->getInicioInsc())),
-                                        'final_insc' => date('d/m/Y', strtotime($oferta->getFinalInsc())),
-                                        'local' => $oferta->getLocal(),
-                                        'turno' => $oferta->getTurno(),
-                                        'numero_vagas' => $oferta->getNumeroVagas(),
-                                        'publico_alvo' => $oferta->getPublicoAlvo(),
-                                        'modalidade' => $oferta->getModalidade(),
-                                        'carga_horaria' => $oferta->getCargaHoraria(),
-                                        'inicio_aulas' => $oferta->getInicioAulas() ? date('d/m/Y', strtotime($oferta->getInicioAulas())) : null,
-                                        'fim_aulas' => $oferta->getFimAulas() ? date('d/m/Y', strtotime($oferta->getFimAulas())) : null,
-                                        'inicio_hora_aula' => $oferta->getInicioHoraAula() ? date('H:i', strtotime($oferta->getInicioHoraAula())) : null,
-                                        'fim_hora_aula' => $oferta->getFimHoraAula() ? date('H:i', strtotime($oferta->getFimHoraAula())) : null,
+                                        'nome' => $oferta['nome'],
+                                        'descricao' => $oferta['descricao'],
+                                        'eixo_tecnologico' => $oferta['eixo_tecnologico'],
+                                        'foto' => !empty($oferta['foto']) ? BASE_URL . $oferta['foto'] : null,
+                                        'inicio_insc' => date('d/m/Y', strtotime($oferta['inicio_insc'])),
+                                        'final_insc' => date('d/m/Y', strtotime($oferta['final_insc'])),
+                                        'local' => $oferta['local'],
+                                        'turno' => $oferta['turno'],
+                                        'numero_vagas' => $oferta['numero_vagas'],
+                                        'publico_alvo' => $oferta['publico_alvo'],
+                                        'modalidade' => $oferta['modalidade'],
+                                        'carga_horaria' => $oferta['carga_horaria'],
+                                        'inicio_aulas' => !empty($oferta['inicio_aulas']) ? date('d/m/Y', strtotime($oferta['inicio_aulas'])) : null,
+                                        'fim_aulas' => !empty($oferta['fim_aulas']) ? date('d/m/Y', strtotime($oferta['fim_aulas'])) : null,
+                                        'inicio_hora_aula' => !empty($oferta['inicio_hora_aula']) ? date('H:i', strtotime($oferta['inicio_hora_aula'])) : null,
+                                        'fim_hora_aula' => !empty($oferta['fim_hora_aula']) ? date('H:i', strtotime($oferta['fim_hora_aula'])) : null,
                                     ];
                                 ?>
                                 <tr>
-                                    <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta->getNome()) ?></td>
-                                    <td data-label="Descrição"><?= htmlspecialchars(substr($oferta->getDescricao(), 0, 50)) . (strlen($oferta->getDescricao()) > 50 ? '...' : '') ?></td>
-                                    <td data-label="Local"><?= htmlspecialchars($oferta->getLocal()) ?></td>
-                                    <td data-label="Vagas"><?= htmlspecialchars($oferta->getNumeroVagas()) ?></td>
-                                    <td data-label="Carga Horária"><?= htmlspecialchars($oferta->getCargaHoraria()) ?>h</td>
-                                    <td data-label="Público Alvo"><?= htmlspecialchars($oferta->getPublicoAlvo()) ?></td>
-                                    <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta->getFinalInsc())) ?></td>
+                                    <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta['nome']) ?></td>
+                                    <td data-label="Descrição"><?= htmlspecialchars(substr($oferta['descricao'], 0, 50)) . (strlen($oferta['descricao']) > 50 ? '...' : '') ?></td>
+                                    <td data-label="Local"><?= htmlspecialchars($oferta['local']) ?></td>
+                                    <td data-label="Vagas"><?= htmlspecialchars($oferta['numero_vagas']) ?></td>
+                                    <td data-label="Carga Horária"><?= htmlspecialchars($oferta['carga_horaria']) ?>h</td>
+                                    <td data-label="Público Alvo"><?= htmlspecialchars($oferta['publico_alvo']) ?></td>
+                                    <td data-label="Inscrições Até"><?= date('d/m/Y', strtotime($oferta['final_insc'])) ?></td>
                                     <td data-label="Detalhes" style="text-align: center;">
                                         <button class="btn-detalhes" data-detalhes='<?= json_encode($detalhes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>' style="background: none; border: none; color: var(--primary-color); padding: 5px; font-size: 1.1rem; cursor: pointer;">
                                             <i class="fas fa-eye"></i>
@@ -77,13 +77,13 @@
                                             <span style="color: #e74c3c; font-weight: bold;">Encerrado</span>
                                         <?php else: ?>
                                             <?php if (isset($_SESSION['user_id'])): ?>
-                                                <?php if (isset($ofertasInscritasIds) && in_array($oferta->getId(), $ofertasInscritasIds)): ?>
+                                                <?php if (isset($ofertasInscritasIds) && in_array($oferta['id'], $ofertasInscritasIds)): ?>
                                                     <span style="color: var(--secondary-color); font-weight: bold;">Inscrito</span>
                                                 <?php else: ?>
                                                     <?php if (isset($openCompleteProfileModal) && $openCompleteProfileModal): ?>
                                                         <button class="btn btn-success" disabled title="Complete seu cadastro para se inscrever" style="padding: 5px 15px; font-size: 0.8rem; cursor: not-allowed; background-color: #ccc;">Inscrever</button>
                                                     <?php else: ?>
-                                                        <button class="btn btn-success btn-inscrever" data-oferta-id="<?= $oferta->getId() ?>" data-turno="<?= $oferta->getTurno() ?>" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
+                                                        <button class="btn btn-success btn-inscrever" data-oferta-id="<?= $oferta['id'] ?>" data-turno="<?= $oferta['turno'] ?>" style="padding: 5px 15px; font-size: 0.8rem;">Inscrever</button>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                             <?php else: ?>
@@ -254,7 +254,7 @@
                         <img src="views/assets/img/ufpa.jpeg" alt="Curso 2">
                     </div>
                     <span class="role-tag">UFPA</span>
-                    <h3>Execução do Projeot</h3>
+                    <h3>Execução do Projeto</h3>
                     <p>Universidade Federal do Pará</p>
                     Reotpr Prof. Dr. Gilmar Silva
                 </div>

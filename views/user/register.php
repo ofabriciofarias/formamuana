@@ -1,4 +1,20 @@
 <h2>Cadastro de Usuário</h2>
+
+<?php
+// Inicia a sessão se ainda não foi iniciada para poder acessar as flash messages
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Exibe mensagens de erro ou sucesso, se houver
+if (isset($_SESSION['flash_error'])): ?>
+    <div class="alert-info" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; padding: 1rem; margin-bottom: 1rem; border-radius: .25rem;"><?= $_SESSION['flash_error'] ?></div>
+    <?php unset($_SESSION['flash_error']); ?>
+<?php endif; ?>
+<?php if (isset($_SESSION['flash_success'])): ?>
+    <div class="alert-info" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb; padding: 1rem; margin-bottom: 1rem; border-radius: .25rem;"><?= $_SESSION['flash_success'] ?></div>
+    <?php unset($_SESSION['flash_success']); ?>
+<?php endif; ?>
 <form action="index.php?action=register" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <label for="nome">Nome Completo</label>
@@ -84,8 +100,8 @@
     <?php endif; ?>
 
     <div class="form-group">
-        <input type="checkbox" id="termo_aceite" name="termo_aceite" value="aceito" required>
-        <label for="termo_aceite">Eu li e aceito os termos de uso.</label>
+        <input type="checkbox" id="termo_aceite" name="termo_aceite" value="aceito" <?php if (!is_admin()) echo 'required'; ?>>
+        <label for="termo_aceite">Eu li e aceito os termos de uso. (Obrigatório para cadastro público)</label>
     </div>
 
     <button type="submit" class="btn">Cadastrar</button>

@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../core/Database.php';
@@ -44,6 +44,8 @@ class UserController {
                     // Redireciona com base no tipo de usuário
                     if ($_SESSION['user_role_id'] == 3) { // Aluno
                         header('Location: index.php?action=aluno_dashboard');
+                    } elseif ($_SESSION['user_role_id'] == 2) { // Professor
+                        header('Location: index.php?action=professor_dashboard');
                     } else { // Admin ou Professor, redireciona para o dashboard principal
                         header('Location: index.php?action=dashboard');
                     }
@@ -115,6 +117,10 @@ class UserController {
 
     public function register() {
         require_once __DIR__ . '/../core/helpers.php';
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->showRegistrationForm();
             return;
@@ -124,14 +130,17 @@ class UserController {
         $confirmar_senha = $_POST['confirmar_senha'] ?? null;
 
         if ($senha !== $confirmar_senha) {
-            die('As senhas não coincidem. Tente novamente.');
+            $_SESSION['flash_error'] = 'As senhas não coincidem. Tente novamente.';
+            header('Location: index.php?action=register');
+            exit;
         }
         
         $tipo_usuario_id = $_POST['tipo_usuario_id'] ?? null;
         
-        // Allow registration if the user is an Admin, OR if the registration is for an Aluno (ID 3)
         if ($tipo_usuario_id != 3 && !is_admin()) {
-            die("Acesso não autorizado. Apenas administradores podem cadastrar este tipo de usuário.");
+            $_SESSION['flash_error'] = "Acesso não autorizado. Apenas administradores podem cadastrar este tipo de usuário.";
+            header('Location: index.php?action=register');
+            exit;
         }
 
         $nome = $_POST['nome'] ?? null;
@@ -140,13 +149,16 @@ class UserController {
         $telefone = $_POST['telefone'] ?? null;
         $termo_aceite = isset($_POST['termo_aceite']) ? 'aceito' : 'nao_aceito';
 
-        if (empty($nome) || empty($login) || empty($email) || empty($senha) || empty($tipo_usuario_id) || $termo_aceite !== 'aceito') {
-            die('Validação falhou. Preencha todos os campos e aceite os termos.');
+        if (empty($nome) || empty($login) || empty($email) || empty($senha) || empty($tipo_usuario_id)) {
+            $_SESSION['flash_error'] = 'Nome, login, email, senha e tipo de usuário são obrigatórios.';
+            header('Location: index.php?action=register');
+            exit;
         }
         
-        // Additional validation: Ensure non-admins can only register as Aluno
-        if ($tipo_usuario_id != 3 && !is_admin()) {
-             die("Acesso não autorizado.");
+        if (!is_admin() && $termo_aceite !== 'aceito') {
+             $_SESSION['flash_error'] = 'É necessário aceitar os termos de uso para se cadastrar.';
+             header('Location: index.php?action=register');
+             exit;
         }
 
         $db = Database::getInstance()->getConnection();
@@ -158,15 +170,19 @@ class UserController {
             $stmt->bindParam(':email', $email);
             $stmt->execute();
             if ($stmt->fetch()) {
-                // Se encontrar, redireciona com um erro específico
-                if (session_status() == PHP_SESSION_NONE) { session_start(); }
                 $_SESSION['flash_error'] = 'Este login ou email já existem no sistema. Por favor, cadastre com outro.';
-                $_SESSION['open_modal'] = 'registerModal';
-                header('Location: index.php');
+                if (is_admin()) {
+                    header('Location: index.php?action=register');
+                } else {
+                    $_SESSION['open_modal'] = 'registerModal';
+                    header('Location: index.php');
+                }
                 exit;
             }
         } catch (PDOException $e) {
-            die("Erro de banco de dados ao verificar duplicidade: " . $e->getMessage());
+            $_SESSION['flash_error'] = "Erro de banco de dados ao verificar duplicidade: " . $e->getMessage();
+            header('Location: index.php?action=register');
+            exit;
         }
 
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
@@ -190,37 +206,39 @@ class UserController {
 
             $userId = $db->lastInsertId();
 
-            $upload_rg = $this->handleUpload('upload_rg', $userId);
-            $upload_cpf = $this->handleUpload('upload_cpf', $userId);
-            $upload_plano = $this->handleUpload('upload_plano', $userId);
-            $upload_pis_ou_nis = $this->handleUpload('upload_pis_ou_nis', $userId);
-            $upload_residencia = $this->handleUpload('upload_residencia', $userId);
-            $upload_cart_trab = $this->handleUpload('upload_cart_trab', $userId);
-            $upload_declaracao_vinculo_matr = $this->handleUpload('upload_declaracao_vinculo_matr', $userId);
+            if (is_admin() && $userId) {
+                $upload_rg = $this->handleUpload('upload_rg', $userId);
+                $upload_cpf = $this->handleUpload('upload_cpf', $userId);
+                $upload_plano = $this->handleUpload('upload_plano', $userId);
+                $upload_pis_ou_nis = $this->handleUpload('upload_pis_ou_nis', $userId);
+                $upload_residencia = $this->handleUpload('upload_residencia', $userId);
+                $upload_cart_trab = $this->handleUpload('upload_cart_trab', $userId);
+                $upload_declaracao_vinculo_matr = $this->handleUpload('upload_declaracao_vinculo_matr', $userId);
 
-            if ($userId) {
-                $stmtUpdate = $db->prepare(
-                    "UPDATE usuarios SET
-                        upload_rg = :upload_rg, upload_cpf = :upload_cpf, upload_plano = :upload_plano,
-                        upload_pis_ou_nis = :upload_pis_ou_nis, upload_residencia = :upload_residencia,
-                        upload_cart_trab = :upload_cart_trab, upload_declaracao_vinculo_matr = :upload_declaracao_vinculo_matr
-                    WHERE id = :id"
-                );
-                $stmtUpdate->execute([
-                    ':upload_rg' => $upload_rg, ':upload_cpf' => $upload_cpf, ':upload_plano' => $upload_plano,
-                    ':upload_pis_ou_nis' => $upload_pis_ou_nis, ':upload_residencia' => $upload_residencia,
-                    ':upload_cart_trab' => $upload_cart_trab, ':upload_declaracao_vinculo_matr' => $upload_declaracao_vinculo_matr,
-                    ':id' => $userId
-                ]);
+                if ($userId) {
+                    $stmtUpdate = $db->prepare(
+                        "UPDATE usuarios SET
+                            upload_rg = :upload_rg, upload_cpf = :upload_cpf, upload_plano = :upload_plano,
+                            upload_pis_ou_nis = :upload_pis_ou_nis, upload_residencia = :upload_residencia,
+                            upload_cart_trab = :upload_cart_trab, upload_declaracao_vinculo_matr = :upload_declaracao_vinculo_matr
+                        WHERE id = :id"
+                    );
+                    $stmtUpdate->execute([
+                        ':upload_rg' => $upload_rg, ':upload_cpf' => $upload_cpf, ':upload_plano' => $upload_plano,
+                        ':upload_pis_ou_nis' => $upload_pis_ou_nis, ':upload_residencia' => $upload_residencia,
+                        ':upload_cart_trab' => $upload_cart_trab, ':upload_declaracao_vinculo_matr' => $upload_declaracao_vinculo_matr,
+                        ':id' => $userId
+                    ]);
+                }
             }
 
             $db->commit();
             
             // Show success message based on context
             if (is_admin()) {
-                require_once __DIR__ . '/../views/layouts/admin_header.php';
-                echo "<div><h2>Usuário cadastrado com sucesso!</h2><p>Todos os dados e documentos foram salvos.</p><a href='index.php?action=register' class='btn'>Cadastrar Outro Usuário</a></div>";
-                require_once __DIR__ . '/../views/layouts/admin_footer.php';
+                $_SESSION['flash_success'] = "Usuário cadastrado com sucesso!";
+                header('Location: index.php?action=register');
+                exit;
             } else {
                  require_once __DIR__ . '/../views/layouts/public_header.php';
                  echo "<div class='container' style='padding-top: 100px; text-align: center;'><h2>Cadastro realizado com sucesso!</h2><p>Você já pode fazer o login.</p><a href='index.php' class='btn'>Voltar para a página inicial</a></div>";
@@ -229,7 +247,9 @@ class UserController {
 
         } catch (PDOException $e) {
             $db->rollBack();
-            die("Erro ao cadastrar usuário: " . $e->getMessage());
+            $_SESSION['flash_error'] = "Erro ao cadastrar usuário: " . $e->getMessage();
+            header('Location: index.php?action=register');
+            exit;
         }
     }
 

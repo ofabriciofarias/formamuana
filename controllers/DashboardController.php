@@ -143,6 +143,10 @@ class DashboardController {
     }
 
     public function runGASelection() {
+        // Aumenta o tempo limite de execução para processos longos e impede que o script pare se o usuário fechar a conexão.
+        set_time_limit(0);
+        ignore_user_abort(true);
+
         header('Content-Type: application/json');
         
         if (!is_admin()) {
@@ -384,6 +388,134 @@ class DashboardController {
         } catch (Exception $e) {
             // Retorna uma mensagem de erro mais detalhada para depuração
             echo json_encode(['success' => false, 'message' => "O email não pôde ser enviado. Erro: {$mail->ErrorInfo}"]);
+        }
+        exit;
+    }
+
+    public function vincularProfessor() {
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+    
+        $selectedOfertaId = $_GET['oferta_id'] ?? null;
+    
+        // Se for uma requisição AJAX para obter dados de uma turma
+        if ($selectedOfertaId && isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            try {
+                $db = Database::getInstance()->getConnection();
+                
+                // 1. Buscar todos os professores disponíveis (tipo_usuario_id = 2)
+                $stmtProf = $db->query("SELECT id, nome FROM usuarios WHERE tipo_usuario_id = 2 ORDER BY nome");
+                $todosProfessores = $stmtProf->fetchAll(PDO::FETCH_ASSOC);
+
+                // 2. Buscar professores já vinculados a esta turma
+                $stmtVinculados = $db->prepare(
+                    "SELECT p.id as vinculo_id, u.id as professor_id, u.nome 
+                     FROM professor p 
+                     JOIN usuarios u ON p.usuarios_id = u.id 
+                     WHERE p.oferta_id = :oferta_id
+                     ORDER BY u.nome"
+                );
+                $stmtVinculados->execute([':oferta_id' => $selectedOfertaId]);
+                $professoresVinculados = $stmtVinculados->fetchAll(PDO::FETCH_ASSOC);
+
+                // 3. Determinar os professores ainda não vinculados
+                $idsVinculados = array_column($professoresVinculados, 'professor_id');
+                $professoresDisponiveis = array_filter($todosProfessores, function($prof) use ($idsVinculados) {
+                    return !in_array($prof['id'], $idsVinculados);
+                });
+
+                echo json_encode([
+                    'success' => true,
+                    'disponiveis' => array_values($professoresDisponiveis), // Reindexar array
+                    'vinculados' => $professoresVinculados
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Erro no servidor: ' . $e->getMessage()]);
+            }
+            exit;
+        }
+    
+        // Se for carregamento normal da página, apenas carrega as ofertas
+        $ofertas = Oferta::findAll();
+        require_once __DIR__ . '/../views/layouts/vincular.php';
+    }
+
+    public function ajaxLinkProfessor() {
+        header('Content-Type: application/json');
+        if (!is_admin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Acesso negado.']);
+            exit;
+        }
+    
+        $data = json_decode(file_get_contents('php://input'), true);
+        $ofertaId = $data['oferta_id'] ?? null;
+        $professorId = $data['professor_id'] ?? null;
+    
+        if (!$ofertaId || !$professorId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Dados insuficientes.']);
+            exit;
+        }
+    
+        try {
+            $db = Database::getInstance()->getConnection();
+
+            // Verificar se o vínculo já existe para não duplicar
+            $stmtCheck = $db->prepare("SELECT id FROM professor WHERE oferta_id = :oferta_id AND usuarios_id = :professor_id");
+            $stmtCheck->execute([':oferta_id' => $ofertaId, ':professor_id' => $professorId]);
+            if ($stmtCheck->fetch()) {
+                echo json_encode(['success' => true, 'message' => 'Professor já vinculado.']);
+                exit;
+            }
+
+            $stmt = $db->prepare("INSERT INTO professor (oferta_id, usuarios_id) VALUES (:oferta_id, :usuario_id)");
+            $stmt->execute([':oferta_id' => $ofertaId, ':usuario_id' => $professorId]);
+            $newVinculoId = $db->lastInsertId();
+            
+            echo json_encode(['success' => true, 'message' => 'Professor vinculado com sucesso!', 'vinculo_id' => $newVinculoId]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erro ao vincular professor: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function ajaxUnlinkProfessor() {
+        header('Content-Type: application/json');
+        if (!is_admin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Acesso negado.']);
+            exit;
+        }
+    
+        $data = json_decode(file_get_contents('php://input'), true);
+        $vinculoId = $data['vinculo_id'] ?? null;
+    
+        if (!$vinculoId) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'ID do vínculo é necessário.']);
+            exit;
+        }
+    
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("DELETE FROM professor WHERE id = :vinculo_id");
+            $stmt->execute([':vinculo_id' => $vinculoId]);
+            
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => true, 'message' => 'Professor desvinculado com sucesso!']);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Vínculo não encontrado.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erro ao desvincular professor: ' . $e->getMessage()]);
         }
         exit;
     }

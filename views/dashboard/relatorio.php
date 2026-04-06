@@ -16,8 +16,8 @@
                 <select name="oferta_id" id="oferta_id" class="form-control" style="width: 100%; padding: 10px;">
                     <option value="">Selecione uma oferta...</option>
                     <?php foreach ($ofertas as $oferta): ?>
-                        <option value="<?= $oferta->getId() ?>" <?= (isset($_GET['oferta_id']) && $_GET['oferta_id'] == $oferta->getId()) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($oferta->getNome()) ?>
+                        <option value="<?= $oferta['id'] ?>" <?= (isset($_GET['oferta_id']) && $_GET['oferta_id'] == $oferta['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($oferta['nome']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

@@ -20,12 +20,14 @@ require_once __DIR__ . '/controllers/DashboardController.php';
 require_once __DIR__ . '/controllers/HomeController.php';
 require_once __DIR__ . '/controllers/AlunoController.php';
 require_once __DIR__ . '/controllers/OfertaController.php';
+require_once __DIR__ . '/controllers/ProfessorController.php';
 
 $userController = new UserController();
 $dashboardController = new DashboardController();
 $homeController = new HomeController();
 $alunoController = new AlunoController();
 $ofertaController = new OfertaController();
+$professorController = new ProfessorController();
 
 // 4. Executar a ação correspondente
 switch ($action) {
@@ -101,6 +103,42 @@ switch ($action) {
         $dashboardController->sendEmailNotification();
         break;
 
+    case 'vincular_professor':
+        $dashboardController->vincularProfessor();
+        break;
+
+    case 'ajaxLinkProfessor':
+        $dashboardController->ajaxLinkProfessor();
+        break;
+
+    case 'ajaxUnlinkProfessor':
+        $dashboardController->ajaxUnlinkProfessor();
+        break;
+
+    case 'professor_dashboard':
+        $professorController->dashboard();
+        break;
+
+    case 'lancar_frequencia':
+        $professorController->lancarFrequencia();
+        break;
+
+    case 'salvar_frequencia': // AJAX
+        $professorController->salvarFrequencia();
+        break;
+
+    case 'consultar_frequencia':
+        $professorController->consultarFrequencia();
+        break;
+
+    case 'notas':
+        $professorController->notas();
+        break;
+
+    case 'salvarNotas':
+        $professorController->salvarNotas();
+        break;
+
     case 'comunicacao':
         $dashboardController->comunicacao();
         break;
@@ -120,10 +158,11 @@ switch ($action) {
 
     default:
         // Ação padrão: Se for admin, vai para a página de registro como dashboard principal.
-        // Senão, mostra a landing page pública.
         if (is_admin()) {
-            // A página principal para um admin logado é a de registro de usuários.
-            header('Location: index.php?action=register');
+            header('Location: index.php?action=dashboard');
+            exit;
+        } elseif (is_professor()) {
+            header('Location: index.php?action=professor_dashboard');
             exit;
         } else {
             $homeController->index();

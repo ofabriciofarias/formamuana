@@ -35,7 +35,14 @@ require_once __DIR__ . '/../../core/helpers.php';
                     <li><a href="index.php?action=aluno_dashboard#minhas_inscricoes">Minhas Inscrições</a></li>
                     <li><a href="index.php?action=aluno_dashboard#cursos">Cursos</a></li>
                     <li><a href="index.php?action=aluno_dashboard#equipe">Realização</a></li>
-                    <li><a href="#" id="profileBtn">Meu Perfil</a></li>
+                    
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">Configurações</a>
+                        <div class="dropdown-content">
+                            <a href="#" id="profileBtn">Meu Perfil</a>
+                        </div>
+                    </li>
+
                     <li><a href="index.php?action=logout" class="btn btn-primary">Sair</a></li>
                 <?php else: ?>
                      <!-- Fallback se não estiver logado ou não for aluno, manda para a home -->

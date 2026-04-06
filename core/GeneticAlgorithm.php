@@ -17,6 +17,7 @@ class GeneticAlgorithm {
     private $generations;     // Número de gerações para evoluir
     private $mutationRate;    // Taxa de mutação
     private $population;      // A população atual de cromossomos
+    private $fitnessCache = []; // Cache para armazenar o fitness de cada candidato
 
     /**
      * @param array $candidates Array de candidatos. Cada candidato deve ser um array com uma chave 'id'.
@@ -52,8 +53,14 @@ class GeneticAlgorithm {
     private function calculateChromosomeFitness(array $chromosome) {
         $totalFitness = 0;
         foreach ($chromosome as $candidateId) {
-            $candidateData = $this->candidateMap[$candidateId];
-            $totalFitness += call_user_func($this->fitnessFunction, $candidateData);
+            // Verifica se o fitness para este candidato já está no cache
+            if (!isset($this->fitnessCache[$candidateId])) {
+                $candidateData = $this->candidateMap[$candidateId];
+                // Se não estiver, calcula e armazena no cache
+                $this->fitnessCache[$candidateId] = call_user_func($this->fitnessFunction, $candidateData);
+            }
+            // Usa o valor do cache
+            $totalFitness += $this->fitnessCache[$candidateId];
         }
         return $totalFitness;
     }

@@ -227,8 +227,7 @@ class Oferta {
             $stmt = $db->prepare("SELECT * FROM oferta ORDER BY inicio_insc DESC");
             $stmt->execute();
             
-            // Retorna um array de objetos da classe Oferta
-            return $stmt->fetchAll(PDO::FETCH_CLASS, 'Oferta');
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erro ao buscar todas as ofertas: " . $e->getMessage());
             return [];
