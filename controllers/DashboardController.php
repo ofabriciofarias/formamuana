@@ -23,6 +23,43 @@ class DashboardController {
         require_once __DIR__ . '/../views/dashboard/index.php';
     }
 
+    //Relatório detalhado
+    public function relatorioDetalhado() {
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+
+        // Total de alunos cadastrados
+        $stmtTotal = $db->query("SELECT COUNT(*) FROM alunos");
+        $totalAlunos = (int)$stmtTotal->fetchColumn();
+
+        // Total de alunos inscritos em algum curso (únicos)
+        $stmtInscritos = $db->query("SELECT COUNT(DISTINCT alunos_id) FROM alunos_has_oferta");
+        $totalInscritosUnicos = (int)$stmtInscritos->fetchColumn();
+
+        // Tabela contendo os inscritos por curso e estatísticas
+        $stmtCursos = $db->query("
+            SELECT 
+                o.id,
+                o.nome as curso, 
+                o.turno,
+                o.numero_vagas,
+                COUNT(aho.alunos_id) as total_inscritos,
+                SUM(CASE WHEN aho.status_selecao = 'Aprovado' THEN 1 ELSE 0 END) as total_aprovados
+            FROM oferta o
+            LEFT JOIN alunos_has_oferta aho ON o.id = aho.oferta_id
+            GROUP BY o.id, o.nome, o.turno, o.numero_vagas
+            ORDER BY o.nome ASC
+        ");
+        $estatisticasCursos = $stmtCursos->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once __DIR__ . '/../views/dashboard/estatisticas.php';
+    }
+    //Fim do relatório detalhado.
+
     public function relatorioGeral() {
         if (!is_admin()) {
             header('Location: index.php');
@@ -516,6 +553,214 @@ class DashboardController {
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Erro ao desvincular professor: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function visualizarInscritos() {
+        if (!is_admin() && !is_professor()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $query = "SELECT a.*, u.email as usuario_email, u.login as usuario_login, u.id as usuario_id FROM alunos a LEFT JOIN usuarios u ON a.usuarios_id = u.id ORDER BY a.nome ASC";
+        $stmt = $db->query($query);
+        $inscritos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once __DIR__ . '/../views/dashboard/visualizar_inscritos.php';
+    }
+
+    public function getInscrito() {
+        if (!is_admin() && !is_professor()) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Não autorizado']);
+            exit;
+        }
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID não fornecido']);
+            exit;
+        }
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT a.*, u.email as usuario_email, u.id as usuario_id FROM alunos a LEFT JOIN usuarios u ON a.usuarios_id = u.id WHERE a.id = :id");
+        $stmt->execute(['id' => $id]);
+        $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($aluno) {
+            echo json_encode($aluno);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Aluno não encontrado']);
+        }
+        exit;
+    }
+
+    public function updateInscrito() {
+        if ((!is_admin() && !is_professor()) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(403);
+            echo json_encode(['error' => 'Não autorizado']);
+            exit;
+        }
+        $id = $_POST['id'] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID não fornecido']);
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $db->beginTransaction();
+        try {
+            $nome = $_POST['nome'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $whatsapp = $_POST['whatsapp'] ?? '';
+            $telefone = $_POST['telefone'] ?? '';
+            $senha = $_POST['senha'] ?? '';
+            $usuario_id = $_POST['usuario_id'] ?? null;
+
+            $stmt = $db->prepare("UPDATE alunos SET nome = :nome, email = :email, whatsapp = :whatsapp, telefone = :telefone WHERE id = :id");
+            $stmt->execute([
+                'nome' => $nome,
+                'email' => $email,
+                'whatsapp' => $whatsapp,
+                'telefone' => $telefone,
+                'id' => $id
+            ]);
+
+            if ($usuario_id && !empty($senha)) {
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+                $stmtU = $db->prepare("UPDATE usuarios SET senha = :senha, email = :email WHERE id = :id");
+                $stmtU->execute([
+                    'senha' => $senhaHash,
+                    'email' => $email,
+                    'id' => $usuario_id
+                ]);
+            } else if ($usuario_id) {
+                $stmtU = $db->prepare("UPDATE usuarios SET email = :email WHERE id = :id");
+                $stmtU->execute([
+                    'email' => $email,
+                    'id' => $usuario_id
+                ]);
+            }
+            
+            $db->commit();
+            echo json_encode(['success' => true, 'message' => 'Aluno atualizado com sucesso!']);
+        } catch (Exception $e) {
+            $db->rollBack();
+            http_response_code(500);
+            echo json_encode(['error' => 'Erro ao atualizar: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function vincularAluno() {
+        if (!is_admin() && !is_professor()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $ofertas = Oferta::findAll();
+        require_once __DIR__ . '/../views/dashboard/vincular_aluno.php';
+    }
+
+    public function ajaxBuscarAlunosParaVinculo() {
+        if (!is_admin() && !is_professor()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Não autorizado']);
+            exit;
+        }
+        $oferta_id = $_GET['oferta_id'] ?? null;
+        $busca = trim($_GET['busca'] ?? '');
+
+        if (!$oferta_id) {
+            echo json_encode(['success' => false, 'message' => 'Oferta não informada.']);
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        
+        $sql = "SELECT a.*, u.email as usuario_email, u.login as usuario_login 
+                FROM alunos a 
+                LEFT JOIN usuarios u ON a.usuarios_id = u.id 
+                WHERE a.id NOT IN (SELECT alunos_id FROM alunos_has_oferta WHERE oferta_id = :oferta_id)";
+        
+        $params = [':oferta_id' => $oferta_id];
+
+        if (!empty($busca)) {
+            $sql .= " AND (a.nome LIKE :busca OR u.email LIKE :busca OR u.login LIKE :busca)";
+            $params[':busca'] = '%' . $busca . '%';
+        }
+
+        $sql .= " ORDER BY a.nome ASC LIMIT 50";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $alunos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['success' => true, 'alunos' => $alunos]);
+        exit;
+    }
+
+    public function ajaxVincularAluno() {
+        if ((!is_admin() && !is_professor()) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Não autorizado']);
+            exit;
+        }
+
+        $aluno_id = $_POST['aluno_id'] ?? null;
+        $oferta_id = $_POST['oferta_id'] ?? null;
+
+        if (!$aluno_id || !$oferta_id) {
+            echo json_encode(['success' => false, 'message' => 'Dados incompletos (Aluno ou Oferta faltando).']);
+            exit;
+        }
+
+        try {
+            $db = Database::getInstance()->getConnection();
+
+            $sql = "INSERT INTO alunos_has_oferta (
+                        alunos_id, oferta_id, status_selecao, termo_aceite,
+                        exerce_atividade_remunerada, vinculo_atividade, afinidade_atividade_curso,
+                        participacao_economica_familiar, numero_membros_familia, renda_familiar,
+                        motivo_escolha_curso, o_que_mais_espera_do_curso, expectativas_relacao_curso,
+                        expectativas_profissionais_pos_curso, canal_informacao_curso, turno_preferencia
+                    ) VALUES (
+                        :alunos_id, :oferta_id, 'Aprovado', :termo_aceite,
+                        :exerce_atividade_remunerada, :vinculo_atividade, :afinidade_atividade_curso,
+                        :participacao_economica_familiar, :numero_membros_familia, :renda_familiar,
+                        :motivo_escolha_curso, :o_que_mais_espera_do_curso, :expectativas_relacao_curso,
+                        :expectativas_profissionais_pos_curso, :canal_informacao_curso, :turno_preferencia
+                    )";
+
+            $stmt = $db->prepare($sql);
+            
+            // O formulário de vínculo não tem um checkbox de termo_aceite explícito no modal para o admin. 
+            // O admin está preenchendo isso pelo aluno, logo, define-se 'Sim' implicitamente ou pegando do POST se existir.
+            $termo_aceite = $_POST['termo_aceite'] ?? 'Sim';
+
+            $stmt->execute([
+                ':alunos_id' => $aluno_id,
+                ':oferta_id' => $oferta_id,
+                ':termo_aceite' => $termo_aceite,
+                ':exerce_atividade_remunerada' => $_POST['exerce_atividade_remunerada'] ?? null,
+                ':vinculo_atividade' => $_POST['vinculo_atividade'] ?? null,
+                ':afinidade_atividade_curso' => $_POST['afinidade_atividade_curso'] ?? null,
+                ':participacao_economica_familiar' => $_POST['participacao_economica_familiar'] ?? null,
+                ':numero_membros_familia' => $_POST['numero_membros_familia'] ?? null,
+                ':renda_familiar' => $_POST['renda_familiar'] ?? null,
+                ':motivo_escolha_curso' => $_POST['motivo_escolha_curso'] ?? null,
+                ':o_que_mais_espera_do_curso' => $_POST['o_que_mais_espera_do_curso'] ?? null,
+                ':expectativas_relacao_curso' => $_POST['expectativas_relacao_curso'] ?? null,
+                ':expectativas_profissionais_pos_curso' => $_POST['expectativas_profissionais_pos_curso'] ?? null,
+                ':canal_informacao_curso' => $_POST['canal_informacao_curso'] ?? null,
+                ':turno_preferencia' => $_POST['turno_preferencia'] ?? null
+            ]);
+
+            echo json_encode(['success' => true, 'message' => 'Aluno vinculado e aprovado com sucesso!']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro ao vincular: ' . $e->getMessage()]);
         }
         exit;
     }

@@ -28,7 +28,14 @@ if (!is_professor()) {
         <nav class="nav-links">
             <a href="index.php?action=professor_dashboard">Minhas Turmas</a>
             <li class="dropdown">
-                <a href="#" class="dropbtn">Configurações</a>
+                <a href="#" class="dropbtn">Vínculos <i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="index.php?action=professor_visualizar_inscritos">Visualizar Inscritos</a>
+                    <a href="index.php?action=professor_vincular_aluno">Vincular Aluno</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Configurações <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="#" id="profileBtn">Meu Perfil</a>
                 </div>

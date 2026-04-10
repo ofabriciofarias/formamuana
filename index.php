@@ -83,6 +83,10 @@ switch ($action) {
         $dashboardController->relatorioGeral();
         break;
 
+    case 'relatorio_detalhado':
+        $dashboardController->relatorioDetalhado();
+        break;
+
     case 'updateStatus':
         $dashboardController->updateStatus();
         break;
@@ -115,6 +119,19 @@ switch ($action) {
         $dashboardController->ajaxUnlinkProfessor();
         break;
 
+    case 'vincular_aluno':
+    case 'professor_vincular_aluno':
+        $dashboardController->vincularAluno();
+        break;
+
+    case 'ajaxBuscarAlunosParaVinculo':
+        $dashboardController->ajaxBuscarAlunosParaVinculo();
+        break;
+
+    case 'ajaxVincularAluno':
+        $dashboardController->ajaxVincularAluno();
+        break;
+
     case 'professor_dashboard':
         $professorController->dashboard();
         break;
@@ -141,6 +158,19 @@ switch ($action) {
 
     case 'comunicacao':
         $dashboardController->comunicacao();
+        break;
+
+    case 'visualizar_inscritos':
+    case 'professor_visualizar_inscritos':
+        $dashboardController->visualizarInscritos();
+        break;
+
+    case 'get_inscrito':
+        $dashboardController->getInscrito();
+        break;
+
+    case 'update_inscrito':
+        $dashboardController->updateInscrito();
         break;
 
     case 'get_profile':

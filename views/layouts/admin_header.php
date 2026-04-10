@@ -32,6 +32,7 @@ if (!is_admin()) {
                     <a href="index.php?action=register-oferta">Oferta</a>
                     <a href="index.php?action=register">Usuário</a>
                     <a href="index.php?action=vincular_professor">Vincular Professor</a>
+                    <a href="index.php?action=vincular_aluno">Vincular Aluno</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -39,12 +40,14 @@ if (!is_admin()) {
                 <div class="dropdown-content">
                     <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
                     <a href="index.php?action=comunicacao">Comunicação</a>
+                    <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
                 </div>
             </div>
             <div class="dropdown">
                 <a href="#">Relatório <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="index.php?action=relatorio_geral">Relatório Geral</a>
+                    <a href="index.php?action=relatorio_detalhado">Relatório Detalhado</a>
                 </div>
             </div>
             <div class="dropdown">
