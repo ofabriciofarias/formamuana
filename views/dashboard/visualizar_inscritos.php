@@ -75,9 +75,15 @@ if (is_professor()) {
             <form id="editForm" onsubmit="saveAluno(event)">
                 <input type="hidden" name="id" id="edit_id">
                 <input type="hidden" name="usuario_id" id="edit_usuario_id">
+                <div id="edit_error_message" style="display: none; background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb; text-align: center;"></div>
                 <div style="margin-bottom: 15px;">
                     <label style="display:block; margin-bottom:5px; font-weight:bold;">Nome</label>
                     <input type="text" name="nome" id="edit_nome" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Login</label>
+                    <input type="text" name="login" id="edit_login" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <small style="color: #666; font-size: 0.85em;">Atenção: Não coloque espaço em branco ou letras maiúsculas no login.</small>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <label style="display:block; margin-bottom:5px; font-weight:bold;">Email</label>
@@ -177,6 +183,7 @@ function viewAluno(id) {
 }
 
 function editAluno(id) {
+    document.getElementById('edit_error_message').style.display = 'none';
     document.getElementById('editModal').style.display = 'block';
     fetch(`index.php?action=get_inscrito&id=${id}`)
         .then(r => r.json())
@@ -189,6 +196,7 @@ function editAluno(id) {
             document.getElementById('edit_id').value = data.id || '';
             document.getElementById('edit_usuario_id').value = data.usuario_id || '';
             document.getElementById('edit_nome').value = data.nome || '';
+            document.getElementById('edit_login').value = data.usuario_login || '';
             document.getElementById('edit_email').value = data.email || '';
             document.getElementById('edit_whatsapp').value = data.whatsapp || '';
             document.getElementById('edit_telefone').value = data.telefone || '';
@@ -213,7 +221,9 @@ function saveAluno(e) {
             alert('Aluno atualizado com sucesso!');
             location.reload();
         } else {
-            alert(data.error || 'Erro ao atualizar.');
+            let errMsg = document.getElementById('edit_error_message');
+            errMsg.innerHTML = '<strong>Ops!</strong> ' + (data.error || 'Erro ao atualizar.');
+            errMsg.style.display = 'block';
         }
     })
     .catch(err => {

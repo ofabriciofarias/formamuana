@@ -10,7 +10,7 @@
     <form action="index.php?action=do_login" method="POST">
         <div class="form-group">
             <label for="login">Login</label>
-            <input type="text" id="login" name="login" required>
+            <input type="text" id="login" name="login" required oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
         </div>
         <div class="form-group">
             <label for="senha">Senha</label>

@@ -372,7 +372,7 @@
                 <form action="index.php?action=do_login" method="POST" class="modal-login-form">
                     <div class="form-group">
                         <label for="login_modal">Usuário</label>
-                        <input type="text" id="login_modal" name="login" required class="form-control">
+                        <input type="text" id="login_modal" name="login" required class="form-control" oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
                     </div>
                     <div class="form-group">
                         <label for="senha_modal">Senha</label>

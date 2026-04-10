@@ -56,6 +56,29 @@ class DashboardController {
         ");
         $estatisticasCursos = $stmtCursos->fetchAll(PDO::FETCH_ASSOC);
 
+        // Tabela agrupando as turmas pelo nome do curso
+        $stmtAgrupados = $db->query("
+            SELECT 
+                sub.curso,
+                SUM(sub.numero_vagas) as total_vagas,
+                SUM(sub.total_inscritos) as total_inscritos,
+                SUM(sub.total_aprovados) as total_aprovados
+            FROM (
+                SELECT 
+                    o.id,
+                    o.nome as curso, 
+                    o.numero_vagas,
+                    COUNT(aho.alunos_id) as total_inscritos,
+                    SUM(CASE WHEN aho.status_selecao = 'Aprovado' THEN 1 ELSE 0 END) as total_aprovados
+                FROM oferta o
+                LEFT JOIN alunos_has_oferta aho ON o.id = aho.oferta_id
+                GROUP BY o.id, o.nome, o.numero_vagas
+            ) sub
+            GROUP BY sub.curso
+            ORDER BY sub.curso ASC
+        ");
+        $estatisticasAgrupadas = $stmtAgrupados->fetchAll(PDO::FETCH_ASSOC);
+
         require_once __DIR__ . '/../views/dashboard/estatisticas.php';
     }
     //Fim do relatório detalhado.
@@ -584,7 +607,7 @@ class DashboardController {
             exit;
         }
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT a.*, u.email as usuario_email, u.id as usuario_id FROM alunos a LEFT JOIN usuarios u ON a.usuarios_id = u.id WHERE a.id = :id");
+        $stmt = $db->prepare("SELECT a.*, u.email as usuario_email, u.login as usuario_login, u.id as usuario_id FROM alunos a LEFT JOIN usuarios u ON a.usuarios_id = u.id WHERE a.id = :id");
         $stmt->execute(['id' => $id]);
         $aluno = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($aluno) {
@@ -616,8 +639,19 @@ class DashboardController {
             $email = $_POST['email'] ?? '';
             $whatsapp = $_POST['whatsapp'] ?? '';
             $telefone = $_POST['telefone'] ?? '';
+            $login = $_POST['login'] ?? '';
             $senha = $_POST['senha'] ?? '';
             $usuario_id = $_POST['usuario_id'] ?? null;
+
+            // Verifica se o login ou email já existe no banco de dados para outro usuário
+            if ($usuario_id) {
+                $stmtCheck = $db->prepare("SELECT id FROM usuarios WHERE (email = :email OR login = :login) AND id != :id");
+                $stmtCheck->execute(['email' => $email, 'login' => $login, 'id' => $usuario_id]);
+                if ($stmtCheck->fetch()) {
+                    echo json_encode(['error' => 'O login ou email informado já está sendo usado por outro usuário. Por favor, escolha outros.']);
+                    exit;
+                }
+            }
 
             $stmt = $db->prepare("UPDATE alunos SET nome = :nome, email = :email, whatsapp = :whatsapp, telefone = :telefone WHERE id = :id");
             $stmt->execute([
@@ -630,16 +664,18 @@ class DashboardController {
 
             if ($usuario_id && !empty($senha)) {
                 $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-                $stmtU = $db->prepare("UPDATE usuarios SET senha = :senha, email = :email WHERE id = :id");
+                $stmtU = $db->prepare("UPDATE usuarios SET senha = :senha, email = :email, login = :login WHERE id = :id");
                 $stmtU->execute([
                     'senha' => $senhaHash,
                     'email' => $email,
+                    'login' => $login,
                     'id' => $usuario_id
                 ]);
             } else if ($usuario_id) {
-                $stmtU = $db->prepare("UPDATE usuarios SET email = :email WHERE id = :id");
+                $stmtU = $db->prepare("UPDATE usuarios SET email = :email, login = :login WHERE id = :id");
                 $stmtU->execute([
                     'email' => $email,
+                    'login' => $login,
                     'id' => $usuario_id
                 ]);
             }

@@ -19,7 +19,7 @@ class UserController {
 
             if (empty($login) || empty($senha)) {
                 if (session_status() == PHP_SESSION_NONE) { session_start(); }
-                $_SESSION['flash_error'] = 'Login e senha são obrigatórios.';
+                $_SESSION['flash_error'] = 'Login (ou Email) e senha são obrigatórios.';
                 $_SESSION['open_modal'] = 'loginRequiredModal';
                 header('Location: index.php');
                 exit;
@@ -29,8 +29,9 @@ class UserController {
                 $db = Database::getInstance()->getConnection();
                 
                 // 1. Primeira consulta: Tabela de usuários
-                $stmt = $db->prepare("SELECT id, nome, senha, tipo_usuario_id FROM usuarios WHERE login = :login");
+                $stmt = $db->prepare("SELECT id, nome, senha, tipo_usuario_id FROM usuarios WHERE login = :login OR email = :email");
                 $stmt->bindParam(':login', $login);
+                $stmt->bindParam(':email', $login);
                 $stmt->execute();
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

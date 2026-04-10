@@ -75,6 +75,56 @@
                 </table>
             </div>
         </div>
+
+        <div style="background: var(--white); padding: 30px; border-radius: 10px; box-shadow: var(--shadow); margin-top: 30px;">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">Estatísticas Agrupadas por Curso (Todas as Turmas)</h3>
+            <div class="table-responsive">
+                <table class="responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Curso</th>
+                            <th>Total de Vagas</th>
+                            <th>Total de Inscritos</th>
+                            <th>Total de Aprovados</th>
+                            <th>Ocupação Total</th>
+                            <th>Concorrência Global (Inscritos/Vaga)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($estatisticasAgrupadas as $grupo): 
+                            $vagas = $grupo['total_vagas'] > 0 ? $grupo['total_vagas'] : 1; // Previne divisão por zero
+                            $ocupacao = ($grupo['total_aprovados'] / $vagas) * 100;
+                            $concorrencia = $grupo['total_inscritos'] / $vagas;
+                        ?>
+                            <tr>
+                                <td data-label="Curso"><?php echo htmlspecialchars($grupo['curso']); ?></td>
+                                <td data-label="Total de Vagas"><?php echo $grupo['total_vagas']; ?></td>
+                                <td data-label="Total de Inscritos"><?php echo $grupo['total_inscritos']; ?></td>
+                                <td data-label="Total de Aprovados"><?php echo $grupo['total_aprovados']; ?></td>
+                                <td data-label="Ocupação Total">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="flex: 1; background: #eee; height: 10px; border-radius: 5px; overflow: hidden;">
+                                            <div style="background: <?php echo $ocupacao > 100 ? '#e74c3c' : 'var(--secondary-color)'; ?>; width: <?php echo min($ocupacao, 100); ?>%; height: 100%;"></div>
+                                        </div>
+                                        <span style="font-size: 0.85rem; font-weight: bold; width: 45px; text-align: right;">
+                                            <?php echo number_format($ocupacao, 1, ',', '.'); ?>%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td data-label="Concorrência Global">
+                                    <?php echo number_format($concorrencia, 2, ',', '.'); ?> inscritos/vaga
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($estatisticasAgrupadas)): ?>
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 20px;">Nenhum curso encontrado.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </main>
 
