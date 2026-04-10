@@ -34,6 +34,10 @@ switch ($action) {
     case 'do_login':
         $userController->do_login();
         break;
+        
+    case 'recover_password':
+        $userController->recoverPassword();
+        break;
 
     case 'logout':
         $userController->logout();

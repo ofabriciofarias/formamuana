@@ -76,6 +76,77 @@ class UserController {
         exit;
     }
 
+    public function recoverPassword() {
+        if (session_status() == PHP_SESSION_NONE) { session_start(); }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php');
+            exit;
+        }
+
+        $loginOrEmail = trim($_POST['login_or_email'] ?? '');
+
+        if (empty($loginOrEmail)) {
+            $_SESSION['flash_error'] = 'Informe seu login ou email para recuperar a senha.';
+            $_SESSION['open_modal'] = 'recoverPasswordModal';
+            header('Location: index.php');
+            exit;
+        }
+
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id, nome, email FROM usuarios WHERE login = :login OR email = :email");
+            $stmt->bindParam(':login', $loginOrEmail);
+            $stmt->bindParam(':email', $loginOrEmail);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                // Gera uma senha aleatória de 8 caracteres
+                $newPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#'), 0, 8);
+                $senhaHash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+                // Atualiza o banco de dados com a nova senha
+                $updateStmt = $db->prepare("UPDATE usuarios SET senha = :senha WHERE id = :id");
+                $updateStmt->execute(['senha' => $senhaHash, 'id' => $user['id']]);
+
+                // Carrega a configuração do email e faz o envio
+                require_once __DIR__ . '/../config/mail.php';
+                $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+                $mail->isSMTP();
+                $mail->Host       = MAIL_HOST;
+                $mail->SMTPAuth   = MAIL_SMTP_AUTH;
+                $mail->Username   = MAIL_USERNAME;
+                $mail->Password   = MAIL_PASSWORD;
+                $mail->SMTPSecure = MAIL_SMTP_SECURE;
+                $mail->Port       = MAIL_PORT;
+                $mail->CharSet    = 'UTF-8';
+
+                $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+                $mail->addAddress($user['email'], $user['nome']);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Recuperação de Senha - Forma Muaná';
+                $mail->Body    = "Olá <strong>{$user['nome']}</strong>,<br><br>Sua senha foi redefinida com sucesso.<br><br>Sua nova senha de acesso é: <strong style='font-size:18px;'>{$newPassword}</strong><br><br>Recomendamos fortemente que você altere sua senha no painel após o login.<br><br>Atenciosamente,<br>Equipe Forma Muaná";
+                $mail->AltBody = "Olá {$user['nome']},\n\nSua senha foi redefinida com sucesso.\n\nSua nova senha de acesso é: {$newPassword}\n\nRecomendamos fortemente que você altere sua senha no painel após o login.\n\nAtenciosamente,\nEquipe Forma Muaná";
+
+                $mail->send();
+
+                $_SESSION['flash_success'] = 'Uma nova senha foi gerada e enviada para o seu email.';
+            } else {
+                $_SESSION['flash_error'] = 'Nenhum usuário encontrado com o login ou email informado.';
+                $_SESSION['open_modal'] = 'recoverPasswordModal';
+            }
+        } catch (Exception $e) {
+            $_SESSION['flash_error'] = 'Erro ao processar a recuperação de senha: ' . $e->getMessage();
+            $_SESSION['open_modal'] = 'recoverPasswordModal';
+        }
+
+        header('Location: index.php');
+        exit;
+    }
+
     public function showRegistrationForm() {
         require_once __DIR__ . '/../core/helpers.php';
 

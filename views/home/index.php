@@ -382,7 +382,28 @@
                 </form>
             </div>
             <div class="modal-footer">
+                <p style="margin-bottom: 10px;"><a href="#" onclick="closeModal('loginRequiredModal'); openModal('recoverPasswordModal'); return false;">Esqueceu a senha?</a></p>
                 <p>Não tem uma conta? <a href="#" onclick="closeModal('loginRequiredModal'); openModal('registerModal'); return false;">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperação de Senha -->
+    <div id="recoverPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('recoverPasswordModal')">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-key"></i> Recuperar Senha</h2>
+            </div>
+            <div class="modal-body">
+                <p>Digite seu login ou email cadastrado abaixo. O sistema enviará uma nova senha para o seu email.</p>
+                <form action="index.php?action=recover_password" method="POST">
+                    <div class="form-group">
+                        <label for="login_or_email">Login ou Email</label>
+                        <input type="text" id="login_or_email" name="login_or_email" required class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">Enviar Nova Senha</button>
+                </form>
             </div>
         </div>
     </div>
@@ -706,6 +727,26 @@
 
         // Ao carregar a página, verifica se há um erro de registro duplicado e abre o modal.
         document.addEventListener('DOMContentLoaded', function() {
+            <?php
+            if (isset($_SESSION['flash_success'])) {
+                $successMessage = $_SESSION['flash_success'];
+                unset($_SESSION['flash_success']);
+            ?>
+                const successDiv = document.createElement('div');
+                successDiv.style.position = 'fixed';
+                successDiv.style.top = '20px';
+                successDiv.style.right = '20px';
+                successDiv.style.background = '#2ecc71';
+                successDiv.style.color = 'white';
+                successDiv.style.padding = '15px 20px';
+                successDiv.style.borderRadius = '5px';
+                successDiv.style.zIndex = '10000';
+                successDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                successDiv.innerHTML = `<i class="fas fa-check-circle"></i> <?= addslashes($successMessage) ?>`;
+                document.body.appendChild(successDiv);
+                setTimeout(() => successDiv.remove(), 5000);
+            <?php } ?>
+
             <?php
             if (isset($_SESSION['flash_error']) && isset($_SESSION['open_modal'])) {
                 $errorMessage = $_SESSION['flash_error'];

@@ -35,13 +35,18 @@ if (!defined('BASE_URL')) define('BASE_URL', '/formamuana/');
                 <a href="#equipe">Realização</a>
                <!-- <a href="#localizacao">Localização</a> -->
                 
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <form action="index.php?action=do_login" method="POST" class="header-login-form">
-                        <input type="text" name="login" placeholder="Usuário" required oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
-                        <input type="password" name="senha" placeholder="Senha" required>
-                        <button type="submit"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-                    </form>
-                    <a href="#" onclick="openModal('registerModal'); return false;" class="btn btn-success" style="padding: 8px 15px; font-size: 0.8rem; text-transform: none; white-space: nowrap;">Aluno? Cadastre-se</a>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <form action="index.php?action=do_login" method="POST" class="header-login-form">
+                            <input type="text" name="login" placeholder="Usuário" required oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
+                            <input type="password" name="senha" placeholder="Senha" required>
+                            <button type="submit"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+                        </form>
+                        <a href="#" onclick="openModal('registerModal'); return false;" class="btn btn-success" style="padding: 8px 15px; font-size: 0.8rem; text-transform: none; white-space: nowrap;">Aluno? Cadastre-se</a>
+                    </div>
+                    <div style="text-align: left; padding-left: 5px; color: var(--text-dark);">
+                        <a href="#" onclick="openModal('recoverPasswordModal'); return false;" style="font-size: 0.8rem; text-decoration: underline;">Esqueceu a senha?</a>
+                    </div>
                 </div>
             </nav>
         </div>
