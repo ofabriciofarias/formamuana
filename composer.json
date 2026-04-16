@@ -1,0 +1,20 @@
+{
+    "name": "formamuana/app",
+    "description": "Sistema de gestão de cursos e inscrições FormaMuanã",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^7.0"
+    },
+    "autoload": {
+        "classmap": [
+            "core/",
+            "controllers/",
+            "models/"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

@@ -6,5 +6,28 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Aluno' => $baseDir . '/models/Aluno.php',
+    'AlunoController' => $baseDir . '/controllers/AlunoController.php',
+    'AlunoOferta' => $baseDir . '/models/AlunoOferta.php',
+    'Aula' => $baseDir . '/models/Aula.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'DashboardController' => $baseDir . '/controllers/DashboardController.php',
+    'Database' => $baseDir . '/core/Database.php',
+    'GeneticAlgorithm' => $baseDir . '/core/GeneticAlgorithm.php',
+    'HomeController' => $baseDir . '/controllers/HomeController.php',
+    'ListaFrequencia' => $baseDir . '/models/ListaFrequencia.php',
+    'Oferta' => $baseDir . '/models/Oferta.php',
+    'OfertaController' => $baseDir . '/controllers/OfertaController.php',
+    'PHPMailer\\PHPMailer\\DSNConfigurator' => $vendorDir . '/phpmailer/phpmailer/src/DSNConfigurator.php',
+    'PHPMailer\\PHPMailer\\Exception' => $vendorDir . '/phpmailer/phpmailer/src/Exception.php',
+    'PHPMailer\\PHPMailer\\OAuth' => $vendorDir . '/phpmailer/phpmailer/src/OAuth.php',
+    'PHPMailer\\PHPMailer\\OAuthTokenProvider' => $vendorDir . '/phpmailer/phpmailer/src/OAuthTokenProvider.php',
+    'PHPMailer\\PHPMailer\\PHPMailer' => $vendorDir . '/phpmailer/phpmailer/src/PHPMailer.php',
+    'PHPMailer\\PHPMailer\\POP3' => $vendorDir . '/phpmailer/phpmailer/src/POP3.php',
+    'PHPMailer\\PHPMailer\\SMTP' => $vendorDir . '/phpmailer/phpmailer/src/SMTP.php',
+    'Professor' => $baseDir . '/models/Professor.php',
+    'ProfessorController' => $baseDir . '/controllers/ProfessorController.php',
+    'TipoUsuario' => $baseDir . '/models/TipoUsuario.php',
+    'UserController' => $baseDir . '/controllers/UserController.php',
+    'Usuario' => $baseDir . '/models/Usuario.php',
 );

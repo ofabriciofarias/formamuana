@@ -21,7 +21,30 @@ class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
     );
 
     public static $classMap = array (
+        'Aluno' => __DIR__ . '/../..' . '/models/Aluno.php',
+        'AlunoController' => __DIR__ . '/../..' . '/controllers/AlunoController.php',
+        'AlunoOferta' => __DIR__ . '/../..' . '/models/AlunoOferta.php',
+        'Aula' => __DIR__ . '/../..' . '/models/Aula.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'DashboardController' => __DIR__ . '/../..' . '/controllers/DashboardController.php',
+        'Database' => __DIR__ . '/../..' . '/core/Database.php',
+        'GeneticAlgorithm' => __DIR__ . '/../..' . '/core/GeneticAlgorithm.php',
+        'HomeController' => __DIR__ . '/../..' . '/controllers/HomeController.php',
+        'ListaFrequencia' => __DIR__ . '/../..' . '/models/ListaFrequencia.php',
+        'Oferta' => __DIR__ . '/../..' . '/models/Oferta.php',
+        'OfertaController' => __DIR__ . '/../..' . '/controllers/OfertaController.php',
+        'PHPMailer\\PHPMailer\\DSNConfigurator' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/DSNConfigurator.php',
+        'PHPMailer\\PHPMailer\\Exception' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/Exception.php',
+        'PHPMailer\\PHPMailer\\OAuth' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/OAuth.php',
+        'PHPMailer\\PHPMailer\\OAuthTokenProvider' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/OAuthTokenProvider.php',
+        'PHPMailer\\PHPMailer\\PHPMailer' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/PHPMailer.php',
+        'PHPMailer\\PHPMailer\\POP3' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/POP3.php',
+        'PHPMailer\\PHPMailer\\SMTP' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/SMTP.php',
+        'Professor' => __DIR__ . '/../..' . '/models/Professor.php',
+        'ProfessorController' => __DIR__ . '/../..' . '/controllers/ProfessorController.php',
+        'TipoUsuario' => __DIR__ . '/../..' . '/models/TipoUsuario.php',
+        'UserController' => __DIR__ . '/../..' . '/controllers/UserController.php',
+        'Usuario' => __DIR__ . '/../..' . '/models/Usuario.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

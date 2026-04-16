@@ -1,0 +1,69 @@
+services:
+  app:
+    build: .
+    container_name: formamuana_app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-forma_muana}
+      - DB_USER=${DB_USER:-formamuana}
+      - DB_PASS=${DB_PASS:-secret}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_SMTP_SECURE=${MAIL_SMTP_SECURE:-ssl}
+      - MAIL_PORT=${MAIL_PORT:-465}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME:-Forma Muana}
+      - MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
+    networks:
+      - formamuana_net
+
+  db:
+    image: mysql:8.0
+    container_name: formamuana_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-rootsecret}
+      MYSQL_DATABASE: ${DB_NAME:-forma_muana}
+      MYSQL_USER: ${DB_USER:-formamuana}
+      MYSQL_PASSWORD: ${DB_PASS:-secret}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./banco_de_dados.sql:/docker-entrypoint-initdb.d/banco_de_dados.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - formamuana_net
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: formamuana_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USER:-formamuana}
+      PMA_PASSWORD: ${DB_PASS:-secret}
+    depends_on:
+      - db
+    networks:
+      - formamuana_net
+
+volumes:
+  db_data:
+
+networks:
+  formamuana_net:
+    driver: bridge
