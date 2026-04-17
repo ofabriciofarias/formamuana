@@ -17,8 +17,8 @@
                     <p><strong>Local:</strong> <?= htmlspecialchars($turma['local']) ?></p>
                     <p><strong>Turno:</strong> <?= htmlspecialchars($turma['turno']) ?></p>
                     <div class="turma-actions">
-                        <a href="index.php?action=lancar_frequencia&oferta_id=<?= $turma['id'] ?>" class="btn btn-primary" style="width: 100%; text-align:center; margin-bottom: 10px;">Lançar Frequência</a>
-                        <a href="index.php?action=consultar_frequencia&oferta_id=<?= $turma['id'] ?>" class="btn btn-success" style="width: 100%; text-align:center;">Consultar Frequência</a>
+                        <a href="/professor/frequencia?oferta_id=<?= $turma['id'] ?>" class="btn btn-primary" style="width: 100%; text-align:center; margin-bottom: 10px;">Lançar Frequência</a>
+                        <a href="/professor/frequencia/consultar?oferta_id=<?= $turma['id'] ?>" class="btn btn-success" style="width: 100%; text-align:center;">Consultar Frequência</a>
                     </div>
                 </div>
             <?php endforeach; ?>

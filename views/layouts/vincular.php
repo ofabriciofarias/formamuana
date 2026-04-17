@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         professoresContainer.style.display = 'none';
 
         try {
-            const response = await fetch(`index.php?action=vincular_professor&oferta_id=${ofertaId}`, {
+            const response = await fetch(`/admin/vincular-professor&oferta_id=${ofertaId}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             if (!response.ok) throw new Error('Falha na resposta do servidor.');
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const linkProfessor = async (professorId) => {
         try {
-            const response = await fetch('index.php?action=ajaxLinkProfessor', {
+            const response = await fetch('/admin/professor/vincular', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ professor_id: professorId, oferta_id: currentOfertaId })
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const unlinkProfessor = async (vinculoId) => {
         try {
-            const response = await fetch('index.php?action=ajaxUnlinkProfessor', {
+            const response = await fetch('/admin/professor/desvincular', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vinculo_id: vinculoId })

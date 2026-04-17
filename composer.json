@@ -4,6 +4,7 @@
     "type": "project",
     "require": {
         "php": ">=7.4",
+        "nikic/fast-route": "^1.3",
         "phpmailer/phpmailer": "^7.0"
     },
     "autoload": {

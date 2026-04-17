@@ -12,7 +12,7 @@ unset($_SESSION['errors'], $_SESSION['old_data']);
 <div class="container">
     <h2>Cadastro de Oferta</h2>
 
-    <form action="index.php?action=store-oferta" method="POST" enctype="multipart/form-data">
+    <form action="/admin/oferta" method="POST" enctype="multipart/form-data">
         <div class="form-group">
             <label for="nome">Nome:</label>
             <input type="text" name="nome" id="nome" class="form-control" required value="<?= htmlspecialchars($old_data['nome'] ?? '') ?>">
@@ -103,7 +103,7 @@ unset($_SESSION['errors'], $_SESSION['old_data']);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form[action="index.php?action=store-oferta"]');
+    const form = document.querySelector('form[action="/admin/oferta"]');
     const inicioAulas = document.getElementById('inicio_aulas');
     const fimAulas = document.getElementById('fim_aulas');
     const inicioHora = document.getElementById('inicio_hora_aula');

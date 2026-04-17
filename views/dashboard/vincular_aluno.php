@@ -23,7 +23,7 @@ if (is_professor()) {
 <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2>Vincular Aluno à Turma</h2>
-        <a href="index.php?action=dashboard" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
+        <a href="/admin" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
     </div>
 
     <div id="notification"></div>
@@ -219,7 +219,7 @@ function searchAlunos() {
     const tbody = document.getElementById('alunos-tbody');
     tbody.innerHTML = '<tr><td colspan="3" class="list-placeholder">Buscando...</td></tr>';
     
-    fetch(`index.php?action=ajaxBuscarAlunosParaVinculo&oferta_id=${currentOfertaId}&busca=${encodeURIComponent(busca)}`)
+    fetch(`/admin/alunos/buscar&oferta_id=${currentOfertaId}&busca=${encodeURIComponent(busca)}`)
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
@@ -274,7 +274,7 @@ window.onclick = function(event) {
 function viewAluno(id) {
     document.getElementById('viewModal').style.display = 'block';
     document.getElementById('viewModalBody').innerHTML = '<p>Carregando...</p>';
-    fetch(`index.php?action=get_inscrito&id=${id}`)
+    fetch(`/admin/inscrito&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {
@@ -320,7 +320,7 @@ function submitVinculo(e) {
     e.preventDefault();
     const fd = new FormData(document.getElementById('vinculoForm'));
     
-    fetch('index.php?action=ajaxVincularAluno', {
+    fetch('/admin/aluno/vincular', {
         method: 'POST',
         body: fd
     })

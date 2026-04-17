@@ -15,7 +15,7 @@ class DashboardController {
 
     public function index() {
         if (!is_admin() && !is_professor()) {
-            header('Location: ' . BASE_URL . 'index.php?action=login');
+            header('Location: /login');
             exit;
         }
 
@@ -113,10 +113,10 @@ class DashboardController {
         $alunoId = $_POST['aluno_id'] ?? null;
         $ofertaId = $_POST['oferta_id'] ?? null;
         $status = $_POST['status_selecao'] ?? null;
-        $redirectTo = $_POST['redirect_to'] ?? 'relatorio_geral'; // Default para o comportamento antigo
-        
+        $redirectTo = $_POST['redirect_to'] ?? 'relatorio'; // Default para o comportamento antigo
+
         // Redirecionamento mantendo os filtros
-        $redirectUrl = "index.php?action=" . $redirectTo . "&oferta_id=" . ($_POST['current_oferta_id'] ?? '') . "&busca=" . ($_POST['current_busca'] ?? '');
+        $redirectUrl = "/admin/" . $redirectTo . "?oferta_id=" . ($_POST['current_oferta_id'] ?? '') . "&busca=" . ($_POST['current_busca'] ?? '');
 
         if ($alunoId && $ofertaId && $status) {
             AlunoOferta::updateStatus($alunoId, $ofertaId, $status);

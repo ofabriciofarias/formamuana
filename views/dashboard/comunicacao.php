@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body: document.getElementById('email-body').value.replace(/\n/g, '<br>')
         };
 
-        fetch('index.php?action=send_email_notification', {
+        fetch('/admin/email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify(payload)

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../core/helpers.php';
 
 // Se o usuário não for admin, redireciona para o login
 if (!is_admin()) {
-    header('Location: index.php?action=login');
+    header('Location: /login');
     exit;
 }
 ?>
@@ -16,38 +16,38 @@ if (!is_admin()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Forma Muana</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="/views/assets/css/style.css">
 </head>
 <body>
 
 <header class="admin-header">
     <div class="container">
         <div class="logo">
-            <a href="index.php?action=dashboard">Admin Forma Muana</a>
+            <a href="/admin">Admin Forma Muana</a>
         </div>
         <nav class="nav-links">
             <div class="dropdown">
                 <a href="#">Cadastro <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
-                    <a href="index.php?action=register-oferta">Oferta</a>
-                    <a href="index.php?action=register">Usuário</a>
-                    <a href="index.php?action=vincular_professor">Vincular Professor</a>
-                    <a href="index.php?action=vincular_aluno">Vincular Aluno</a>
+                    <a href="/admin/oferta/nova">Oferta</a>
+                    <a href="/register">Usuário</a>
+                    <a href="/admin/vincular-professor">Vincular Professor</a>
+                    <a href="/admin/vincular-aluno">Vincular Aluno</a>
                 </div>
             </div>
             <div class="dropdown">
                 <a href="#">Ações<i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
-                    <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
-                    <a href="index.php?action=comunicacao">Comunicação</a>
-                    <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
+                    <a href="/admin/selecao">Seleção de Alunos</a>
+                    <a href="/admin/comunicacao">Comunicação</a>
+                    <a href="/admin/inscritos">Visualizar Inscritos</a>
                 </div>
             </div>
             <div class="dropdown">
                 <a href="#">Relatório <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
-                    <a href="index.php?action=relatorio_geral">Relatório Geral</a>
-                    <a href="index.php?action=relatorio_detalhado">Relatório Detalhado</a>
+                    <a href="/admin/relatorio">Relatório Geral</a>
+                    <a href="/admin/relatorio/detalhado">Relatório Detalhado</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -56,7 +56,7 @@ if (!is_admin()) {
                     <a href="#" id="profileBtn">Meu Perfil</a>
                 </div>
             </div>
-            <a href="index.php?action=logout">Logout</a>
+            <a href="/logout">Logout</a>
         </nav>
     </div>
 </header>
@@ -143,7 +143,7 @@ window.onclick = function(event) {
 
 document.getElementById('profileBtn').addEventListener('click', function(e) {
     e.preventDefault();
-    fetch('index.php?action=get_profile')
+    fetch('/perfil')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -167,7 +167,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('index.php?action=update_profile', {
+    fetch('/perfil', {
         method: 'POST',
         body: formData
     })

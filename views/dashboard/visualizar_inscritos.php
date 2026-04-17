@@ -18,7 +18,7 @@ if (is_professor()) {
 <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2>Visualizar Inscritos</h2>
-        <a href="index.php?action=dashboard" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
+        <a href="/admin" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
     </div>
 
     <div class="card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
@@ -154,7 +154,7 @@ window.onclick = function(event) {
 function viewAluno(id) {
     document.getElementById('viewModal').style.display = 'block';
     document.getElementById('viewModalBody').innerHTML = '<p>Carregando...</p>';
-    fetch(`index.php?action=get_inscrito&id=${id}`)
+    fetch(`/admin/inscrito&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {
@@ -185,7 +185,7 @@ function viewAluno(id) {
 function editAluno(id) {
     document.getElementById('edit_error_message').style.display = 'none';
     document.getElementById('editModal').style.display = 'block';
-    fetch(`index.php?action=get_inscrito&id=${id}`)
+    fetch(`/admin/inscrito&id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {
@@ -211,7 +211,7 @@ function editAluno(id) {
 function saveAluno(e) {
     e.preventDefault();
     const fd = new FormData(document.getElementById('editForm'));
-    fetch('index.php?action=update_inscrito', {
+    fetch('/admin/inscrito/atualizar', {
         method: 'POST',
         body: fd
     })

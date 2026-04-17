@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Servir arquivos e diretórios existentes diretamente (assets, uploads, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirecionar tudo para o index.php
+RewriteRule ^ index.php [QSA,L]

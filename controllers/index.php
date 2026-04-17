@@ -10,10 +10,10 @@
         <p style="color: #666; margin-top: 10px;">Utilize o menu superior para gerenciar ofertas, usuários e visualizar relatórios.</p>
         
         <div style="margin-top: 40px; display: flex; justify-content: center; gap: 20px;">
-            <a href="index.php?action=register-oferta" class="btn btn-primary">
+            <a href="/admin/oferta/nova" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> Nova Oferta
             </a>
-            <a href="index.php?action=relatorio_geral" class="btn btn-success">
+            <a href="/admin/relatorio" class="btn btn-success">
                 <i class="fas fa-chart-bar"></i> Relatórios
             </a>
         </div>

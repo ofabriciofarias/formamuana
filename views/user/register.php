@@ -15,7 +15,7 @@ if (isset($_SESSION['flash_error'])): ?>
     <div class="alert-info" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb; padding: 1rem; margin-bottom: 1rem; border-radius: .25rem;"><?= $_SESSION['flash_success'] ?></div>
     <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
-<form action="index.php?action=register" method="POST" enctype="multipart/form-data">
+<form action="/register" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <label for="nome">Nome Completo</label>
         <input type="text" id="nome" name="nome" required>

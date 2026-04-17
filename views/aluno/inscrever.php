@@ -21,7 +21,7 @@ if ($oferta_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forma Muana - Inscrição</title>
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="/views/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
@@ -30,16 +30,16 @@ if ($oferta_id) {
 <header>
     <div class="container nav-flex">
         <div class="logo">
-            <a href="index.php?action=aluno_dashboard"><i class="fas fa-graduation-cap"></i> Forma Muana</a>
+            <a href="/aluno/dashboard"><i class="fas fa-graduation-cap"></i> Forma Muana</a>
         </div>
         
         <nav class="nav-links" id="nav-links">
-            <a href="index.php?action=aluno_dashboard">Início</a>
-            <a href="index.php?action=aluno_dashboard#ofertas">Vagas</a>
-            <a href="index.php?action=aluno_dashboard#cursos">Cursos</a>
+            <a href="/aluno/dashboard">Início</a>
+            <a href="/aluno/dashboard#ofertas">Vagas</a>
+            <a href="/aluno/dashboard#cursos">Cursos</a>
 
-            <a href="index.php?action=aluno_profile" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
-            <a href="index.php?action=logout" class="btn" style="background-color: #c0392b; color: white; padding: 8px 20px;">Sair</a>
+            <a href="/perfil" class="btn btn-primary" style="margin-left: 15px; padding: 8px 20px;">Meu Perfil</a>
+            <a href="/logout" class="btn" style="background-color: #c0392b; color: white; padding: 8px 20px;">Sair</a>
         </nav>
 
         <div class="mobile-toggle" id="mobile-toggle">
@@ -51,7 +51,7 @@ if ($oferta_id) {
 <div class="container" style="padding-top: 120px; padding-bottom: 50px;">
     <h2 class="section-title">Formulário de Inscrição na Oferta</h2>
 
-    <form action="index.php?action=do_inscricao_oferta&oferta_id=<?php echo htmlspecialchars($_GET['oferta_id']); ?>" method="POST">
+    <form action="/aluno/inscricao?oferta_id=<?php echo htmlspecialchars($_GET['oferta_id']); ?>" method="POST">
         <fieldset>
             <legend>Informações Socioeconômicas</legend>
             <div class="form-group">

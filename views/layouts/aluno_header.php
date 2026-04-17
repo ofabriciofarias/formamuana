@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../core/helpers.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forma Muana - Área do Aluno</title>
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="/views/assets/css/style.css">
     <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Google Fonts -->
@@ -21,7 +21,7 @@ require_once __DIR__ . '/../../core/helpers.php';
 <header>
     <div class="container nav-flex">
         <div class="logo">
-            <a href="index.php?action=aluno_dashboard"><i class="fas fa-graduation-cap"></i>Forma Muaná</a>
+            <a href="/aluno/dashboard"><i class="fas fa-graduation-cap"></i>Forma Muaná</a>
         </div>
         <nav>
             <div class="mobile-toggle" id="mobile-toggle">
@@ -30,11 +30,11 @@ require_once __DIR__ . '/../../core/helpers.php';
             <ul class="nav-links" id="nav-links">
                 <?php if (is_logged_in() && is_aluno()): ?>
                     <!-- Menu do Aluno -->
-                    <li><a href="index.php?action=aluno_dashboard#inicio">Inicio</a></li>
-                    <li><a href="index.php?action=aluno_dashboard#ofertas">Vagas</a></li>
-                    <li><a href="index.php?action=aluno_dashboard#minhas_inscricoes">Minhas Inscrições</a></li>
-                    <li><a href="index.php?action=aluno_dashboard#cursos">Cursos</a></li>
-                    <li><a href="index.php?action=aluno_dashboard#equipe">Realização</a></li>
+                    <li><a href="/aluno/dashboard#inicio">Inicio</a></li>
+                    <li><a href="/aluno/dashboard#ofertas">Vagas</a></li>
+                    <li><a href="/aluno/dashboard#minhas_inscricoes">Minhas Inscrições</a></li>
+                    <li><a href="/aluno/dashboard#cursos">Cursos</a></li>
+                    <li><a href="/aluno/dashboard#equipe">Realização</a></li>
                     
                     <li class="dropdown">
                         <a href="#" class="dropbtn">Configurações</a>
@@ -43,7 +43,7 @@ require_once __DIR__ . '/../../core/helpers.php';
                         </div>
                     </li>
 
-                    <li><a href="index.php?action=logout" class="btn btn-primary">Sair</a></li>
+                    <li><a href="/logout" class="btn btn-primary">Sair</a></li>
                 <?php else: ?>
                      <!-- Fallback se não estiver logado ou não for aluno, manda para a home -->
                     <li><a href="index.php#sobre">Sobre</a></li>
@@ -135,7 +135,7 @@ window.onclick = function(event) {
 
 document.getElementById('profileBtn').addEventListener('click', function(e) {
     e.preventDefault();
-    fetch('index.php?action=get_profile')
+    fetch('/perfil')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const formData = new FormData(this);
         
-        fetch('index.php?action=update_profile', {
+        fetch('/perfil', {
             method: 'POST',
             body: formData
         })

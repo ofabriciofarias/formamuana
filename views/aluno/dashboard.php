@@ -1,6 +1,6 @@
     <!-- Hero Slider (Simulando a Home) -->
     <section id = "inicio" class="hero-slider">
-        <div class="slide active" style="background-image: url('views/assets/img/certificacao.jpeg'); background-color: #222;">
+        <div class="slide active" style="background-image: url('/views/assets/img/certificacao.jpeg'); background-color: #222;">
             <div class="container hero-content">
                 <h1>Bem-vindo ao Forma Muana</h1>
                 <p>Qualificação profissional e oportunidades para o seu futuro.</p>
@@ -193,7 +193,7 @@
                 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/informatica.png" alt="Curso 1">
+                        <img src="/views/assets/img/informatica.png" alt="Curso 1">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Informática</h3>
@@ -202,7 +202,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/tecnologias.png" alt="Curso 2">
+                        <img src="/views/assets/img/tecnologias.png" alt="Curso 2">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Tecnologias Digitais</h3>
@@ -211,7 +211,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/libras.png" class="img-centered" alt="Curso 3">
+                        <img src="/views/assets/img/libras.png" class="img-centered" alt="Curso 3">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Libras</h3>
@@ -220,7 +220,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/assistente.png" class="img-centered" alt="Curso 4">
+                        <img src="/views/assets/img/assistente.png" class="img-centered" alt="Curso 4">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Assistente Administrativo</h3>
@@ -241,7 +241,7 @@
             <div class="team-grid">
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/sectet.jpg" alt="Curso 1">
+                        <img src="/views/assets/img/sectet.jpg" alt="Curso 1">
                     </div>
                     <span class="role-tag">SECTET</span>
                     <h3>Agência Financiadora</h3>
@@ -251,7 +251,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/ufpa.jpeg" alt="Curso 2">
+                        <img src="/views/assets/img/ufpa.jpeg" alt="Curso 2">
                     </div>
                     <span class="role-tag">UFPA</span>
                     <h3>Execução do Projeto</h3>
@@ -261,7 +261,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
+                        <img src="/views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
                     </div>
                     <span class="role-tag">FADESP</span>
                     <h3>Suporte Administrativo</h3>
@@ -336,7 +336,7 @@
                 </div>
                 <?php
                     // Inclui o formulário de cadastro do aluno
-                    $formAction = 'index.php?action=register_aluno';
+                    $formAction = '/aluno/cadastro';
                     $btnText = 'Salvar e Concluir Cadastro';
                     require __DIR__ . '/../aluno/register.php';
                 ?>
@@ -585,7 +585,7 @@
                 const turno = inscreverBtn.dataset.turno;
 
                 const form = inscricaoModal.querySelector('form');
-                form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
+                form.action = `/aluno/inscricao?oferta_id=${ofertaId}`;
                 
                 const turnoInput = document.getElementById('turno_preferencia_modal');
                 if (turnoInput) turnoInput.value = turno;

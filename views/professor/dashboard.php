@@ -10,9 +10,9 @@
                     </div>
                     <p class="mb-1"><?= htmlspecialchars($turma['descricao']) ?></p>
                     <div class="mt-2">
-                        <a href="index.php?action=lancar_frequencia&oferta_id=<?= $turma['id'] ?>" class="btn btn-primary btn-sm">Lançar Frequência</a>
-                        <a href="index.php?action=consultar_frequencia&oferta_id=<?= $turma['id'] ?>" class="btn btn-secondary btn-sm">Consultar Frequência</a>
-                        <a href="index.php?action=notas&oferta_id=<?= $turma['id'] ?>" class="btn btn-info btn-sm">Cadastrar Nota</a>
+                        <a href="/professor/frequencia?oferta_id=<?= $turma['id'] ?>" class="btn btn-primary btn-sm">Lançar Frequência</a>
+                        <a href="/professor/frequencia/consultar?oferta_id=<?= $turma['id'] ?>" class="btn btn-secondary btn-sm">Consultar Frequência</a>
+                        <a href="/professor/notas?oferta_id=<?= $turma['id'] ?>" class="btn btn-info btn-sm">Cadastrar Nota</a>
                     </div>
                 </div>
             <?php endforeach; ?>

@@ -7,7 +7,7 @@
         <p class="error-message">Login ou senha inválidos.</p>
     <?php endif; ?>
 
-    <form action="index.php?action=do_login" method="POST">
+    <form action="/login" method="POST">
         <div class="form-group">
             <label for="login">Login</label>
             <input type="text" id="login" name="login" required oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
@@ -19,7 +19,7 @@
         <button type="submit" class="btn">Entrar</button>
     </form>
     <div class="register-link">
-        <p>Não tem uma conta? <a href="index.php?action=register">Cadastre-se</a></p>
+        <p>Não tem uma conta? <a href="/register">Cadastre-se</a></p>
     </div>
 </div>
 

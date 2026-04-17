@@ -1,7 +1,7 @@
 <?php
 // Define valores padrão para evitar erros de undefined index
 $aluno = $aluno ?? [];
-$formAction = $formAction ?? 'index.php?action=register_aluno';
+$formAction = $formAction ?? '/aluno/cadastro';
 $btnText = isset($isEditing) && $isEditing ? 'Salvar Alterações' : 'Concluir Cadastro';
 ?>
 <div class="card" style="padding: 30px; background: #fff; border-radius: 10px; box-shadow: var(--shadow);">

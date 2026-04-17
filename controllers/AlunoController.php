@@ -16,7 +16,7 @@ class AlunoController {
     public function dashboard() {
         // Garante que apenas alunos logados acessem
         if (!is_aluno()) {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -69,12 +69,12 @@ class AlunoController {
     public function showAlunoRegistrationForm() {
         // Permite Admin ou Aluno
         if (!is_admin() && !is_aluno()) {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
         $aluno = []; // Dados vazios por padrão
-        $formAction = 'index.php?action=register_aluno';
+        $formAction = '/aluno/cadastro';
         $isEditing = false;
 
         // Se for aluno, define o header público/aluno. Se admin, header admin.
@@ -105,13 +105,13 @@ class AlunoController {
      */
     public function registerAluno() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
         
         // Permite Admin ou Aluno
         if (!is_admin() && !is_aluno()) {
-             header('Location: index.php');
+             header('Location: /');
              exit;
         }
 
@@ -166,10 +166,10 @@ class AlunoController {
             // Exibe mensagem de sucesso com redirecionamento
             if (is_admin()) {
                 require_once __DIR__ . '/../views/layouts/admin_header.php';
-                $redirectUrl = 'index.php?action=register';
+                $redirectUrl = '/register';
             } else {
                 require_once __DIR__ . '/../views/layouts/aluno_header.php';
-                $redirectUrl = 'index.php?action=aluno_dashboard';
+                $redirectUrl = '/aluno/dashboard';
             }
 
             echo "<div>
@@ -197,7 +197,7 @@ class AlunoController {
      */
     public function updateAluno() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !is_aluno()) {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -230,7 +230,7 @@ class AlunoController {
         $params[':uid'] = $_SESSION['user_id'];
 
         if (empty($updateParts)) {
-            header('Location: index.php?action=aluno_profile');
+            header('Location: /perfil');
             exit;
         }
 
@@ -241,7 +241,7 @@ class AlunoController {
             $stmt = $db->prepare($sql);
             $stmt->execute($params);
 
-            header('Location: index.php?action=aluno_dashboard');
+            header('Location: /aluno/dashboard');
             exit;
         } catch (PDOException $e) {
             die("Erro ao atualizar perfil: " . $e->getMessage());
@@ -284,7 +284,7 @@ class AlunoController {
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -295,7 +295,7 @@ class AlunoController {
                 echo json_encode(['success' => false, 'message' => 'Acesso negado. Faça o login novamente.']);
                 exit;
             }
-            header('Location: index.php?action=login');
+            header('Location: /login');
             exit;
         }
 
@@ -345,7 +345,7 @@ class AlunoController {
                 http_response_code(409); // Conflict
                 header('Content-Type: application/json'); echo json_encode(['success' => false, 'message' => 'Sua inscrição para esta vaga já foi realizada.']); exit;
             }
-            echo "<script>alert('Sua inscrição para esta vaga já foi realizada.'); window.location.href = 'index.php?action=aluno_dashboard';</script>";
+            echo "<script>alert('Sua inscrição para esta vaga já foi realizada.'); window.location.href = '/aluno/dashboard';</script>";
             exit;
         }
 
@@ -378,7 +378,7 @@ class AlunoController {
                 echo json_encode(['success' => true, 'message' => 'Inscrição realizada com sucesso!']);
                 exit;
             }
-            echo "<script>alert('Inscrição realizada com sucesso!'); window.location.href = 'index.php?action=aluno_dashboard';</script>";
+            echo "<script>alert('Inscrição realizada com sucesso!'); window.location.href = '/aluno/dashboard';</script>";
         } else {
             $message = 'Não foi possível realizar a inscrição. Você já pode estar inscrito nesta oferta ou ocorreu um erro.';
             if ($isAjax) {
@@ -389,7 +389,7 @@ class AlunoController {
             echo "<div class='container' style='padding-top: 100px; text-align: center; font-family: sans-serif;'>
                     <h2 style='color: #c0392b;'>Atenção</h2>
                     <p>Não foi possível realizar a inscrição. Você já pode estar inscrito nesta oferta ou ocorreu um erro.</p>
-                    <a href='index.php?action=aluno_dashboard' style='text-decoration: underline;'>Voltar ao Painel</a>
+                    <a href='/aluno/dashboard' style='text-decoration: underline;'>Voltar ao Painel</a>
                   </div>
                   ";
         }

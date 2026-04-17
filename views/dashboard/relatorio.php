@@ -3,7 +3,7 @@
 <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2>Relatório Geral de Inscritos</h2>
-        <a href="index.php?action=dashboard" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
+        <a href="/admin" class="btn" style="background-color: #95a5a6; color: white;">Voltar</a>
     </div>
 
     <!-- Filtros Superiores -->
@@ -74,7 +74,7 @@
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['renda_familiar']) ?></td>
                             <td style="padding: 12px;"><?= htmlspecialchars($inscrito['turno_preferencia']) ?></td>
                             <td style="padding: 12px;">
-                                <form action="index.php?action=updateStatus" method="POST">
+                                <form action="/admin/selecao/status" method="POST">
                                     <input type="hidden" name="aluno_id" value="<?= $inscrito['alunos_id'] ?>">
                                     <input type="hidden" name="oferta_id" value="<?= $inscrito['oferta_id'] ?>">
                                     <input type="hidden" name="current_oferta_id" value="<?= $_GET['oferta_id'] ?? '' ?>">

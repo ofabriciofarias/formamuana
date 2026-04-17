@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.target.disabled = true;
                 e.target.textContent = 'Salvando...';
 
-                fetch('index.php?action=updateStatusAjax', {
+                fetch('/admin/selecao/statusAjax', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonElement.disabled = true;
         loadingElement.style.display = 'block';
 
-        fetch('index.php?action=run_ga_selection', {
+        fetch('/admin/selecao/ga', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify(params)

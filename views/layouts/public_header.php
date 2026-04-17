@@ -14,7 +14,7 @@ if (!defined('BASE_URL')) define('BASE_URL', '/formamuana/');
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="/views/assets/css/style.css">
 </head>
 <body>
 
@@ -37,7 +37,7 @@ if (!defined('BASE_URL')) define('BASE_URL', '/formamuana/');
                 
                 <div style="display: flex; flex-direction: column; gap: 5px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <form action="index.php?action=do_login" method="POST" class="header-login-form">
+                        <form action="/login" method="POST" class="header-login-form">
                             <input type="text" name="login" placeholder="Usuário" required oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
                             <input type="password" name="senha" placeholder="Senha" required>
                             <button type="submit"><i class="fas fa-sign-in-alt"></i> Entrar</button>

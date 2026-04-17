@@ -1,15 +1,17 @@
- <?php
+<?php
 
 require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../core/Database.php';
 
 class UserController {
 
-    public function showLoginForm() {
-        // Este método agora é obsoleto, pois o login está na home.
-        // Mantido para não quebrar o roteador se for chamado diretamente.
-        header('Location: index.php');
+    public function showLogin() {
+        header('Location: /');
         exit;
+    }
+
+    public function showRegister() {
+        $this->showRegistrationForm();
     }
 
     public function do_login() {
@@ -21,7 +23,7 @@ class UserController {
                 if (session_status() == PHP_SESSION_NONE) { session_start(); }
                 $_SESSION['flash_error'] = 'Login (ou Email) e senha são obrigatórios.';
                 $_SESSION['open_modal'] = 'loginRequiredModal';
-                header('Location: index.php');
+                header('Location: /');
                 exit;
             }
 
@@ -44,11 +46,11 @@ class UserController {
 
                     // Redireciona com base no tipo de usuário
                     if ($_SESSION['user_role_id'] == 3) { // Aluno
-                        header('Location: index.php?action=aluno_dashboard');
+                        header('Location: /aluno/dashboard');
                     } elseif ($_SESSION['user_role_id'] == 2) { // Professor
-                        header('Location: index.php?action=professor_dashboard');
+                        header('Location: /professor/dashboard');
                     } else { // Admin ou Professor, redireciona para o dashboard principal
-                        header('Location: index.php?action=dashboard');
+                        header('Location: /admin');
                     }
                     exit;
                 }
@@ -57,14 +59,14 @@ class UserController {
                 if (session_status() == PHP_SESSION_NONE) { session_start(); }
                 $_SESSION['flash_error'] = 'Usuário não encontrado ou senha incorreta.';
                 $_SESSION['open_modal'] = 'loginRequiredModal';
-                header('Location: index.php');
+                header('Location: /');
                 exit;
 
             } catch (PDOException $e) {
                 die("Erro de banco de dados: " . $e->getMessage());
             }
         } else {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
     }
@@ -72,7 +74,7 @@ class UserController {
     public function logout() {
         if (session_status() == PHP_SESSION_NONE) { session_start(); }
         session_destroy();
-        header('Location: index.php');
+        header('Location: /');
         exit;
     }
 
@@ -80,7 +82,7 @@ class UserController {
         if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -89,7 +91,7 @@ class UserController {
         if (empty($loginOrEmail)) {
             $_SESSION['flash_error'] = 'Informe seu login ou email para recuperar a senha.';
             $_SESSION['open_modal'] = 'recoverPasswordModal';
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -143,7 +145,7 @@ class UserController {
             $_SESSION['open_modal'] = 'recoverPasswordModal';
         }
 
-        header('Location: index.php');
+        header('Location: /');
         exit;
     }
 
@@ -203,7 +205,7 @@ class UserController {
 
         if ($senha !== $confirmar_senha) {
             $_SESSION['flash_error'] = 'As senhas não coincidem. Tente novamente.';
-            header('Location: index.php?action=register');
+            header('Location: /register');
             exit;
         }
         
@@ -211,7 +213,7 @@ class UserController {
         
         if ($tipo_usuario_id != 3 && !is_admin()) {
             $_SESSION['flash_error'] = "Acesso não autorizado. Apenas administradores podem cadastrar este tipo de usuário.";
-            header('Location: index.php?action=register');
+            header('Location: /register');
             exit;
         }
 
@@ -223,13 +225,13 @@ class UserController {
 
         if (empty($nome) || empty($login) || empty($email) || empty($senha) || empty($tipo_usuario_id)) {
             $_SESSION['flash_error'] = 'Nome, login, email, senha e tipo de usuário são obrigatórios.';
-            header('Location: index.php?action=register');
+            header('Location: /register');
             exit;
         }
         
         if (!is_admin() && $termo_aceite !== 'aceito') {
              $_SESSION['flash_error'] = 'É necessário aceitar os termos de uso para se cadastrar.';
-             header('Location: index.php?action=register');
+             header('Location: /register');
              exit;
         }
 
@@ -244,16 +246,16 @@ class UserController {
             if ($stmt->fetch()) {
                 $_SESSION['flash_error'] = 'Este login ou email já existem no sistema. Por favor, cadastre com outro.';
                 if (is_admin()) {
-                    header('Location: index.php?action=register');
+                    header('Location: /register');
                 } else {
                     $_SESSION['open_modal'] = 'registerModal';
-                    header('Location: index.php');
+                    header('Location: /');
                 }
                 exit;
             }
         } catch (PDOException $e) {
             $_SESSION['flash_error'] = "Erro de banco de dados ao verificar duplicidade: " . $e->getMessage();
-            header('Location: index.php?action=register');
+            header('Location: /register');
             exit;
         }
 
@@ -309,7 +311,7 @@ class UserController {
             // Show success message based on context
             if (is_admin()) {
                 $_SESSION['flash_success'] = "Usuário cadastrado com sucesso!";
-                header('Location: index.php?action=register');
+                header('Location: /register');
                 exit;
             } else {
                  require_once __DIR__ . '/../views/layouts/public_header.php';
@@ -320,7 +322,7 @@ class UserController {
         } catch (PDOException $e) {
             $db->rollBack();
             $_SESSION['flash_error'] = "Erro ao cadastrar usuário: " . $e->getMessage();
-            header('Location: index.php?action=register');
+            header('Location: /register');
             exit;
         }
     }

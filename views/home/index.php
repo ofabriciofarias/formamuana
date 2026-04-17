@@ -1,9 +1,9 @@
 <?php require_once 'views/layouts/public_header.php'; ?>
 
     <section id="inicio" class="hero-slider">
-        <div class="slide active" style="background-image: url('views/assets/img/certificacao.jpeg');"></div>
-        <div class="slide" style="background-image: url('views/assets/img/certificacao4.jpg'); filter: hue-rotate(20deg);"></div> 
-        <div class="slide" style="background-image: url('views/assets/img/aula5.jpg'); background-position: center;"></div>
+        <div class="slide active" style="background-image: url('/views/assets/img/certificacao.jpeg');"></div>
+        <div class="slide" style="background-image: url('/views/assets/img/certificacao4.jpg'); filter: hue-rotate(20deg);"></div> 
+        <div class="slide" style="background-image: url('/views/assets/img/aula5.jpg'); background-position: center;"></div>
 
         <div class="container hero-content">
             <div class="hero-text-wrap">
@@ -132,7 +132,7 @@
                 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/informatica.png" alt="Curso 1">
+                        <img src="/views/assets/img/informatica.png" alt="Curso 1">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Informática para Inserção no Mercado de Trabalho</h3>
@@ -141,7 +141,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/tecnologias.png" alt="Curso 2">
+                        <img src="/views/assets/img/tecnologias.png" alt="Curso 2">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Tecnologias Digitais na Educação</h3>
@@ -150,7 +150,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/libras.png" class="img-centered" alt="Curso 3">
+                        <img src="/views/assets/img/libras.png" class="img-centered" alt="Curso 3">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Libras</h3>
@@ -159,7 +159,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/assistente.png" class="img-centered" alt="Curso 4">
+                        <img src="/views/assets/img/assistente.png" class="img-centered" alt="Curso 4">
                     </div>
                     <span class="role-tag">Curso</span>
                     <h3>Assistente Administrativo</h3>
@@ -180,7 +180,7 @@
             <div class="team-grid">
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/sectet.jpg" alt="Curso 1">
+                        <img src="/views/assets/img/sectet.jpg" alt="Curso 1">
                     </div>
                     <span class="role-tag">SECTET</span>
                     <h3>Agência Financiadora</h3>
@@ -190,7 +190,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/ufpa.jpeg" alt="Curso 2">
+                        <img src="/views/assets/img/ufpa.jpeg" alt="Curso 2">
                     </div>
                     <span class="role-tag">UFPA</span>
                     <h3>Execução do Projeto</h3>
@@ -200,7 +200,7 @@
 
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
+                        <img src="/views/assets/img/fadesp.png" class="img-centered" alt="Curso 3">
                     </div>
                     <span class="role-tag">FADESP</span>
                     <h3>Suporte Administrativo</h3>
@@ -280,7 +280,7 @@
             </div>
             <div class="modal-body">
                 <p>Preencha os dados abaixo para criar sua conta.</p>
-                <form action="index.php?action=register" method="POST">
+                <form action="/register" method="POST">
                     <div class="form-group">
                         <label for="nome">Nome Completo</label>
                         <input type="text" id="nome" name="nome" required class="form-control">
@@ -369,7 +369,7 @@
             </div>
             <div class="modal-body">
                 <p>Você precisa estar logado para realizar sua inscrição.</p>
-                <form action="index.php?action=do_login" method="POST" class="modal-login-form">
+                <form action="/login" method="POST" class="modal-login-form">
                     <div class="form-group">
                         <label for="login_modal">Usuário</label>
                         <input type="text" id="login_modal" name="login" required class="form-control" oninvalid="this.setCustomValidity('Preencha este campo com seu login ou email.')" oninput="this.setCustomValidity('')">
@@ -397,7 +397,7 @@
             </div>
             <div class="modal-body">
                 <p>Digite seu login ou email cadastrado abaixo. O sistema enviará uma nova senha para o seu email.</p>
-                <form action="index.php?action=recover_password" method="POST">
+                <form action="/recuperar-senha" method="POST">
                     <div class="form-group">
                         <label for="login_or_email">Login ou Email</label>
                         <input type="text" id="login_or_email" name="login_or_email" required class="form-control">
@@ -631,7 +631,7 @@
             if (!modal) return;
             
             const form = modal.querySelector('form');
-            form.action = `index.php?action=do_inscricao_oferta&oferta_id=${ofertaId}`;
+            form.action = `/aluno/inscricao?oferta_id=${ofertaId}`;
             
             const turnoSelect = document.getElementById('turno_preferencia_modal_home');
             if(turnoSelect) turnoSelect.value = turno;

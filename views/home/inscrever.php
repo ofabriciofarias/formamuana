@@ -19,7 +19,7 @@ if ($oferta_id) {
     <div class="login-container" style="max-width: 800px; margin: 0 auto;">
         <p style="margin-bottom: 20px; color: #666;">Por favor, preencha os dados socioeconômicos abaixo para confirmar sua inscrição na oferta selecionada.</p>
 
-        <form action="index.php?action=do_inscricao&oferta_id=<?= htmlspecialchars($_GET['oferta_id']) ?>" method="POST">
+        <form action="/aluno/inscricao?oferta_id=<?= htmlspecialchars($_GET['oferta_id']) ?>" method="POST">
             
             <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                 <legend style="padding: 0 10px; font-weight: bold; color: var(--primary-color);">Dados Socioeconômicos</legend>

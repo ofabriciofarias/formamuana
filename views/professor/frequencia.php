@@ -49,7 +49,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
         <h2 class="mb-2 mb-md-0"><?= $pageTitle ?> - <?= $ofertaNome ?></h2>
-        <a href="index.php?action=professor_dashboard" class="btn btn-secondary">Voltar para Minhas Turmas</a>
+        <a href="/professor/dashboard" class="btn btn-secondary">Voltar para Minhas Turmas</a>
     </div>
 
     <?php if ($isReadOnly): ?>
@@ -157,7 +157,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
 
             dataAulaInput.addEventListener('change', () => {
                 const novaData = dataAulaInput.value;
-                window.location.href = `index.php?action=lancar_frequencia&oferta_id=${ofertaId}&data_aula=${novaData}`;
+                window.location.href = `/professor/frequencia?oferta_id=${ofertaId}&data_aula=${novaData}`;
             });
 
             const showNotification = (message, isError = false) => {
@@ -171,7 +171,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
 
             const salvarFrequencia = async (alunoId, dataAula, presente) => {
                 try {
-                    const response = await fetch('index.php?action=salvar_frequencia', {
+                    const response = await fetch('/professor/frequencia', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

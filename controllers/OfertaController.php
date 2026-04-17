@@ -39,7 +39,7 @@ class OfertaController {
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
             $_SESSION['old_data'] = $_POST;
-            header('Location: index.php?action=create-oferta');
+            header('Location: /admin/oferta/nova');
             exit;
         }
 
@@ -83,7 +83,7 @@ class OfertaController {
 
             if ($oferta->save()) {
                 $_SESSION['success_message'] = "Oferta cadastrada com sucesso!";
-                header('Location: index.php?action=dashboard');
+                header('Location: /admin');
                 exit;
             } else {
                 throw new Exception("Erro desconhecido ao salvar a oferta.");
@@ -91,7 +91,7 @@ class OfertaController {
         } catch (Exception $e) {
             $_SESSION['errors'] = ['Erro: ' . $e->getMessage()];
             $_SESSION['old_data'] = $_POST;
-            header('Location: index.php?action=create-oferta');
+            header('Location: /admin/oferta/nova');
             exit;
         }
     }

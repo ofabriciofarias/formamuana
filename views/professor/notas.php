@@ -20,7 +20,7 @@ $pageTitle = 'Lançamento de Notas';
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
         <h2 class="mb-2 mb-md-0"><?= $pageTitle ?> - <?= $ofertaNome ?></h2>
-        <a href="index.php?action=professor_dashboard" class="btn btn-secondary">Voltar para Minhas Turmas</a>
+        <a href="/professor/dashboard" class="btn btn-secondary">Voltar para Minhas Turmas</a>
     </div>
 
     <?php if (isset($_GET['success'])): ?>
@@ -29,7 +29,7 @@ $pageTitle = 'Lançamento de Notas';
         </div>
     <?php endif; ?>
 
-    <form action="index.php?action=salvarNotas" method="POST">
+    <form action="/professor/notas" method="POST">
         <input type="hidden" name="oferta_id" value="<?= htmlspecialchars($_GET['oferta_id'] ?? '') ?>">
         
         <div class="table-responsive">

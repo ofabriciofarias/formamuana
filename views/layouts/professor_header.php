@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../core/helpers.php';
 
 // Se o usuário não for professor, redireciona para o login
 if (!is_professor()) {
-    header('Location: index.php?action=login');
+    header('Location: /login');
     exit;
 }
 ?>
@@ -16,22 +16,22 @@ if (!is_professor()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professor | Forma Muana</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="/views/assets/css/style.css">
 </head>
 <body>
 
 <header class="admin-header">
     <div class="container">
         <div class="logo">
-            <a href="index.php?action=professor_dashboard">Painel do Professor</a>
+            <a href="/professor/dashboard">Painel do Professor</a>
         </div>
         <nav class="nav-links">
-            <a href="index.php?action=professor_dashboard">Minhas Turmas</a>
+            <a href="/professor/dashboard">Minhas Turmas</a>
             <li class="dropdown">
                 <a href="#" class="dropbtn">Vínculos <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
-                    <a href="index.php?action=professor_visualizar_inscritos">Visualizar Inscritos</a>
-                    <a href="index.php?action=professor_vincular_aluno">Vincular Aluno</a>
+                    <a href="/professor/inscritos">Visualizar Inscritos</a>
+                    <a href="/professor/vincular-aluno">Vincular Aluno</a>
                 </div>
             </li>
             <li class="dropdown">
@@ -40,7 +40,7 @@ if (!is_professor()) {
                     <a href="#" id="profileBtn">Meu Perfil</a>
                 </div>
             </li>
-            <a href="index.php?action=logout">Logout</a>
+            <a href="/logout">Logout</a>
         </nav>
     </div>
 </header>
@@ -126,7 +126,7 @@ window.onclick = function(event) {
 
 document.getElementById('profileBtn').addEventListener('click', function(e) {
     e.preventDefault();
-    fetch('index.php?action=get_profile')
+    fetch('/perfil')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -150,7 +150,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('index.php?action=update_profile', {
+    fetch('/perfil', {
         method: 'POST',
         body: formData
     })
