@@ -1,18 +1,9 @@
 <?php
 
-class TipoUsuario {
-    private $id;
-    private $nome;
+use Illuminate\Database\Eloquent\Model;
 
-    public function getId() {
-        return $this->id;
-    }
-
-    public function getNome() {
-        return $this->nome;
-    }
-
-    public function setNome($nome) {
-        $this->nome = $nome;
-    }
+class TipoUsuario extends Model
+{
+    protected $table = 'tipo_usuario';
+    public $timestamps = false;
 }

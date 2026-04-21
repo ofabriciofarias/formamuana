@@ -49,7 +49,7 @@ unset($_SESSION['errors'], $_SESSION['old_data']);
             <label for="usuarios_id">Usuário Responsável:</label>
             <select name="usuarios_id" id="usuarios_id" class="form-control" required>
                 <?php foreach ($users as $user): ?>
-                    <option value="<?php echo $user['id']; ?>" <?= (isset($old_data['usuarios_id']) && $old_data['usuarios_id'] == $user['id']) ? 'selected' : '' ?>><?php echo $user['nome']; ?></option>
+                    <option value="<?php echo $user->id; ?>" <?= (isset($old_data['usuarios_id']) && $old_data['usuarios_id'] == $user->id) ? 'selected' : '' ?>><?php echo $user->nome; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>

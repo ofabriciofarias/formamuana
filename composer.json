@@ -1,9 +1,11 @@
 {
     "name": "formamuana/app",
-    "description": "Sistema de gestão de cursos e inscrições FormaMuanã",
+    "description": "Sistema de gestão de cursos e inscrições do Forma Muaná",
+    "version": "0.0.1",
     "type": "project",
     "require": {
         "php": ">=7.4",
+        "illuminate/database": "^12.56",
         "nikic/fast-route": "^1.3",
         "phpmailer/phpmailer": "^7.0"
     },

@@ -9,6 +9,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/mail.php';
 require_once __DIR__ . '/core/Database.php';
 require_once __DIR__ . '/core/helpers.php';
+require_once __DIR__ . '/core/EloquentBootstrap.php';
 
 // 2. Dispatcher do FastRoute
 $dispatcher = FastRoute\simpleDispatcher(require __DIR__ . '/routes/web.php');

@@ -1,84 +1,73 @@
 <?php
 
-require_once __DIR__ . '/../models/Usuario.php';
-require_once __DIR__ . '/../core/Database.php';
+use Illuminate\Database\Capsule\Manager as DB;
 
-class UserController {
-
-    public function showLogin() {
+class UserController
+{
+    public function showLogin()
+    {
         header('Location: /');
         exit;
     }
 
-    public function showRegister() {
+    public function showRegister()
+    {
         $this->showRegistrationForm();
     }
 
-    public function do_login() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $login = $_POST['login'] ?? null;
-            $senha = $_POST['senha'] ?? null;
-
-            if (empty($login) || empty($senha)) {
-                if (session_status() == PHP_SESSION_NONE) { session_start(); }
-                $_SESSION['flash_error'] = 'Login (ou Email) e senha são obrigatórios.';
-                $_SESSION['open_modal'] = 'loginRequiredModal';
-                header('Location: /');
-                exit;
-            }
-
-            try {
-                $db = Database::getInstance()->getConnection();
-                
-                // 1. Primeira consulta: Tabela de usuários
-                $stmt = $db->prepare("SELECT id, nome, senha, tipo_usuario_id FROM usuarios WHERE login = :login OR email = :email");
-                $stmt->bindParam(':login', $login);
-                $stmt->bindParam(':email', $login);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                // FIX: Adicionado condição para permitir login do usuário 'aluno' com a senha '123'
-                if ($user && (password_verify($senha, $user['senha']) || ($login === 'aluno' && $senha === '123'))) {
-                    if (session_status() == PHP_SESSION_NONE) { session_start(); }
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_name'] = $user['nome'];
-                    $_SESSION['user_role_id'] = $user['tipo_usuario_id'];
-
-                    // Redireciona com base no tipo de usuário
-                    if ($_SESSION['user_role_id'] == 3) { // Aluno
-                        header('Location: /aluno/dashboard');
-                    } elseif ($_SESSION['user_role_id'] == 2) { // Professor
-                        header('Location: /professor/dashboard');
-                    } else { // Admin ou Professor, redireciona para o dashboard principal
-                        header('Location: /admin');
-                    }
-                    exit;
-                }
-                
-                // Se não encontrou em nenhuma tabela
-                if (session_status() == PHP_SESSION_NONE) { session_start(); }
-                $_SESSION['flash_error'] = 'Usuário não encontrado ou senha incorreta.';
-                $_SESSION['open_modal'] = 'loginRequiredModal';
-                header('Location: /');
-                exit;
-
-            } catch (PDOException $e) {
-                die("Erro de banco de dados: " . $e->getMessage());
-            }
-        } else {
+    public function do_login()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: /');
             exit;
         }
+
+        $login = $_POST['login'] ?? null;
+        $senha = $_POST['senha'] ?? null;
+
+        if (empty($login) || empty($senha)) {
+            if (session_status() == PHP_SESSION_NONE) { session_start(); }
+            $_SESSION['flash_error'] = 'Login (ou Email) e senha são obrigatórios.';
+            $_SESSION['open_modal'] = 'loginRequiredModal';
+            header('Location: /');
+            exit;
+        }
+
+        $user = Usuario::where('login', $login)->orWhere('email', $login)->first();
+
+        if ($user && (password_verify($senha, $user->senha) || ($login === 'aluno' && $senha === '123'))) {
+            if (session_status() == PHP_SESSION_NONE) { session_start(); }
+            $_SESSION['user_id']      = $user->id;
+            $_SESSION['user_name']    = $user->nome;
+            $_SESSION['user_role_id'] = $user->tipo_usuario_id;
+
+            if ($_SESSION['user_role_id'] == 3) {
+                header('Location: /aluno/dashboard');
+            } elseif ($_SESSION['user_role_id'] == 2) {
+                header('Location: /professor/dashboard');
+            } else {
+                header('Location: /admin');
+            }
+            exit;
+        }
+
+        if (session_status() == PHP_SESSION_NONE) { session_start(); }
+        $_SESSION['flash_error'] = 'Usuário não encontrado ou senha incorreta.';
+        $_SESSION['open_modal']  = 'loginRequiredModal';
+        header('Location: /');
+        exit;
     }
 
-    public function logout() {
+    public function logout()
+    {
         if (session_status() == PHP_SESSION_NONE) { session_start(); }
         session_destroy();
         header('Location: /');
         exit;
     }
 
-    public function recoverPassword() {
+    public function recoverPassword()
+    {
         if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -90,32 +79,20 @@ class UserController {
 
         if (empty($loginOrEmail)) {
             $_SESSION['flash_error'] = 'Informe seu login ou email para recuperar a senha.';
-            $_SESSION['open_modal'] = 'recoverPasswordModal';
+            $_SESSION['open_modal']  = 'recoverPasswordModal';
             header('Location: /');
             exit;
         }
 
         try {
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT id, nome, email FROM usuarios WHERE login = :login OR email = :email");
-            $stmt->bindParam(':login', $loginOrEmail);
-            $stmt->bindParam(':email', $loginOrEmail);
-            $stmt->execute();
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = Usuario::where('login', $loginOrEmail)->orWhere('email', $loginOrEmail)->first();
 
             if ($user) {
-                // Gera uma senha aleatória de 8 caracteres
-                $newPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#'), 0, 8);
-                $senhaHash = password_hash($newPassword, PASSWORD_DEFAULT);
+                $newPassword    = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#'), 0, 8);
+                $user->senha    = password_hash($newPassword, PASSWORD_DEFAULT);
+                $user->save();
 
-                // Atualiza o banco de dados com a nova senha
-                $updateStmt = $db->prepare("UPDATE usuarios SET senha = :senha WHERE id = :id");
-                $updateStmt->execute(['senha' => $senhaHash, 'id' => $user['id']]);
-
-                // Carrega a configuração do email e faz o envio
-                require_once __DIR__ . '/../config/mail.php';
                 $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-
                 $mail->isSMTP();
                 $mail->Host       = MAIL_HOST;
                 $mail->SMTPAuth   = MAIL_SMTP_AUTH;
@@ -124,56 +101,40 @@ class UserController {
                 $mail->SMTPSecure = MAIL_SMTP_SECURE;
                 $mail->Port       = MAIL_PORT;
                 $mail->CharSet    = 'UTF-8';
-
                 $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-                $mail->addAddress($user['email'], $user['nome']);
-
+                $mail->addAddress($user->email, $user->nome);
                 $mail->isHTML(true);
                 $mail->Subject = 'Recuperação de Senha - Forma Muaná';
-                $mail->Body    = "Olá <strong>{$user['nome']}</strong>,<br><br>Sua senha foi redefinida com sucesso.<br><br>Sua nova senha de acesso é: <strong style='font-size:18px;'>{$newPassword}</strong><br><br>Recomendamos fortemente que você altere sua senha no painel após o login.<br><br>Atenciosamente,<br>Equipe Forma Muaná";
-                $mail->AltBody = "Olá {$user['nome']},\n\nSua senha foi redefinida com sucesso.\n\nSua nova senha de acesso é: {$newPassword}\n\nRecomendamos fortemente que você altere sua senha no painel após o login.\n\nAtenciosamente,\nEquipe Forma Muaná";
-
+                $mail->Body    = "Olá <strong>{$user->nome}</strong>,<br><br>Sua senha foi redefinida com sucesso.<br><br>Sua nova senha de acesso é: <strong style='font-size:18px;'>{$newPassword}</strong><br><br>Recomendamos fortemente que você altere sua senha no painel após o login.<br><br>Atenciosamente,<br>Equipe Forma Muaná";
+                $mail->AltBody = "Olá {$user->nome},\n\nSua senha foi redefinida com sucesso.\n\nSua nova senha de acesso é: {$newPassword}\n\nRecomendamos fortemente que você altere sua senha no painel após o login.\n\nAtenciosamente,\nEquipe Forma Muaná";
                 $mail->send();
 
                 $_SESSION['flash_success'] = 'Uma nova senha foi gerada e enviada para o seu email.';
             } else {
                 $_SESSION['flash_error'] = 'Nenhum usuário encontrado com o login ou email informado.';
-                $_SESSION['open_modal'] = 'recoverPasswordModal';
+                $_SESSION['open_modal']  = 'recoverPasswordModal';
             }
         } catch (Exception $e) {
             $_SESSION['flash_error'] = 'Erro ao processar a recuperação de senha: ' . $e->getMessage();
-            $_SESSION['open_modal'] = 'recoverPasswordModal';
+            $_SESSION['open_modal']  = 'recoverPasswordModal';
         }
 
         header('Location: /');
         exit;
     }
 
-    public function showRegistrationForm() {
+    public function showRegistrationForm()
+    {
         require_once __DIR__ . '/../core/helpers.php';
 
         $is_admin = is_admin();
-        $tipos_usuario = [];
 
-        try {
-            $db = Database::getInstance()->getConnection();
-            
-            if ($is_admin) {
-                // Admin can see all user types
-                $stmt = $db->prepare("SELECT id, nome FROM tipo_usuario ORDER BY nome");
-            } else {
-                // Public registration is for Aluno only
-                $stmt = $db->prepare("SELECT id, nome FROM tipo_usuario WHERE id = 3");
-            }
-            
-            $stmt->execute();
-            $tipos_usuario = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        } catch (PDOException $e) {
-            error_log("Erro ao buscar tipos de usuário: " . $e->getMessage());
+        $query = TipoUsuario::orderBy('nome');
+        if (!$is_admin) {
+            $query->where('id', 3);
         }
+        $tipos_usuario = $query->get()->toArray();
 
-        // Decide which layout to use
         if ($is_admin) {
             require_once __DIR__ . '/../views/layouts/admin_header.php';
         } else {
@@ -189,18 +150,17 @@ class UserController {
         }
     }
 
-    public function register() {
+    public function register()
+    {
         require_once __DIR__ . '/../core/helpers.php';
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->showRegistrationForm();
             return;
         }
 
-        $senha = $_POST['senha'] ?? null;
+        $senha           = $_POST['senha'] ?? null;
         $confirmar_senha = $_POST['confirmar_senha'] ?? null;
 
         if ($senha !== $confirmar_senha) {
@@ -208,19 +168,19 @@ class UserController {
             header('Location: /register');
             exit;
         }
-        
+
         $tipo_usuario_id = $_POST['tipo_usuario_id'] ?? null;
-        
+
         if ($tipo_usuario_id != 3 && !is_admin()) {
-            $_SESSION['flash_error'] = "Acesso não autorizado. Apenas administradores podem cadastrar este tipo de usuário.";
+            $_SESSION['flash_error'] = 'Acesso não autorizado. Apenas administradores podem cadastrar este tipo de usuário.';
             header('Location: /register');
             exit;
         }
 
-        $nome = $_POST['nome'] ?? null;
-        $login = $_POST['login'] ?? null;
-        $email = $_POST['email'] ?? null;
-        $telefone = $_POST['telefone'] ?? null;
+        $nome        = $_POST['nome'] ?? null;
+        $login       = $_POST['login'] ?? null;
+        $email       = $_POST['email'] ?? null;
+        $telefone    = $_POST['telefone'] ?? null;
         $termo_aceite = isset($_POST['termo_aceite']) ? 'aceito' : 'nao_aceito';
 
         if (empty($nome) || empty($login) || empty($email) || empty($senha) || empty($tipo_usuario_id)) {
@@ -228,115 +188,74 @@ class UserController {
             header('Location: /register');
             exit;
         }
-        
+
         if (!is_admin() && $termo_aceite !== 'aceito') {
-             $_SESSION['flash_error'] = 'É necessário aceitar os termos de uso para se cadastrar.';
-             header('Location: /register');
-             exit;
-        }
-
-        $db = Database::getInstance()->getConnection();
-
-        // VERIFICAÇÃO: Checa se o login ou email já existem no sistema
-        try {
-            $stmt = $db->prepare("SELECT id FROM usuarios WHERE login = :login OR email = :email");
-            $stmt->bindParam(':login', $login);
-            $stmt->bindParam(':email', $email);
-            $stmt->execute();
-            if ($stmt->fetch()) {
-                $_SESSION['flash_error'] = 'Este login ou email já existem no sistema. Por favor, cadastre com outro.';
-                if (is_admin()) {
-                    header('Location: /register');
-                } else {
-                    $_SESSION['open_modal'] = 'registerModal';
-                    header('Location: /');
-                }
-                exit;
-            }
-        } catch (PDOException $e) {
-            $_SESSION['flash_error'] = "Erro de banco de dados ao verificar duplicidade: " . $e->getMessage();
+            $_SESSION['flash_error'] = 'É necessário aceitar os termos de uso para se cadastrar.';
             header('Location: /register');
             exit;
         }
 
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        
+        if (Usuario::where('login', $login)->orWhere('email', $email)->exists()) {
+            $_SESSION['flash_error'] = 'Este login ou email já existem no sistema. Por favor, cadastre com outro.';
+            if (is_admin()) {
+                header('Location: /register');
+            } else {
+                $_SESSION['open_modal'] = 'registerModal';
+                header('Location: /');
+            }
+            exit;
+        }
+
         try {
-            $db->beginTransaction();
+            DB::connection()->transaction(function () use ($nome, $login, $email, $senha, $telefone, $tipo_usuario_id, $termo_aceite) {
+                $usuario = Usuario::create([
+                    'nome'            => $nome,
+                    'login'           => $login,
+                    'email'           => $email,
+                    'senha'           => password_hash($senha, PASSWORD_DEFAULT),
+                    'telefone'        => $telefone,
+                    'tipo_usuario_id' => $tipo_usuario_id,
+                    'termo_aceite'    => $termo_aceite,
+                ]);
 
-            $stmt = $db->prepare(
-                "INSERT INTO usuarios (nome, login, email, senha, telefone, tipo_usuario_id, termo_aceite) 
-                 VALUES (:nome, :login, :email, :senha, :telefone, :tipo_usuario_id, :termo_aceite)"
-            );
-
-            $stmt->bindParam(':nome', $nome);
-            $stmt->bindParam(':login', $login);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':senha', $senhaHash);
-            $stmt->bindParam(':telefone', $telefone);
-            $stmt->bindParam(':tipo_usuario_id', $tipo_usuario_id);
-            $stmt->bindParam(':termo_aceite', $termo_aceite);
-            $stmt->execute();
-
-            $userId = $db->lastInsertId();
-
-            if (is_admin() && $userId) {
-                $upload_rg = $this->handleUpload('upload_rg', $userId);
-                $upload_cpf = $this->handleUpload('upload_cpf', $userId);
-                $upload_plano = $this->handleUpload('upload_plano', $userId);
-                $upload_pis_ou_nis = $this->handleUpload('upload_pis_ou_nis', $userId);
-                $upload_residencia = $this->handleUpload('upload_residencia', $userId);
-                $upload_cart_trab = $this->handleUpload('upload_cart_trab', $userId);
-                $upload_declaracao_vinculo_matr = $this->handleUpload('upload_declaracao_vinculo_matr', $userId);
-
-                if ($userId) {
-                    $stmtUpdate = $db->prepare(
-                        "UPDATE usuarios SET
-                            upload_rg = :upload_rg, upload_cpf = :upload_cpf, upload_plano = :upload_plano,
-                            upload_pis_ou_nis = :upload_pis_ou_nis, upload_residencia = :upload_residencia,
-                            upload_cart_trab = :upload_cart_trab, upload_declaracao_vinculo_matr = :upload_declaracao_vinculo_matr
-                        WHERE id = :id"
-                    );
-                    $stmtUpdate->execute([
-                        ':upload_rg' => $upload_rg, ':upload_cpf' => $upload_cpf, ':upload_plano' => $upload_plano,
-                        ':upload_pis_ou_nis' => $upload_pis_ou_nis, ':upload_residencia' => $upload_residencia,
-                        ':upload_cart_trab' => $upload_cart_trab, ':upload_declaracao_vinculo_matr' => $upload_declaracao_vinculo_matr,
-                        ':id' => $userId
+                if (is_admin() && $usuario->id) {
+                    $usuario->update([
+                        'upload_rg'                      => $this->handleUpload('upload_rg', $usuario->id),
+                        'upload_cpf'                     => $this->handleUpload('upload_cpf', $usuario->id),
+                        'upload_plano'                   => $this->handleUpload('upload_plano', $usuario->id),
+                        'upload_pis_ou_nis'              => $this->handleUpload('upload_pis_ou_nis', $usuario->id),
+                        'upload_residencia'              => $this->handleUpload('upload_residencia', $usuario->id),
+                        'upload_cart_trab'               => $this->handleUpload('upload_cart_trab', $usuario->id),
+                        'upload_declaracao_vinculo_matr' => $this->handleUpload('upload_declaracao_vinculo_matr', $usuario->id),
                     ]);
                 }
-            }
+            });
 
-            $db->commit();
-            
-            // Show success message based on context
             if (is_admin()) {
-                $_SESSION['flash_success'] = "Usuário cadastrado com sucesso!";
+                $_SESSION['flash_success'] = 'Usuário cadastrado com sucesso!';
                 header('Location: /register');
                 exit;
             } else {
-                 require_once __DIR__ . '/../views/layouts/public_header.php';
-                 echo "<div class='container' style='padding-top: 100px; text-align: center;'><h2>Cadastro realizado com sucesso!</h2><p>Você já pode fazer o login.</p><a href='index.php' class='btn'>Voltar para a página inicial</a></div>";
-                 require_once __DIR__ . '/../views/layouts/public_footer.php';
+                require_once __DIR__ . '/../views/layouts/public_header.php';
+                echo "<div class='container' style='padding-top: 100px; text-align: center;'><h2>Cadastro realizado com sucesso!</h2><p>Você já pode fazer o login.</p><a href='index.php' class='btn'>Voltar para a página inicial</a></div>";
+                require_once __DIR__ . '/../views/layouts/public_footer.php';
             }
-
-        } catch (PDOException $e) {
-            $db->rollBack();
-            $_SESSION['flash_error'] = "Erro ao cadastrar usuário: " . $e->getMessage();
+        } catch (Exception $e) {
+            $_SESSION['flash_error'] = 'Erro ao cadastrar usuário: ' . $e->getMessage();
             header('Location: /register');
             exit;
         }
     }
 
-    private function handleUpload($fileKey, $userId) {
+    private function handleUpload($fileKey, $userId)
+    {
         if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] == UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../uploads/' . $userId . '/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-
-            $fileName = uniqid() . '-' . basename($_FILES[$fileKey]['name']);
+            $fileName   = uniqid() . '-' . basename($_FILES[$fileKey]['name']);
             $targetPath = $uploadDir . $fileName;
-
             if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetPath)) {
                 return 'uploads/' . $userId . '/' . $fileName;
             }
@@ -344,38 +263,28 @@ class UserController {
         return null;
     }
 
-    public function get_profile() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
+    public function get_profile()
+    {
+        if (session_status() == PHP_SESSION_NONE) { session_start(); }
+
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'Usuário não logado.']);
             exit;
         }
 
-        try {
-            $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT id, nome, login, email, telefone FROM usuarios WHERE id = :id");
-            $stmt->bindParam(':id', $_SESSION['user_id']);
-            $stmt->execute();
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = Usuario::find($_SESSION['user_id']);
 
-            if ($user) {
-                echo json_encode(['success' => true, 'data' => $user]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Usuário não encontrado.']);
-            }
-        } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro no banco de dados.']);
+        if ($user) {
+            echo json_encode(['success' => true, 'data' => $user->only(['id', 'nome', 'login', 'email', 'telefone'])]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Usuário não encontrado.']);
         }
         exit;
     }
 
-    public function update_profile() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+    public function update_profile()
+    {
+        if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'Acesso negado.']);
@@ -387,48 +296,40 @@ class UserController {
             exit;
         }
 
-        $userId = $_SESSION['user_id'];
-        $nome = $_POST['nome'] ?? '';
-        $login = $_POST['login'] ?? '';
-        $email = $_POST['email'] ?? '';
+        $nome     = $_POST['nome'] ?? '';
+        $login    = $_POST['login'] ?? '';
+        $email    = $_POST['email'] ?? '';
         $telefone = $_POST['telefone'] ?? '';
-        $senha = $_POST['senha'] ?? '';
+        $senha    = $_POST['senha'] ?? '';
 
         if (empty($nome) || empty($login) || empty($email)) {
             echo json_encode(['success' => false, 'message' => 'Nome, login e email são obrigatórios.']);
             exit;
         }
-        
+
         try {
-            $db = Database::getInstance()->getConnection();
-            
+            $user = Usuario::findOrFail($_SESSION['user_id']);
+
+            $user->nome     = $nome;
+            $user->login    = $login;
+            $user->email    = $email;
+            $user->telefone = $telefone;
+
             if (!empty($senha)) {
-                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-                $stmt = $db->prepare("UPDATE usuarios SET nome = :nome, login = :login, email = :email, telefone = :telefone, senha = :senha WHERE id = :id");
-                $stmt->bindParam(':senha', $senhaHash);
-            } else {
-                $stmt = $db->prepare("UPDATE usuarios SET nome = :nome, login = :login, email = :email, telefone = :telefone WHERE id = :id");
+                $user->senha = password_hash($senha, PASSWORD_DEFAULT);
             }
 
-            $stmt->bindParam(':nome', $nome);
-            $stmt->bindParam(':login', $login);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':telefone', $telefone);
-            $stmt->bindParam(':id', $userId);
-
-            if ($stmt->execute()) {
-                $_SESSION['user_name'] = $nome; // Atualiza o nome na sessão
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Não foi possível atualizar o perfil.']);
-            }
-        } catch (PDOException $e) {
-            // Tratamento de erro de duplicidade de login/email
-            if ($e->getCode() == 23000) { // Código de erro para violação de constraint de unicidade
+            $user->save();
+            $_SESSION['user_name'] = $nome;
+            echo json_encode(['success' => true]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
                 echo json_encode(['success' => false, 'message' => 'Login ou email já cadastrado.']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erro de banco de dados: ' . $e->getMessage()]);
             }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro: ' . $e->getMessage()]);
         }
         exit;
     }
