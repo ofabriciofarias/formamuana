@@ -219,7 +219,7 @@ function searchAlunos() {
     const tbody = document.getElementById('alunos-tbody');
     tbody.innerHTML = '<tr><td colspan="3" class="list-placeholder">Buscando...</td></tr>';
     
-    fetch(`/admin/alunos/buscar&oferta_id=${currentOfertaId}&busca=${encodeURIComponent(busca)}`)
+    fetch(`/admin/alunos/buscar?oferta_id=${currentOfertaId}&busca=${encodeURIComponent(busca)}`)
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
@@ -274,7 +274,7 @@ window.onclick = function(event) {
 function viewAluno(id) {
     document.getElementById('viewModal').style.display = 'block';
     document.getElementById('viewModalBody').innerHTML = '<p>Carregando...</p>';
-    fetch(`/admin/inscrito&id=${id}`)
+    fetch(`/admin/inscrito?id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {

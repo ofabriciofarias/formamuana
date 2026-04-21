@@ -154,7 +154,7 @@ window.onclick = function(event) {
 function viewAluno(id) {
     document.getElementById('viewModal').style.display = 'block';
     document.getElementById('viewModalBody').innerHTML = '<p>Carregando...</p>';
-    fetch(`/admin/inscrito&id=${id}`)
+    fetch(`/admin/inscrito?id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {
@@ -185,7 +185,7 @@ function viewAluno(id) {
 function editAluno(id) {
     document.getElementById('edit_error_message').style.display = 'none';
     document.getElementById('editModal').style.display = 'block';
-    fetch(`/admin/inscrito&id=${id}`)
+    fetch(`/admin/inscrito?id=${id}`)
         .then(r => r.json())
         .then(data => {
             if(data.error) {

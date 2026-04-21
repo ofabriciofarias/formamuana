@@ -1,7 +1,7 @@
 <?php
 // Arquivo de funções auxiliares
 
-define('BASE_URL', '/formamuana/');
+define('BASE_URL', '/');
 
 function is_admin() {
     return isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1; // 1 = Admin

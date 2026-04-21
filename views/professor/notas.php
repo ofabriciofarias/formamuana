@@ -1,5 +1,5 @@
 <?php
-$ofertaNome = (isset($oferta) && $oferta) ? htmlspecialchars($oferta->getNome()) : 'Turma não encontrada';
+$ofertaNome = (isset($oferta) && $oferta) ? htmlspecialchars($oferta->nome) : 'Turma não encontrada';
 $pageTitle = 'Lançamento de Notas';
 ?>
 

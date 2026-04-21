@@ -7,8 +7,8 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 <p>Selecione uma oferta para visualizar os alunos inscritos e realizar a seleção.</p>
 
 <!-- Formulário de Filtro -->
-<form id="form-selecao" method="GET" action="index.php">
-    <input type="hidden" name="action" value="selecao_alunos">
+<form id="form-selecao" method="GET" action="/admin/selecao">
+    <!-- <input type="hidden" name="action" value="selecao_alunos"> -->
     <div class="form-group">
         <label for="oferta_id">Selecione a Oferta:</label>
         <select name="oferta_id" id="oferta_id" required>
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.target.disabled = true;
                 e.target.textContent = 'Salvando...';
 
-                fetch('/admin/selecao/statusAjax', {
+                fetch('/admin/selecao/status/ajax', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({

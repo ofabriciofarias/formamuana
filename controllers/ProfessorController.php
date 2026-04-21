@@ -7,7 +7,7 @@ class ProfessorController
     public function dashboard()
     {
         if (!is_professor()) {
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
 
@@ -25,7 +25,7 @@ class ProfessorController
 
     public function lancarFrequencia()
     {
-        if (!is_professor()) { header('Location: index.php'); exit; }
+        if (!is_professor()) { header('Location: /'); exit; }
 
         $ofertaId = $_GET['oferta_id'] ?? null;
         if (!$this->checkAccess($ofertaId)) {
@@ -61,7 +61,7 @@ class ProfessorController
 
     public function consultarFrequencia()
     {
-        if (!is_professor()) { header('Location: index.php'); exit; }
+        if (!is_professor()) { header('Location: /'); exit; }
 
         $ofertaId = $_GET['oferta_id'] ?? null;
         if (!$this->checkAccess($ofertaId)) {
@@ -163,7 +163,7 @@ class ProfessorController
 
     public function notas()
     {
-        if (!is_professor()) { header('Location: index.php'); exit; }
+        if (!is_professor()) { header('Location: /'); exit; }
 
         $ofertaId = $_GET['oferta_id'] ?? null;
         if (!$this->checkAccess($ofertaId)) {
@@ -187,7 +187,7 @@ class ProfessorController
 
     public function salvarNotas()
     {
-        if (!is_professor()) { header('Location: index.php'); exit; }
+        if (!is_professor()) { header('Location: /'); exit; }
 
         $ofertaId = $_POST['oferta_id'] ?? null;
         if (!$this->checkAccess($ofertaId)) {

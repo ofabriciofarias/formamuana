@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         professoresContainer.style.display = 'none';
 
         try {
-            const response = await fetch(`/admin/vincular-professor&oferta_id=${ofertaId}`, {
+            const response = await fetch(`/admin/vincular-professor?oferta_id=${ofertaId}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             if (!response.ok) throw new Error('Falha na resposta do servidor.');

@@ -27,37 +27,42 @@ O banco `forma_muana` é criado automaticamente a partir de `banco_de_dados.sql`
 
 ## Arquitetura
 
-MVC com Front Controller. Toda requisição passa por `index.php`, que roteia via `?action=nome_acao`.
+MVC com Front Controller. Toda requisição passa por `index.php`, que despacha via FastRoute.
 
 ```
-index.php           # Único ponto de entrada — carrega configs, instancia controllers, faz switch na action
-config/             # Configurações de banco, e-mail e sessão (valores via getenv())
+index.php               # Único ponto de entrada — inicializa configs e despacha via FastRoute
+routes/
+  web.php               # Definição de todas as rotas (método + URI → Controller::método)
+config/                 # Configurações de banco, e-mail e sessão (valores via getenv())
 core/
-  Database.php      # Singleton PDO para MySQL
-  helpers.php       # Funções de role (is_admin, is_professor, is_aluno, is_logged_in) + BASE_URL
+  Database.php          # Singleton PDO para MySQL
+  EloquentBootstrap.php # Inicialização do Eloquent ORM (illuminate/database)
+  helpers.php           # Funções de role (is_admin, is_professor, is_aluno, is_logged_in) + BASE_URL
   GeneticAlgorithm.php  # Algoritmo genético para seleção de alunos
-controllers/        # Lógica de negócio por domínio
-models/             # Entidades do banco com métodos de persistência
-views/              # Templates PHP puro, organizados por domínio
-vendor/             # Dependências do Composer (não versionar)
-uploads/            # Arquivos enviados pelos usuários (não versionar conteúdo)
-banco_de_dados.sql  # Schema completo + dados iniciais
+controllers/            # Lógica de negócio por domínio
+models/                 # Entidades do banco com métodos de persistência
+views/                  # Templates PHP puro, organizados por domínio
+vendor/                 # Dependências do Composer (não versionar)
+uploads/                # Arquivos enviados pelos usuários (não versionar conteúdo)
+banco_de_dados.sql      # Schema completo + dados iniciais
 ```
 
 ## Roteamento
 
-Parâmetro GET `action` define o que executar. Exemplos:
+Rotas definidas em `routes/web.php` usando FastRoute. Exemplos:
 
 ```
-?action=do_login          → UserController::do_login()
-?action=dashboard         → DashboardController::index()
-?action=professor_dashboard → ProfessorController::dashboard()
-?action=aluno_dashboard   → AlunoController::dashboard()
-?action=register-oferta   → OfertaController::create()
-?action=lancar_frequencia → ProfessorController::lancarFrequencia()
+GET  /                        → HomeController::index()
+GET  /login                   → UserController::showLogin()
+POST /login                   → UserController::do_login()
+GET  /aluno/dashboard         → AlunoController::dashboard()
+POST /aluno/inscricao         → AlunoController::doInscricaoOferta()
+GET  /admin                   → DashboardController::index()
+GET  /professor/dashboard     → ProfessorController::dashboard()
+POST /professor/frequencia    → ProfessorController::salvarFrequencia()
 ```
 
-Sem `action`, o roteamento padrão redireciona por role: Admin → `dashboard`, Professor → `professor_dashboard`, outros → home.
+O dispatcher em `index.php` instancia o controller e chama o método correspondente. Rotas não encontradas retornam 404; método errado retorna 405.
 
 ## Banco de Dados
 
@@ -74,7 +79,11 @@ Sem `action`, o roteamento padrão redireciona por role: Admin → `dashboard`, 
 | `aula`               | Plano de aulas por oferta                  |
 | `lista_frequencia`   | Presença por aluno por aula                |
 
-Conexão via `Database::getInstance()->getConnection()` (PDO, Singleton). Credenciais vêm das constantes `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` definidas em `config/database.php`.
+Acesso via dois mecanismos:
+- **PDO direto**: `Database::getInstance()->getConnection()` (Singleton)
+- **Eloquent ORM**: disponível após `EloquentBootstrap.php`, para models que estendem `Illuminate\Database\Eloquent\Model`
+
+Credenciais vêm das constantes `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` definidas em `config/database.php`.
 
 ## Sessão e Controle de Acesso
 
@@ -113,9 +122,11 @@ Definidas no `.env` (não versionado). Ver `.env.example` como referência.
 
 ## Dependências
 
-| Pacote                  | Versão | Uso                         |
-|-------------------------|--------|-----------------------------|
-| `phpmailer/phpmailer`   | ^7.0   | Envio de e-mail via SMTP    |
+| Pacote                    | Versão  | Uso                              |
+|---------------------------|---------|----------------------------------|
+| `nikic/fast-route`        | ^1.3    | Roteamento HTTP                  |
+| `illuminate/database`     | ^12.56  | Eloquent ORM (Laravel Database)  |
+| `phpmailer/phpmailer`     | ^7.0    | Envio de e-mail via SMTP         |
 
 Autoload via classmap: `core/`, `controllers/`, `models/`.
 
@@ -124,7 +135,7 @@ Autoload via classmap: `core/`, `controllers/`, `models/`.
 - **Controllers**: `NomeController.php`, PascalCase, métodos camelCase
 - **Models**: `Nome.php`, PascalCase — métodos `static` para buscas (`findById`, `findAll`), métodos de instância para persistência (`save`)
 - **Views**: PHP puro, organizadas por domínio em `views/nome_dominio/`
-- **Queries**: Sempre via PDO com prepared statements
+- **Queries**: Preferencialmente via Eloquent; PDO com prepared statements quando necessário
 - **Sanitização**: `htmlspecialchars()` para saída em HTML
 - **Senhas**: `password_hash()` / `password_verify()` (bcrypt)
-- **BASE_URL**: Usar a constante `BASE_URL` (definida em `helpers.php`) para links internos
+- **BASE_URL**: Constante definida como `/` em `core/helpers.php` — usar para prefixar caminhos de arquivos do banco (ex: uploads de fotos)

@@ -2,7 +2,7 @@
 // Garante que as variáveis para a view existam e define valores padrão.
 $data_aula_selecionada = $_GET['data_aula'] ?? date('Y-m-d');
 $isReadOnly = $isReadOnly ?? false;
-$ofertaNome = (isset($oferta) && $oferta) ? htmlspecialchars($oferta->getNome()) : 'Turma não encontrada';
+$ofertaNome = (isset($oferta) && $oferta) ? htmlspecialchars($oferta->nome) : 'Turma não encontrada';
 $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequência';
 ?>
 

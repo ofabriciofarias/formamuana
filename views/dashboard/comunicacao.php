@@ -8,8 +8,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 <p>Selecione uma oferta para visualizar os alunos inscritos e enviar comunicações.</p>
 
 <!-- Formulário de Filtro -->
-<form id="form-comunicacao" method="GET" action="index.php">
-    <input type="hidden" name="action" value="comunicacao">
+<form id="form-comunicacao" method="GET" action="/admin/comunicacao">
     <div class="form-group">
         <label for="oferta_id">Selecione a Oferta:</label>
         <select name="oferta_id" id="oferta_id" required>
