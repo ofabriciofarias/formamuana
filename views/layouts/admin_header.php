@@ -41,6 +41,7 @@ if (!is_admin()) {
                     <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
                     <a href="index.php?action=comunicacao">Comunicação</a>
                     <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
+                    <a href="index.php?action=vincular_certificados">Vincular Certificados</a>
                 </div>
             </div>
             <div class="dropdown">

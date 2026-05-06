@@ -145,6 +145,8 @@ CREATE TABLE IF NOT EXISTS `forma_muana`.`alunos_has_oferta` (
   `turno_preferencia` VARCHAR(45) NULL,
   `concluiu_curso` TINYINT(1) DEFAULT 0,
   `nota_final` DECIMAL(5,2) NULL,
+  `url_certificado` VARCHAR(300) NULL,
+  `codigo_validacao` VARCHAR(300) NULL,
   `motivo_evasao` VARCHAR(150) NULL,
   PRIMARY KEY (`alunos_id`, `oferta_id`),
   INDEX `fk_alunos_has_oferta_oferta1_idx` (`oferta_id` ASC),

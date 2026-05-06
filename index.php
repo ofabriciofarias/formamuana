@@ -46,9 +46,12 @@ switch ($action) {
     case 'register':
         $userController->register();
         break;
-    
-    case 'show_register_aluno_form':
-        $alunoController->showAlunoRegistrationForm();
+
+    case 'validar_certificado':
+        $homeController->validarCertificado();
+        break;
+
+    case 'show_register_aluno_form':        $alunoController->showAlunoRegistrationForm();
         break;
 
     case 'register_aluno':
@@ -162,6 +165,14 @@ switch ($action) {
 
     case 'comunicacao':
         $dashboardController->comunicacao();
+        break;
+
+    case 'vincular_certificados':
+        $dashboardController->vincularCertificados();
+        break;
+
+    case 'upload_certificado':
+        $dashboardController->uploadCertificado();
         break;
 
     case 'visualizar_inscritos':

@@ -20,7 +20,9 @@ class AlunoOferta {
     private $turno_preferencia;
     private $concluiu_curso;
     private $nota_final;
+    private $url_certificado;
     private $motivo_evasao;
+    
 
     public function getAlunosId() {
         return $this->alunos_id;
@@ -178,6 +180,14 @@ class AlunoOferta {
         $this->motivo_evasao = $motivo_evasao;
     }
 
+    public function getUrlCertificado() {
+        return $this->url_certificado;
+    }
+
+    public function setUrlCertificado($url_certificado) {
+        $this->url_certificado = $url_certificado;
+    }
+
     public function save() {
         $db = Database::getInstance()->getConnection();
 
@@ -299,6 +309,7 @@ class AlunoOferta {
                     o.inicio_hora_aula,
                     o.fim_hora_aula,
                     aho.status_selecao,
+                    aho.url_certificado,
                     aho.data_insc
                 FROM alunos_has_oferta AS aho
                 JOIN oferta AS o ON aho.oferta_id = o.id

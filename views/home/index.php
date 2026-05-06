@@ -49,7 +49,7 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Descrição</th>
+                            <th>Turno</th>
                             <th>Local</th>
                             <th>Vagas</th>
                             <th>Carga Horária</th>
@@ -86,7 +86,7 @@
                                 ?>
                                 <tr>
                                     <td data-label="Nome" style="font-weight: bold;"><?= htmlspecialchars($oferta['nome']) ?></td>
-                                    <td data-label="Descrição"><?= htmlspecialchars(substr($oferta['descricao'], 0, 50)) . (strlen($oferta['descricao']) > 50 ? '...' : '') ?></td>
+                                    <td data-label="Turno"><?= htmlspecialchars($oferta['turno']) ?></td>
                                     <td data-label="Local"><?= htmlspecialchars($oferta['local']) ?></td>
                                     <td data-label="Vagas"><?= htmlspecialchars($oferta['numero_vagas']) ?></td>
                                     <td data-label="Carga Horária"><?= htmlspecialchars($oferta['carga_horaria']) ?>h</td>
@@ -117,6 +117,71 @@
                         <?php endif; ?>
                     </tbody>
                 </table>
+                <div class="validation-section" style="margin-top: 40px; padding: 30px; background-color: var(--bg-light); border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3>Valide aqui seu certificado</h3>
+                    <p style="color: var(--text-light); margin-bottom: 20px;">Insira o código do certificado para verificar sua autenticidade.</p>
+                    <form id="formValidarCertificado" style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
+                        <input type="text" id="codigo_validacao_input" name="codigo" class="form-control" placeholder="Digite o código de validação" required>
+                        <button type="submit" class="btn btn-primary" id="btnValidarCertificado">Validar</button>
+                    </form>
+                </div>
+
+                <!-- Modal de Validação -->
+                <div id="modalValidacaoCertificado" class="modal">
+                    <div class="modal-content" style="max-width: 500px; text-align: center;">
+                        <span class="close-modal" onclick="closeModal('modalValidacaoCertificado')">&times;</span>
+                        <div class="modal-header" style="border-bottom: none;">
+                            <h2 id="tituloModalValidacao" style="margin-bottom: 0;">Resultado da Validação</h2>
+                        </div>
+                        <div class="modal-body" style="padding: 20px;">
+                            <p id="mensagemModalValidacao" style="font-size: 1.1rem; line-height: 1.5;"></p>
+                        </div>
+                        <div class="modal-footer" style="border-top: none; justify-content: center;">
+                            <button onclick="closeModal('modalValidacaoCertificado')" class="btn btn-secondary">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const formValidar = document.getElementById('formValidarCertificado');
+                    if (formValidar) {
+                        formValidar.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const btnValidar = document.getElementById('btnValidarCertificado');
+                            const codigo = document.getElementById('codigo_validacao_input').value;
+                            
+                            btnValidar.disabled = true;
+                            btnValidar.textContent = 'Validando...';
+                            
+                            const formData = new FormData();
+                            formData.append('codigo', codigo);
+                            
+                            fetch('index.php?action=validar_certificado', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                document.getElementById('tituloModalValidacao').innerHTML = data.success ? '<i class="fas fa-check-circle" style="color: green;"></i> Certificado Válido' : '<i class="fas fa-times-circle" style="color: red;"></i> Certificado Inválido';
+                                document.getElementById('mensagemModalValidacao').innerHTML = data.message;
+                                openModal('modalValidacaoCertificado');
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                document.getElementById('tituloModalValidacao').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: orange;"></i> Erro na Validação';
+                                document.getElementById('mensagemModalValidacao').innerText = 'Ocorreu um erro ao comunicar com o servidor. Tente novamente.';
+                                openModal('modalValidacaoCertificado');
+                            })
+                            .finally(() => {
+                                btnValidar.disabled = false;
+                                btnValidar.textContent = 'Validar';
+                            });
+                        });
+                    }
+                });
+                </script>
             </div>
         </div>
     </section>

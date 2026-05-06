@@ -151,6 +151,7 @@
                                         'fim_aulas' => $inscricao['fim_aulas'] ? date('d/m/Y', strtotime($inscricao['fim_aulas'])) : null,
                                         'inicio_hora_aula' => $inscricao['inicio_hora_aula'] ? date('H:i', strtotime($inscricao['inicio_hora_aula'])) : null,
                                         'fim_hora_aula' => $inscricao['fim_hora_aula'] ? date('H:i', strtotime($inscricao['fim_hora_aula'])) : null,
+                                        'url_certificado' => $inscricao['url_certificado'] ? BASE_URL . $inscricao['url_certificado'] : null,
                                     ];
                                 ?>
                                 <tr>
@@ -573,6 +574,7 @@
                     <div class="info-item"><i class="fas fa-chair"></i><div><strong>Vagas:</strong><br>${oferta.numero_vagas || 'Não informado'}</div></div>
                     <div class="info-item"><i class="fas fa-clock"></i><div><strong>Carga Horária:</strong><br>${oferta.carga_horaria}h</div></div>
                     <div class="info-item"><i class="fas fa-sitemap"></i><div><strong>Eixo Tecnológico:</strong><br>${oferta.eixo_tecnologico || 'Não informado'}</div></div>
+                    <div class="info-item"><i class="fas fa-award"></i><div><strong>Meu Certificado:</strong><br>${oferta.url_certificado ? `<a href="${oferta.url_certificado}" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 5px; display: inline-block;">Visualizar Certificado</a>` : 'Não informado'}</div></div>
                 `;
 
                 openModal(detalhesModal);

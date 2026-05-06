@@ -185,6 +185,130 @@ class DashboardController {
         require_once __DIR__ . '/../views/dashboard/comunicacao.php';
     }
 
+    public function vincularCertificados(){
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $ofertaId = $_GET['oferta_id'] ?? null;
+        $ofertas = Oferta::findAll();
+        $inscritos = [];
+        $inscricoesEncerradas = true;
+
+        if ($ofertaId) {
+            $db = Database::getInstance()->getConnection();
+            $query = "SELECT a.*, u.email as usuario_email, aho.status_selecao, aho.nota_final, aho.url_certificado, aho.concluiu_curso, aho.codigo_validacao, aho.oferta_id
+                      FROM alunos a
+                      JOIN usuarios u ON a.usuarios_id = u.id
+                      JOIN alunos_has_oferta aho ON a.id = aho.alunos_id
+                      WHERE aho.oferta_id = :oferta_id AND aho.status_selecao = 'Aprovado'
+                      ORDER BY a.nome ASC";
+            $stmt = $db->prepare($query);
+            $stmt->execute([':oferta_id' => $ofertaId]);
+            $inscritos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Calcula frequencia
+            $stmtDatas = $db->prepare("SELECT DISTINCT data_aula FROM aula WHERE oferta_id = :oferta_id");
+            $stmtDatas->execute([':oferta_id' => $ofertaId]);
+            $datas_aulas = $stmtDatas->fetchAll(PDO::FETCH_COLUMN);
+            $total_dias_aula = count($datas_aulas);
+
+            $stmtFreq = $db->prepare(
+                "SELECT lf.alunos_id, a.data_aula
+                 FROM lista_frequencia lf
+                 JOIN aula a ON lf.aula_id = a.id
+                 WHERE a.oferta_id = :oferta_id AND lf.presenca = 1"
+            );
+            $stmtFreq->execute([':oferta_id' => $ofertaId]);
+            $frequenciasRaw = $stmtFreq->fetchAll(PDO::FETCH_ASSOC);
+
+            $frequencias = [];
+            foreach ($frequenciasRaw as $freq) {
+                $frequencias[$freq['alunos_id']][$freq['data_aula']] = true;
+            }
+
+            foreach ($inscritos as &$inscrito) {
+                $dias_presente = isset($frequencias[$inscrito['id']]) ? count($frequencias[$inscrito['id']]) : 0;
+                $inscrito['frequencia_percentual'] = $total_dias_aula > 0 ? round(($dias_presente / $total_dias_aula) * 100) : 0;
+            }
+        }
+
+        require_once __DIR__ . '/../views/dashboard/vincular_certificados.php';
+    }
+
+    public function uploadCertificado() {
+        header('Content-Type: application/json');
+        if (!is_admin() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Acesso negado']);
+            exit;
+        }
+
+        $alunoId = $_POST['aluno_id'] ?? null;
+        $ofertaId = $_POST['oferta_id'] ?? null;
+        $codigoValidacao = $_POST['codigo_validacao'] ?? null;
+        $concluiuCurso = isset($_POST['concluiu_curso']) ? 1 : 0;
+        
+        $db = Database::getInstance()->getConnection();
+        
+        // Verifica frequencia e nota
+        $stmtNota = $db->prepare("SELECT nota_final FROM alunos_has_oferta WHERE alunos_id = :aluno_id AND oferta_id = :oferta_id");
+        $stmtNota->execute([':aluno_id' => $alunoId, ':oferta_id' => $ofertaId]);
+        $notaFinal = $stmtNota->fetchColumn();
+
+        $stmtDatas = $db->prepare("SELECT DISTINCT data_aula FROM aula WHERE oferta_id = :oferta_id");
+        $stmtDatas->execute([':oferta_id' => $ofertaId]);
+        $datas_aulas = $stmtDatas->fetchAll(PDO::FETCH_COLUMN);
+        $total_dias_aula = count($datas_aulas);
+
+        $stmtFreq = $db->prepare("SELECT COUNT(*) FROM lista_frequencia lf JOIN aula a ON lf.aula_id = a.id WHERE a.oferta_id = :oferta_id AND lf.alunos_id = :aluno_id AND lf.presenca = 1");
+        $stmtFreq->execute([':oferta_id' => $ofertaId, ':aluno_id' => $alunoId]);
+        $dias_presente = $stmtFreq->fetchColumn();
+
+        $frequenciaPercentual = $total_dias_aula > 0 ? round(($dias_presente / $total_dias_aula) * 100) : 0;
+
+        if ($frequenciaPercentual > 75 && $notaFinal > 5) {
+            $urlCertificado = null;
+            if ($concluiuCurso == 1 && isset($_FILES['certificado']) && $_FILES['certificado']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../certificados/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                
+                $fileName = uniqid() . '_' . basename($_FILES['certificado']['name']);
+                $uploadFile = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['certificado']['tmp_name'], $uploadFile)) {
+                    $urlCertificado = 'certificados/' . $fileName;
+                }
+            }
+
+            if ($urlCertificado) {
+                $stmtUpdate = $db->prepare("UPDATE alunos_has_oferta SET concluiu_curso = :concluiu_curso, url_certificado = :url_certificado, codigo_validacao = :codigo_validacao WHERE alunos_id = :aluno_id AND oferta_id = :oferta_id");
+                $stmtUpdate->execute([
+                    ':concluiu_curso' => $concluiuCurso,
+                    ':url_certificado' => $urlCertificado,
+                    ':codigo_validacao' => $codigoValidacao,
+                    ':aluno_id' => $alunoId,
+                    ':oferta_id' => $ofertaId
+                ]);
+            } else {
+                $stmtUpdate = $db->prepare("UPDATE alunos_has_oferta SET concluiu_curso = :concluiu_curso, codigo_validacao = :codigo_validacao WHERE alunos_id = :aluno_id AND oferta_id = :oferta_id");
+                $stmtUpdate->execute([
+                    ':concluiu_curso' => $concluiuCurso,
+                    ':codigo_validacao' => $codigoValidacao,
+                    ':aluno_id' => $alunoId,
+                    ':oferta_id' => $ofertaId
+                ]);
+            }
+            
+            echo json_encode(['success' => true, 'message' => 'Certificado vinculado com sucesso!']);
+            exit;
+        }
+        
+        echo json_encode(['success' => false, 'message' => 'Requisitos não atendidos (Freq > 75% e Nota > 5).']);
+        exit;
+    }
 
     public function updateStatusAjax() {
         header('Content-Type: application/json');
