@@ -21,11 +21,14 @@ if (!is_admin()) {
 <body>
 
 <header class="admin-header">
-    <div class="container">
+    <div class="container nav-flex">
         <div class="logo">
             <a href="index.php?action=dashboard">Admin Forma Muana</a>
         </div>
-        <nav class="nav-links">
+        <div class="mobile-toggle" id="mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav-links" id="nav-links">
             <div class="dropdown">
                 <a href="#">Cadastro <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
@@ -40,7 +43,6 @@ if (!is_admin()) {
                 <div class="dropdown-content">
                     <a href="index.php?action=selecao_alunos">Seleção de Alunos</a>
                     <a href="index.php?action=comunicacao">Comunicação</a>
-                    <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
                     <a href="index.php?action=vincular_certificados">Vincular Certificados</a>
                 </div>
             </div>
@@ -49,6 +51,7 @@ if (!is_admin()) {
                 <div class="dropdown-content">
                     <a href="index.php?action=relatorio_geral">Relatório Geral</a>
                     <a href="index.php?action=relatorio_detalhado">Relatório Detalhado</a>
+                    <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
                 </div>
             </div>
             <div class="dropdown">

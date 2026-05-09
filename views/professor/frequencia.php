@@ -44,6 +44,58 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
     .bg-success { background-color: #28a745 !important; }
     .bg-warning { background-color: #ffc107 !important; color: #212529 !important; }
     .bg-danger { background-color: #dc3545 !important; }
+
+    /* Estilos Responsivos para Tabela em Formato de Cards */
+    @media (max-width: 768px) {
+        .responsive-cards.table-responsive {
+            overflow-x: visible;
+        }
+        .responsive-cards table, 
+        .responsive-cards thead, 
+        .responsive-cards tbody, 
+        .responsive-cards th, 
+        .responsive-cards td, 
+        .responsive-cards tr {
+            display: block;
+            width: 100%;
+        }
+        .responsive-cards thead {
+            display: none;
+        }
+        .responsive-cards tr {
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            background-color: #fff;
+            padding: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        }
+        .responsive-cards td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            border-bottom: 1px solid #f8f9fa;
+            padding: 0.75rem 0.5rem;
+            text-align: right !important;
+        }
+        .responsive-cards td:last-child {
+            border-bottom: none;
+        }
+        .responsive-cards td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            text-align: left;
+            color: #495057;
+            flex-basis: 40%;
+            margin-right: 1rem;
+        }
+        .responsive-cards td .progress {
+            flex-grow: 1;
+            margin-left: 10px;
+            width: auto;
+        }
+    }
 </style>
 
 <div class="container mt-4">
@@ -54,7 +106,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
 
     <?php if ($isReadOnly): ?>
         <!-- =================== MODO CONSULTA =================== -->
-        <div class="table-responsive">
+        <div class="table-responsive auto-responsive-cards">
             <table class="table table-bordered table-hover text-center">
                 <thead class="thead-light">
                     <tr>
@@ -71,10 +123,10 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
                     <?php if (isset($alunos) && !empty($alunos)): ?>
                         <?php foreach ($alunos as $aluno): ?>
                             <tr>
-                                <td class="text-left"><?= htmlspecialchars($aluno['nome']) ?></td>
+                                <td class="text-left" data-label="Aluno"><?= htmlspecialchars($aluno['nome']) ?></td>
                                 <?php if (isset($datas_aulas) && !empty($datas_aulas)): ?>
                                     <?php foreach ($datas_aulas as $data): ?>
-                                        <td>
+                                        <td data-label="Aula <?= date('d/m', strtotime($data)) ?>">
                                             <?php
                                                 $presente = isset($frequencias[$aluno['id']][$data]);
                                                 echo $presente ? '<i class="fas fa-check-circle text-success" title="Presente"></i>' : '<i class="fas fa-times-circle text-danger" title="Ausente"></i>';
@@ -82,7 +134,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
                                         </td>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-                                <td class="text-left">
+                                <td class="text-left" data-label="Frequência (%)">
                                     <?php
                                         $percent = $frequencia_percentual[$aluno['id']] ?? 0;
                                         $bar_color_class = 'bg-success';
@@ -116,7 +168,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
             <input type="date" id="data_aula" class="form-control" value="<?= $data_aula_selecionada ?>">
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive auto-responsive-cards">
             <table class="table table-bordered table-hover" style="max-width: 700px;">
                 <thead class="thead-light">
                     <tr>
@@ -131,8 +183,8 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
                     <?php if (isset($alunos) && !empty($alunos)): ?>
                         <?php foreach ($alunos as $aluno): ?>
                             <tr>
-                                <td><?= htmlspecialchars($aluno['nome']) ?></td>
-                                <td class="text-center">
+                                <td data-label="Aluno"><?= htmlspecialchars($aluno['nome']) ?></td>
+                                <td class="text-center" data-label="<?= $data_aula_selecionada ? date('d/m/Y', strtotime($data_aula_selecionada)) : 'Data' ?>">
                                     <?php $presente = isset($frequencias[$aluno['id']][$data_aula_selecionada]); ?>
                                     <input type="checkbox" 
                                            class="frequencia-checkbox"

@@ -21,11 +21,14 @@ if (!is_professor()) {
 <body>
 
 <header class="admin-header">
-    <div class="container">
+    <div class="container nav-flex">
         <div class="logo">
             <a href="index.php?action=professor_dashboard">Painel do Professor</a>
         </div>
-        <nav class="nav-links">
+        <div class="mobile-toggle" id="mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav-links" id="nav-links">
             <a href="index.php?action=professor_dashboard">Minhas Turmas</a>
             <li class="dropdown">
                 <a href="#" class="dropbtn">Vínculos <i class="fas fa-caret-down"></i></a>

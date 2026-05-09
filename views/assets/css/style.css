@@ -114,7 +114,7 @@ header {
 .nav-flex {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: justify;
 }
 
 .logo a {
@@ -128,7 +128,7 @@ header {
 
 .nav-links {
     display: flex;
-    align-items: center;
+    align-items: justify;
     gap: 30px;
 }
 
@@ -551,6 +551,26 @@ footer {
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
     }
 
+    .nav-links a, .admin-header .nav-links a {
+        color: var(--text-dark) !important;
+        margin: 10px 0;
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        background-color: transparent;
+        display: none;
+    }
+    
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
     .header-login-form {
         flex-direction: column;
         width: 100%;
@@ -885,3 +905,56 @@ main.admin-content {
 .details-list dd {
     margin: 0;
 }
+/* --- AUTO-RESPONSIVE CARDS (Activado via JS) --- */
+.auto-responsive-cards.active {
+    overflow-x: visible !important;
+}
+.auto-responsive-cards.active table, 
+.auto-responsive-cards.active thead, 
+.auto-responsive-cards.active tbody, 
+.auto-responsive-cards.active th, 
+.auto-responsive-cards.active td, 
+.auto-responsive-cards.active tr {
+    display: block;
+    width: 100%;
+}
+.auto-responsive-cards.active thead {
+    display: none;
+}
+.auto-responsive-cards.active tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    padding: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+.auto-responsive-cards.active td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 0.75rem 0.5rem;
+    text-align: right !important;
+}
+.auto-responsive-cards.active td:last-child {
+    border-bottom: none;
+}
+.auto-responsive-cards.active td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    color: #495057;
+    flex-basis: 40%;
+    margin-right: 1rem;
+}
+.auto-responsive-cards.active td .progress {
+    flex-grow: 1;
+    margin-left: 10px;
+    width: auto;
+}
+.auto-responsive-cards.active td .btn {
+    margin-bottom: 5px;
+}
+

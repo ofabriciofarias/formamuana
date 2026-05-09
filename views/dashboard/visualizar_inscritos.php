@@ -25,7 +25,7 @@ if (is_professor()) {
         <div style="margin-bottom: 15px;">
             <input type="text" id="searchInput" onkeyup="filterInscritos()" placeholder="Buscar por nome, login ou email..." class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive auto-responsive-cards">
             <table class="table" style="width: 100%; border-collapse: collapse; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
                 <thead>
                     <tr style="background-color: var(--primary-color); color: white;">
@@ -38,10 +38,10 @@ if (is_professor()) {
                 <tbody>
                     <?php if(!empty($inscritos)): foreach($inscritos as $aluno): ?>
                     <tr class="aluno-row" data-login="<?= htmlspecialchars($aluno['usuario_login'] ?? '') ?>" style="border-bottom: 1px solid #ddd;">
-                        <td style="padding: 12px;"><?= htmlspecialchars($aluno['nome']) ?></td>
-                        <td style="padding: 12px;"><?= htmlspecialchars($aluno['email']) ?></td>
-                        <td style="padding: 12px;"><?= htmlspecialchars($aluno['whatsapp'] ?: $aluno['telefone']) ?></td>
-                        <td style="padding: 12px; text-align: center;">
+                        <td data-label="Nome" style="padding: 12px;"><?= htmlspecialchars($aluno['nome']) ?></td>
+                        <td data-label="Email" style="padding: 12px;"><?= htmlspecialchars($aluno['email']) ?></td>
+                        <td data-label="Contato" style="padding: 12px;"><?= htmlspecialchars($aluno['whatsapp'] ?: $aluno['telefone']) ?></td>
+                        <td data-label="Ações" style="padding: 12px; text-align: center;">
                             <button class="btn btn-primary" onclick="viewAluno(<?= $aluno['id'] ?>)" style="margin-right: 5px;">Visualizar</button>
                             <button class="btn" style="background-color:#28a745; color:white;" onclick="editAluno(<?= $aluno['id'] ?>)">Editar</button>
                         </td>

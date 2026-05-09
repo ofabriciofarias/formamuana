@@ -162,9 +162,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileToggle = document.getElementById('mobile-toggle');
     const navLinks = document.getElementById('nav-links');
 
-    if (mobileToggle) {
+    if (mobileToggle && navLinks) {
         mobileToggle.addEventListener('click', function() {
             navLinks.classList.toggle('active');
+            const icon = mobileToggle.querySelector('i');
+            if (icon) {
+                if(navLinks.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+
+        const links = navLinks.querySelectorAll('a:not(.dropbtn)');
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
         });
     }
 
