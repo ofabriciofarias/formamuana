@@ -232,6 +232,7 @@ class DashboardController {
                 $dias_presente = isset($frequencias[$inscrito['id']]) ? count($frequencias[$inscrito['id']]) : 0;
                 $inscrito['frequencia_percentual'] = $total_dias_aula > 0 ? round(($dias_presente / $total_dias_aula) * 100) : 0;
             }
+            unset($inscrito); // Remove a referência
         }
 
         require_once __DIR__ . '/../views/dashboard/vincular_certificados.php';

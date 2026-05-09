@@ -120,7 +120,7 @@
                         <thead>
                             <tr>
                                 <th>Nome</th>
-                                <th>Descrição</th>
+                                <th>Certificado</th>
                                 <th>Local</th>
                                 <th>Vagas</th>
                                 <th>Carga Horária</th>
@@ -156,7 +156,21 @@
                                 ?>
                                 <tr>
                                     <td data-label="Nome"><?= htmlspecialchars($inscricao['nome']) ?></td>
-                                    <td data-label="Descrição"><?= htmlspecialchars(substr($inscricao['descricao'], 0, 100)) . '...' ?></td>
+                                    <td data-label="Certificado" style="text-align: center;">
+                                        <?php if (!empty($inscricao['url_certificado'])): ?>
+                                            <a 
+                                                href="<?= htmlspecialchars(BASE_URL . $inscricao['url_certificado']) ?>" 
+                                                target="_blank" 
+                                                class="btn-detalhes"
+                                                title="Visualizar Certificado"
+                                            >
+                                                <i class="fas fa-graduation-cap"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <span>---</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <!-- <td data-label="Certificado"><?= htmlspecialchars($inscricao['url_certificado'] ? BASE_URL . $inscricao['url_certificado'] : null) ?></td> -->
                                     <td data-label="Local"><?= htmlspecialchars($inscricao['local']) ?></td>
                                     <td data-label="Vagas"><?= htmlspecialchars($inscricao['numero_vagas']) ?></td>
                                     <td data-label="Carga Horária"><?= htmlspecialchars($inscricao['carga_horaria']) ?>h</td>
