@@ -232,7 +232,6 @@ class DashboardController {
                 $dias_presente = isset($frequencias[$inscrito['id']]) ? count($frequencias[$inscrito['id']]) : 0;
                 $inscrito['frequencia_percentual'] = $total_dias_aula > 0 ? round(($dias_presente / $total_dias_aula) * 100) : 0;
             }
-            unset($inscrito); // Remove a referência
         }
 
         require_once __DIR__ . '/../views/dashboard/vincular_certificados.php';
@@ -506,6 +505,8 @@ class DashboardController {
         $target = $data['target'] ?? null;
         $subject = $data['subject'] ?? 'Notificação do Processo Seletivo';
         $body = $data['body'] ?? '';
+        $offset = isset($data['offset']) ? (int)$data['offset'] : 0;
+        $limit = isset($data['limit']) ? (int)$data['limit'] : 49;
 
         if (!$ofertaId || !$target || empty($subject) || empty($body)) {
             echo json_encode(['success' => false, 'message' => 'Dados insuficientes para enviar o email.']);
@@ -540,6 +541,15 @@ class DashboardController {
             echo json_encode(['success' => false, 'message' => 'Nenhum destinatário encontrado para o critério: ' . htmlspecialchars($target)]);
             exit;
         }
+        
+        $totalRecipients = count($recipients);
+        if ($offset >= $totalRecipients) {
+             echo json_encode(['success' => true, 'message' => 'Todos os emails foram enviados.', 'has_more' => false, 'total_count' => $totalRecipients]);
+             exit;
+        }
+
+        $recipientsBatch = array_slice($recipients, $offset, $limit, true);
+        $hasMore = ($offset + count($recipientsBatch)) < $totalRecipients;
 
         $mail = new PHPMailer(true);
         try {
@@ -556,9 +566,17 @@ class DashboardController {
             //Remetente
             $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
 
-            //Adiciona todos os destinatários
-            foreach ($recipients as $name => $email) {
-                $mail->addAddress($email, $name);
+            //Adiciona todos os destinatários do bloco
+            foreach ($recipientsBatch as $name => $email) {
+                if (count($recipientsBatch) > 1) {
+                    $mail->addBCC($email, $name);
+                } else {
+                    $mail->addAddress($email, $name);
+                }
+            }
+            
+            if (count($recipientsBatch) > 1) {
+                $mail->addAddress(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
             }
 
             //Conteúdo
@@ -568,7 +586,15 @@ class DashboardController {
             $mail->AltBody = strip_tags($body); // Versão em texto puro
 
             $mail->send();
-            echo json_encode(['success' => true, 'message' => count($recipients) . ' email(s) enviado(s) com sucesso!']);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => count($recipientsBatch) . ' email(s) enviado(s) com sucesso!',
+                'sent_count' => count($recipientsBatch),
+                'has_more' => $hasMore,
+                'next_offset' => $offset + count($recipientsBatch),
+                'total_count' => $totalRecipients
+            ]);
 
         } catch (Exception $e) {
             // Retorna uma mensagem de erro mais detalhada para depuração

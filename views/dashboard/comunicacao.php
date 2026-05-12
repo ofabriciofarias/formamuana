@@ -93,13 +93,21 @@ require_once __DIR__ . '/../layouts/admin_header.php';
             <form id="email-editor-form">
                 <input type="hidden" id="email-target" name="target">
                 <div class="form-group"><label for="email-subject">Assunto:</label><input type="text" id="email-subject" class="form-control" required></div>
-                <div class="form-group"><label for="email-body">Mensagem:</label><textarea id="email-body" class="form-control" rows="10" required></textarea></div>
+                <div class="form-group">
+                    <label>Mensagem:</label>
+                    <div id="email-editor-container" style="height: 250px; background-color: white; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;"></div>
+                    <input type="hidden" id="email-body">
+                </div>
                 <button type="submit" id="send-email-btn" class="btn btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> Enviar</button>
                 <div id="email-loading" style="display: none; text-align: center; margin-top: 15px;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- CDN do Quill.js -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -116,6 +124,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailTargetInput = document.getElementById('email-target');
     const emailEditorTitle = document.getElementById('email-editor-title');
     const emailSubjectInput = document.getElementById('email-subject');
+
+    // Inicializar o Editor Quill
+    var quill = new Quill('#email-editor-container', {
+        theme: 'snow',
+        placeholder: 'Escreva a sua mensagem aqui...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'header': [1, 2, 3, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                ['link', 'clean']
+            ]
+        }
+    });
+
+    // Atualiza o input invisível toda vez que o editor mudar
+    quill.on('text-change', function() {
+        document.getElementById('email-body').value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
+    });
 
     function showToast(message, isSuccess = true) {
         const toast = document.getElementById('notification-toast');
@@ -159,6 +187,8 @@ document.addEventListener('DOMContentLoaded', function() {
             emailTargetInput.value = alunoId;
             emailEditorTitle.innerText = `Email para: ${alunoEmail}`;
             emailEditorForm.reset();
+            quill.setContents([]); // Limpa o editor
+            document.getElementById('email-body').value = '';
             emailSubjectInput.value = '';
             emailEditorModal.style.display = 'block';
         });
@@ -172,6 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
             emailTargetInput.value = targetGroup;
             emailEditorTitle.innerText = `Email para o grupo: ${targetGroup}`;
             emailEditorForm.reset();
+            quill.setContents([]); // Limpa o editor
+            document.getElementById('email-body').value = '';
             emailSubjectInput.value = '';
             
             emailGroupModal.style.display = 'none';
@@ -182,17 +214,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle email form submission
     emailEditorForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        const bodyContent = document.getElementById('email-body').value.trim();
+        if (!bodyContent) {
+            showToast('Por favor, preencha a mensagem do email.', false);
+            return;
+        }
+        startSendingBatch(0);
+    });
+
+    window.startSendingBatch = function(offset) {
         const sendBtn = document.getElementById('send-email-btn');
         const loadingDiv = document.getElementById('email-loading');
+        const limit = 49;
         
         sendBtn.disabled = true;
         loadingDiv.style.display = 'block';
-
+        
+        // Recria a barra de progresso no início ou se foi destruída (ex: após erro e retentativa)
+        if (offset === 0 || !document.getElementById('email-progress-bar')) {
+            loadingDiv.innerHTML = `
+                <p id="email-progress-text" style="margin-bottom: 5px;"><strong>Processando...</strong> ${offset === 0 ? 'Iniciando o envio.' : 'Retomando o envio...'}</p>
+                <div style="height: 20px; background-color: #e9ecef; border-radius: 5px; overflow: hidden; margin-bottom: 15px; width: 100%; border: 1px solid #ccc;">
+                    <div id="email-progress-bar" style="width: 0%; background-color: var(--primary-color); height: 100%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;"></div>
+                </div>
+            `;
+        } else {
+            const progressText = document.getElementById('email-progress-text');
+            if (progressText) progressText.innerHTML = `<strong>Processando...</strong> Enviando próximo bloco...`;
+        }
+        
         const payload = {
             oferta_id: document.getElementById('oferta_id').value,
             target: emailTargetInput.value,
             subject: emailSubjectInput.value,
-            body: document.getElementById('email-body').value.replace(/\n/g, '<br>')
+            body: document.getElementById('email-body').value, // Agora já vem como HTML puro
+            offset: offset,
+            limit: limit
         };
 
         fetch('index.php?action=send_email_notification', {
@@ -203,22 +260,47 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast(data.message || 'Email(s) enviado(s) com sucesso!');
-                emailEditorModal.style.display = 'none';
-                emailEditorForm.reset();
+                let total = data.total_count || 1;
+                let nextOffset = data.next_offset || total;
+                let percent = Math.min(100, Math.round((nextOffset / total) * 100));
+                
+                const progressBar = document.getElementById('email-progress-bar');
+                const progressText = document.getElementById('email-progress-text');
+                
+                if (progressBar) {
+                    progressBar.style.width = percent + '%';
+                    progressBar.innerText = percent + '%';
+                }
+
+                if (data.has_more) {
+                    if (progressText) progressText.innerHTML = `<strong>Processando...</strong> Enviados ${nextOffset} de ${total} emails.`;
+                    showToast(`Bloco enviado (${data.sent_count} emails). Indo para o próximo...`);
+                    setTimeout(() => startSendingBatch(data.next_offset), 2000);
+                } else {
+                    if (progressText) progressText.innerHTML = `<strong>Concluído!</strong> Todos os ${total} emails foram enviados.`;
+                    showToast('Todos os emails foram enviados com sucesso!');
+                    setTimeout(() => {
+                        emailEditorModal.style.display = 'none';
+                        emailEditorForm.reset();
+                        quill.setContents([]);
+                        document.getElementById('email-body').value = '';
+                        sendBtn.disabled = false;
+                        loadingDiv.style.display = 'none';
+                    }, 1500);
+                }
             } else {
                 showToast(data.message || 'Ocorreu um erro.', false);
+                loadingDiv.innerHTML = `<p style="color: #dc3545; margin-bottom: 10px;"><strong>Erro:</strong> ${data.message || 'Falha no envio do bloco atual.'}</p>
+                                        <button type="button" class="btn btn-warning" onclick="startSendingBatch(${offset})"><i class="fas fa-redo"></i> Tentar Novamente (Apenas Restantes)</button>`;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             showToast('Erro de comunicação com o servidor.', false);
+            loadingDiv.innerHTML = `<p style="color: #dc3545; margin-bottom: 10px;"><strong>Erro de conexão com o servidor.</strong></p>
+                                    <button type="button" class="btn btn-warning" onclick="startSendingBatch(${offset})"><i class="fas fa-redo"></i> Tentar Novamente (Apenas Restantes)</button>`;
         })
-        .finally(() => {
-            sendBtn.disabled = false;
-            loadingDiv.style.display = 'none';
-        });
-    });
+    };
 });
 </script>
 
