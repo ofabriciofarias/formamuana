@@ -32,7 +32,7 @@ $pageTitle = 'Lançamento de Notas';
     <form action="index.php?action=salvarNotas" method="POST">
         <input type="hidden" name="oferta_id" value="<?= htmlspecialchars($_GET['oferta_id'] ?? '') ?>">
         
-        <div class="table-responsive">
+        <div class="table-responsive auto-responsive-cards active">
             <table class="table table-bordered table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -45,8 +45,8 @@ $pageTitle = 'Lançamento de Notas';
                     <?php if (isset($alunos) && !empty($alunos)): ?>
                         <?php foreach ($alunos as $aluno): ?>
                             <tr>
-                                <td><?= htmlspecialchars($aluno['nome']) ?></td>
-                                <td class="text-center">
+                                <td data-label="Aluno"><?= htmlspecialchars($aluno['nome']) ?></td>
+                                <td data-label="Nota Final" class="text-center">
                                     <input type="number" 
                                            class="form-control nota-input mx-auto"
                                            name="notas[<?= $aluno['id'] ?>]"
@@ -56,7 +56,7 @@ $pageTitle = 'Lançamento de Notas';
                                            max="10"
                                            placeholder="Ex: 7,5">
                                 </td>
-                                <td class="text-center">
+                                <td data-label="Status" class="text-center">
                                     <?php
                                         $nota = $aluno['nota_final'];
                                         if ($nota !== null) {

@@ -25,7 +25,7 @@ if (is_professor()) {
         <div style="margin-bottom: 15px;">
             <input type="text" id="searchInput" onkeyup="filterInscritos()" placeholder="Buscar por nome, login ou email..." class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
-        <div class="table-responsive auto-responsive-cards">
+        <div class="table-responsive auto-responsive-cards active">
             <table class="table" style="width: 100%; border-collapse: collapse; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
                 <thead>
                     <tr style="background-color: var(--primary-color); color: white;">
@@ -161,7 +161,7 @@ function viewAluno(id) {
                 document.getElementById('viewModalBody').innerHTML = `<p style="color:red">${data.error}</p>`;
                 return;
             }
-            let html = '<table style="width:100%; border-collapse: collapse;">';
+            let html = '<div class="table-responsive"><table class="table" style="width:100%; border-collapse: collapse;">';
             for (const [key, value] of Object.entries(data)) {
                 if(value && key !== 'usuario_id' && key !== 'id') {
                     // Format the key to be more readable
@@ -174,7 +174,7 @@ function viewAluno(id) {
                     `;
                 }
             }
-            html += '</table>';
+            html += '</table></div>';
             document.getElementById('viewModalBody').innerHTML = html;
         })
         .catch(err => {

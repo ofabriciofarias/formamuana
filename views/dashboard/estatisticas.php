@@ -26,7 +26,7 @@
 
         <div style="background: var(--white); padding: 30px; border-radius: 10px; box-shadow: var(--shadow);">
             <h3 style="margin-bottom: 20px; color: var(--primary-color);">Inscritos por Curso e Estatísticas de Porcentagem</h3>
-            <div class="table-responsive">
+            <div class="table-responsive auto-responsive-cards active">
                 <table class="responsive-table">
                     <thead>
                         <tr>
@@ -78,7 +78,7 @@
 
         <div style="background: var(--white); padding: 30px; border-radius: 10px; box-shadow: var(--shadow); margin-top: 30px;">
             <h3 style="margin-bottom: 20px; color: var(--primary-color);">Estatísticas Agrupadas por Curso (Todas as Turmas)</h3>
-            <div class="table-responsive">
+            <div class="table-responsive auto-responsive-cards active">
                 <table class="responsive-table">
                     <thead>
                         <tr>

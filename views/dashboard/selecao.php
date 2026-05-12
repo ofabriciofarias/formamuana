@@ -54,7 +54,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
     $numeroVagas = (int)($inscritos[0]['numero_vagas'] ?? 0);
 ?>
 
-<div id="tabela-alunos-container" class="table-responsive" style="margin-top: 30px; <?= $tableStyle ?>">
+<div id="tabela-alunos-container" class="table-responsive auto-responsive-cards active" style="margin-top: 30px; <?= $tableStyle ?>">
     <h4>Alunos Inscritos (<?= count($inscritos) ?>)</h4>
     <p>Vagas disponíveis: <strong id="numero-vagas"><?= htmlspecialchars($numeroVagas) ?></strong> | Vagas preenchidas: <strong id="aprovados-count"><?= $aprovadosCount ?></strong></p>
     <table class="responsive-table">

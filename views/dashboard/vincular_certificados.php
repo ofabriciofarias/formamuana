@@ -33,7 +33,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 <?php if (isset($ofertaId) && empty($inscritos)): ?>
     <div style="background: #eaf6ff; border-left: 5px solid #63a3d4; padding: 15px; margin-top: 20px;">Nenhum aluno aprovado para a oferta selecionada.</div>
 <?php elseif (!empty($inscritos)): ?>
-    <div id="tabela-alunos-container" class="table-responsive" style="margin-top: 30px;">
+    <div id="tabela-alunos-container" class="table-responsive auto-responsive-cards active" style="margin-top: 30px;">
         <h4>Alunos Aprovados (<?= count($inscritos) ?>)</h4>
         <table class="responsive-table">
             <thead>

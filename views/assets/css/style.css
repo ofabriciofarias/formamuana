@@ -510,10 +510,11 @@ footer {
 
     .responsive-table td {
         display: block;
-        text-align: right;
+        text-align: left;
         padding: 12px 15px 12px 50%; /* Deixa espaço para o label */
         position: relative;
         border-bottom: 1px solid #eee;
+        word-break: break-word;
     }
 
     .responsive-table td:last-child {
@@ -931,12 +932,13 @@ main.admin-content {
 }
 .auto-responsive-cards.active td {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
     border: none;
     border-bottom: 1px solid #f8f9fa;
     padding: 0.75rem 0.5rem;
-    text-align: right !important;
+    text-align: left !important;
+    word-break: break-word;
 }
 .auto-responsive-cards.active td:last-child {
     border-bottom: none;
@@ -947,6 +949,7 @@ main.admin-content {
     text-align: left;
     color: #495057;
     flex-basis: 40%;
+    flex-shrink: 0;
     margin-right: 1rem;
 }
 .auto-responsive-cards.active td .progress {
@@ -957,4 +960,3 @@ main.admin-content {
 .auto-responsive-cards.active td .btn {
     margin-bottom: 5px;
 }
-

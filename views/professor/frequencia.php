@@ -106,7 +106,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
 
     <?php if ($isReadOnly): ?>
         <!-- =================== MODO CONSULTA =================== -->
-        <div class="table-responsive auto-responsive-cards">
+        <div class="table-responsive auto-responsive-cards active">
             <table class="table table-bordered table-hover text-center">
                 <thead class="thead-light">
                     <tr>
@@ -168,7 +168,7 @@ $pageTitle = $isReadOnly ? 'Consulta de Frequência' : 'Lançamento de Frequênc
             <input type="date" id="data_aula" class="form-control" value="<?= $data_aula_selecionada ?>">
         </div>
 
-        <div class="table-responsive auto-responsive-cards">
+        <div class="table-responsive auto-responsive-cards active">
             <table class="table table-bordered table-hover" style="max-width: 700px;">
                 <thead class="thead-light">
                     <tr>

@@ -61,7 +61,7 @@
             <!-- 3. Tabela de Professores Vinculados -->
             <div class="col-md-6">
                 <h5 class="mt-4"><strong>3. Professores já vinculados:</strong></h5>
-                <div class="table-responsive">
+                <div class="table-responsive auto-responsive-cards active">
                     <table class="table linked-professores-table">
                         <thead>
                             <tr>
@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
         professores.forEach(prof => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${prof.nome}</td>
-                <td style="text-align:center;">
+                <td data-label="Professor">${prof.nome}</td>
+                <td data-label="Ação" style="text-align:center;">
                     <button class="delete-btn" data-vinculo-id="${prof.vinculo_id}" title="Desvincular Professor">
                         <i class="fas fa-trash-alt"></i>
                     </button>

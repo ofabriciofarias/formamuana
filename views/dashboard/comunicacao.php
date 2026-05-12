@@ -33,7 +33,7 @@ require_once __DIR__ . '/../layouts/admin_header.php';
 
 <!-- Tabela de Alunos -->
 <?php if (!empty($inscritos)): ?>
-<div class="table-responsive" style="margin-top: 30px;">
+<div class="table-responsive auto-responsive-cards active" style="margin-top: 30px;">
     <button id="mass-email-btn" class="btn btn-success" style="margin-bottom: 20px;"><i class="fas fa-users"></i> Envio Geral</button>
     <table class="responsive-table">
         <thead>

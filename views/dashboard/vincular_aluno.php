@@ -48,7 +48,7 @@ if (is_professor()) {
                 <button type="button" class="btn btn-primary" onclick="searchAlunos()">Buscar</button>
             </div>
             
-            <div class="table-responsive">
+            <div class="table-responsive auto-responsive-cards active">
                 <table class="table" style="width: 100%; border-collapse: collapse; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
                     <thead>
                         <tr style="background-color: var(--primary-color); color: white;">
@@ -238,9 +238,9 @@ function searchAlunos() {
                 const loginEmail = aluno.usuario_login ? `${aluno.usuario_email} <br><small>(${aluno.usuario_login})</small>` : aluno.usuario_email;
                 
                 tr.innerHTML = `
-                    <td style="padding: 12px;">${aluno.nome}</td>
-                    <td style="padding: 12px;">${loginEmail}</td>
-                    <td style="padding: 12px; text-align: center;">
+                    <td data-label="Nome" style="padding: 12px;">${aluno.nome}</td>
+                    <td data-label="Email / Login" style="padding: 12px;">${loginEmail}</td>
+                    <td data-label="Ações" style="padding: 12px; text-align: center;">
                         <button class="btn btn-primary" onclick="viewAluno(${aluno.id})" style="margin-right: 5px;" title="Ver Dados"><i class="fas fa-eye"></i></button>
                         <button class="btn" style="background-color: #28a745; color: white;" onclick="openVinculoModal(${aluno.id}, '${aluno.nome.replace(/'/g, "\\'")}')" title="Selecionar e Vincular"><i class="fas fa-plus"></i></button>
                     </td>
@@ -281,7 +281,7 @@ function viewAluno(id) {
                 document.getElementById('viewModalBody').innerHTML = `<p style="color:red">${data.error}</p>`;
                 return;
             }
-            let html = '<table style="width:100%; border-collapse: collapse;">';
+            let html = '<div class="table-responsive"><table class="table" style="width:100%; border-collapse: collapse;">';
             for (const [key, value] of Object.entries(data)) {
                 if(value && key !== 'usuario_id' && key !== 'id') {
                     let formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -293,7 +293,7 @@ function viewAluno(id) {
                     `;
                 }
             }
-            html += '</table>';
+            html += '</table></div>';
             document.getElementById('viewModalBody').innerHTML = html;
         })
         .catch(err => {

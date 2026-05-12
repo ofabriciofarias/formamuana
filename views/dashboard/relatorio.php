@@ -33,7 +33,7 @@
     </div>
 
     <?php if (!empty($inscritos)): ?>
-        <div class="table-responsive">
+        <div class="table-responsive auto-responsive-cards active">
             <table class="table" id="relatorioTable" style="width: 100%; border-collapse: collapse; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
                 <thead>
                     <tr style="background-color: var(--primary-color); color: white;">
@@ -67,13 +67,13 @@
                 <tbody>
                     <?php foreach ($inscritos as $inscrito): ?>
                         <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['nome']) ?></td>
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['nome_oferta']) ?></td>
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['email']) ?></td>
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['whatsapp']) ?></td>
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['renda_familiar']) ?></td>
-                            <td style="padding: 12px;"><?= htmlspecialchars($inscrito['turno_preferencia']) ?></td>
-                            <td style="padding: 12px;">
+                            <td data-label="Nome do Aluno" style="padding: 12px;"><?= htmlspecialchars($inscrito['nome']) ?></td>
+                            <td data-label="Oferta" style="padding: 12px;"><?= htmlspecialchars($inscrito['nome_oferta']) ?></td>
+                            <td data-label="Email" style="padding: 12px;"><?= htmlspecialchars($inscrito['email']) ?></td>
+                            <td data-label="WhatsApp" style="padding: 12px;"><?= htmlspecialchars($inscrito['whatsapp']) ?></td>
+                            <td data-label="Renda Familiar" style="padding: 12px;"><?= htmlspecialchars($inscrito['renda_familiar']) ?></td>
+                            <td data-label="Turno Pref." style="padding: 12px;"><?= htmlspecialchars($inscrito['turno_preferencia']) ?></td>
+                            <td data-label="Status da Seleção" style="padding: 12px;">
                                 <form action="index.php?action=updateStatus" method="POST">
                                     <input type="hidden" name="aluno_id" value="<?= $inscrito['alunos_id'] ?>">
                                     <input type="hidden" name="oferta_id" value="<?= $inscrito['oferta_id'] ?>">
