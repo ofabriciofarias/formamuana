@@ -231,18 +231,20 @@ class ProfessorController {
         $db = Database::getInstance()->getConnection();
     
         foreach ($notas as $alunoId => $nota) {
+            $notaStr = trim($nota);
+            if ($notaStr === '') {
+                continue; // Permite o lançamento parcelado ignorando campos vazios
+            }
+
             // Garante que a nota seja um valor numérico e esteja no intervalo correto
-            $notaFinal = !is_null($nota) && $nota !== '' ? (float)str_replace(',', '.', $nota) : null;
+            $notaFinal = (float)str_replace(',', '.', $notaStr);
     
-            if ($notaFinal !== null && ($notaFinal < 0 || $notaFinal > 10)) {
+            if ($notaFinal < 0 || $notaFinal > 10) {
                 // Poderíamos adicionar uma mensagem de erro aqui
                 continue; // Pula para o próximo aluno se a nota for inválida
             }
     
-            $concluiuCurso = null;
-            if ($notaFinal !== null) {
-                $concluiuCurso = ($notaFinal >= 5) ? 1 : 0;
-            }
+            $concluiuCurso = ($notaFinal >= 5) ? 1 : 0;
     
             // Prepara a query para atualizar a nota e o status de conclusão
             $stmt = $db->prepare(

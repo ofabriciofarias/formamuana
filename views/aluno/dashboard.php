@@ -19,7 +19,7 @@
                 Nossos cursos são ministrados por especialistas dedicados a proporcionar a melhor formação para você.
             </p>
             
-            <div class="table-responsive auto-responsive-cards active">
+            <div class="table-responsive">
                 <table class="responsive-table">
                     <thead>
                         <tr>
@@ -115,7 +115,7 @@
             </div>
 
             <?php if (!empty($minhasInscricoes)): ?>
-                <div class="table-responsive auto-responsive-cards active">
+                <div class="table-responsive">
                     <table class="responsive-table">
                         <thead>
                             <tr>

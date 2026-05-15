@@ -32,13 +32,14 @@ $pageTitle = 'Lançamento de Notas';
     <form action="index.php?action=salvarNotas" method="POST">
         <input type="hidden" name="oferta_id" value="<?= htmlspecialchars($_GET['oferta_id'] ?? '') ?>">
         
-        <div class="table-responsive auto-responsive-cards active">
-            <table class="table table-bordered table-hover">
-                <thead class="thead-light">
+        <div class="table-responsive">
+            <table class="responsive-table">
+                <thead>
                     <tr>
-                        <th style="width: 70%;">Aluno</th>
-                        <th class="text-center">Nota Final (0 a 10)</th>
-                        <th class="text-center">Status</th>
+                        <th style="width: 40%;">Aluno</th>
+                        <th class="text-center" style="text-align: center;">Nota no Banco</th>
+                        <th class="text-center" style="text-align: center;">Lançar Nota (0 a 10)</th>
+                        <th class="text-center" style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,11 +47,14 @@ $pageTitle = 'Lançamento de Notas';
                         <?php foreach ($alunos as $aluno): ?>
                             <tr>
                                 <td data-label="Aluno"><?= htmlspecialchars($aluno['nome']) ?></td>
-                                <td data-label="Nota Final" class="text-center">
+                                <td data-label="Nota no Banco" class="text-center font-weight-bold">
+                                    <?= $aluno['nota_final'] !== null ? htmlspecialchars(str_replace('.', ',', $aluno['nota_final'])) : '<span class="text-muted">-</span>' ?>
+                                </td>
+                                <td data-label="Lançar Nota" class="text-center">
                                     <input type="number" 
                                            class="form-control nota-input mx-auto"
                                            name="notas[<?= $aluno['id'] ?>]"
-                                           value="<?= htmlspecialchars(str_replace('.', ',', $aluno['nota_final'] ?? '')) ?>"
+                                           value=""
                                            step="0.1" 
                                            min="0" 
                                            max="10"
@@ -74,7 +78,7 @@ $pageTitle = 'Lançamento de Notas';
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="3" class="text-center">Nenhum aluno encontrado nesta turma.</td>
+                            <td colspan="4" class="text-center" style="text-align: center;">Nenhum aluno encontrado nesta turma.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
