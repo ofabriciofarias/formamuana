@@ -245,12 +245,11 @@
             <div class="team-grid">
                 <div class="team-card">
                     <div class="img-wrapper">
-                        <img src="views/assets/img/sectet.jpg" alt="Curso 1">
+                        <img src="views/assets/img/sectet.png" alt="Curso 1">
                     </div>
                     <span class="role-tag">SECTET</span>
                     <h3>Agência Financiadora</h3>
                     <p>Secretaria de Ciência, Tecnologia e Educação Superior, Profissional e Tecnológica do Estado do Pará (SECTET)</p>
-                    Secretário Victor Dias
                 </div>
 
                 <div class="team-card">
