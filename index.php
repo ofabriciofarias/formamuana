@@ -94,6 +94,10 @@ switch ($action) {
         $dashboardController->relatorioDetalhado();
         break;
 
+    case 'relatorio_vulnerabilidade':
+        $dashboardController->relatorioVulnerabilidade();
+        break;
+
     case 'updateStatus':
         $dashboardController->updateStatus();
         break;

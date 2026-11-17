@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../core/helpers.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../core/GeneticAlgorithm.php';
+require_once __DIR__ . '/../core/IvsCalculator.php';
 require_once __DIR__ . '/../models/Oferta.php';
 require_once __DIR__ . '/../models/AlunoOferta.php';
 
@@ -951,5 +952,425 @@ class DashboardController {
             echo json_encode(['success' => false, 'message' => 'Erro ao vincular: ' . $e->getMessage()]);
         }
         exit;
+    }
+
+    /**
+     * Relatório de Vulnerabilidade Social e Econômica (IVS - Modelo IPEA)
+     * Estratificado por Geral, Curso e Turma, com análise de alcance, lacuna,
+     * zona rural/urbana e justiça distributiva da seleção.
+     */
+    public function relatorioVulnerabilidade() {
+        if (!is_admin()) {
+            header('Location: index.php');
+            exit;
+        }
+
+        $db = Database::getInstance()->getConnection();
+
+        // Filtros de navegabilidade
+        $filtros = [
+            'curso'     => trim($_GET['curso'] ?? ''),
+            'oferta_id' => trim($_GET['oferta_id'] ?? ''),
+            'dimensao'  => $_GET['dimensao'] ?? 'ivs_geral',
+            'faixa'     => $_GET['faixa'] ?? 'todos',
+            'zona'      => $_GET['zona'] ?? 'todos',
+            'status'    => $_GET['status'] ?? 'todos',
+            'cidade'    => trim($_GET['cidade'] ?? ''),
+            'aba'       => $_GET['aba'] ?? 'geral',
+        ];
+
+        $dimensoesValidas = ['ivs_geral', 'ivs_infra', 'ivs_renda', 'ivs_capital'];
+        if (!in_array($filtros['dimensao'], $dimensoesValidas, true)) {
+            $filtros['dimensao'] = 'ivs_geral';
+        }
+        $dimKey = $filtros['dimensao'];
+        $faixaKey = 'faixa_' . str_replace('ivs_', '', $dimKey); // faixa_geral, faixa_infra, faixa_renda, faixa_capital
+
+        // Ofertas disponíveis para filtros
+        $ofertas = $db->query("SELECT id, nome, turno, local, numero_vagas FROM oferta ORDER BY nome ASC, turno ASC")->fetchAll(PDO::FETCH_ASSOC);
+        $cursosUnicos = array_values(array_unique(array_column($ofertas, 'nome')));
+
+        // 1. Buscar todas as inscrições com dados completos de aluno e oferta
+        $sqlInscricoes = "
+            SELECT
+                aho.alunos_id,
+                aho.oferta_id,
+                aho.status_selecao,
+                aho.data_insc,
+                aho.exerce_atividade_remunerada,
+                aho.participacao_economica_familiar,
+                aho.numero_membros_familia,
+                aho.renda_familiar,
+                a.nome AS aluno_nome,
+                a.email,
+                a.whatsapp,
+                a.zona_residencia,
+                a.cidade_origem,
+                a.cidade_atual,
+                a.bairro_comunidade,
+                a.comunidade_tradicional,
+                a.cor_raca,
+                a.possui_deficiencia,
+                a.possui_filhos,
+                a.quantidade_filhos,
+                a.tipo_escola_ensino_medio,
+                a.nivel_escolaridade,
+                a.beneficiario_programa_social,
+                a.acesso_internet,
+                a.dispositivo_principal,
+                o.nome AS curso_nome,
+                o.turno AS oferta_turno,
+                o.local AS oferta_local,
+                o.numero_vagas
+            FROM alunos_has_oferta aho
+            INNER JOIN alunos a ON aho.alunos_id = a.id
+            INNER JOIN oferta o ON aho.oferta_id = o.id
+            ORDER BY o.nome ASC, a.nome ASC
+        ";
+        $inscricoesRaw = $db->query($sqlInscricoes)->fetchAll(PDO::FETCH_ASSOC);
+
+        // Coletar cidades disponíveis para filtro
+        $cidadesSet = [];
+        $registrosEnriquecidos = [];
+        $inscricoesPorAluno = [];
+
+        foreach ($inscricoesRaw as $row) {
+            $ivs = IvsCalculator::calculate($row);
+            $zonaNorm = IvsCalculator::normalizeZona($row['zona_residencia'] ?? '');
+            $alcancado = IvsCalculator::isAlcancado($row['status_selecao'] ?? '');
+            $cidadeRef = trim((string)($row['cidade_origem'] ?: ($row['cidade_atual'] ?? '')));
+            if ($cidadeRef !== '') {
+                $cidadesSet[$cidadeRef] = $cidadeRef;
+            }
+
+            $item = array_merge($row, $ivs, [
+                'zona_norm' => $zonaNorm,
+                'alcancado' => $alcancado,
+                'cidade_ref' => $cidadeRef !== '' ? $cidadeRef : 'Não Informada',
+            ]);
+
+            $registrosEnriquecidos[] = $item;
+            $inscricoesPorAluno[$row['alunos_id']][] = $item;
+        }
+
+        ksort($cidadesSet);
+        $cidadesDisponiveis = array_values($cidadesSet);
+
+        // 2. Filtrar registros conforme seleção do usuário
+        $registrosFiltrados = array_values(array_filter($registrosEnriquecidos, function ($item) use ($filtros, $faixaKey) {
+            if ($filtros['curso'] !== '' && $item['curso_nome'] !== $filtros['curso']) {
+                return false;
+            }
+            if ($filtros['oferta_id'] !== '' && (string)$item['oferta_id'] !== (string)$filtros['oferta_id']) {
+                return false;
+            }
+            if ($filtros['zona'] !== 'todos' && $item['zona_norm'] !== $filtros['zona']) {
+                return false;
+            }
+            if ($filtros['status'] === 'alcancado' && !$item['alcancado']) {
+                return false;
+            }
+            if ($filtros['status'] === 'lacuna' && $item['alcancado']) {
+                return false;
+            }
+            if ($filtros['cidade'] !== '' && $item['cidade_ref'] !== $filtros['cidade']) {
+                return false;
+            }
+            if ($filtros['faixa'] !== 'todos') {
+                $faixaItem = $item[$faixaKey];
+                if ($filtros['faixa'] === 'vulneravel') {
+                    if (!$faixaItem['vulnerable']) {
+                        return false;
+                    }
+                } elseif ($faixaItem['slug'] !== $filtros['faixa']) {
+                    return false;
+                }
+            }
+            return true;
+        }));
+
+        // Helper para inicializar acumulador de métricas
+        $initBucket = function (string $label, array $meta = []): array {
+            return array_merge([
+                'label' => $label,
+                'total' => 0,
+                'alcancados' => 0,
+                'lacuna' => 0,
+                'vuln_total' => 0,
+                'vuln_alcancados' => 0,
+                'vuln_lacuna' => 0,
+                'rural_total' => 0,
+                'rural_alcancados' => 0,
+                'rural_lacuna' => 0,
+                'urbana_total' => 0,
+                'urbana_alcancados' => 0,
+                'urbana_lacuna' => 0,
+                'soma_ivs_geral' => 0.0,
+                'soma_ivs_infra' => 0.0,
+                'soma_ivs_renda' => 0.0,
+                'soma_ivs_capital' => 0.0,
+                'soma_dim_alcancados' => 0.0,
+                'soma_dim_lacuna' => 0.0,
+                'soma_geral_alcancados' => 0.0,
+                'soma_geral_lacuna' => 0.0,
+                'soma_infra_alcancados' => 0.0,
+                'soma_infra_lacuna' => 0.0,
+                'soma_renda_alcancados' => 0.0,
+                'soma_renda_lacuna' => 0.0,
+                'soma_capital_alcancados' => 0.0,
+                'soma_capital_lacuna' => 0.0,
+            ], $meta);
+        };
+
+        // Helper para acumular um registro num bucket
+        $accumulate = function (array &$bucket, array $item) use ($dimKey, $faixaKey): void {
+            $isAlc = $item['alcancado'];
+            $isVuln = $item[$faixaKey]['vulnerable'];
+
+            $bucket['total']++;
+            if ($isAlc) {
+                $bucket['alcancados']++;
+                $bucket['soma_dim_alcancados'] += $item[$dimKey];
+                $bucket['soma_geral_alcancados'] += $item['ivs_geral'];
+                $bucket['soma_infra_alcancados'] += $item['ivs_infra'];
+                $bucket['soma_renda_alcancados'] += $item['ivs_renda'];
+                $bucket['soma_capital_alcancados'] += $item['ivs_capital'];
+            } else {
+                $bucket['lacuna']++;
+                $bucket['soma_dim_lacuna'] += $item[$dimKey];
+                $bucket['soma_geral_lacuna'] += $item['ivs_geral'];
+                $bucket['soma_infra_lacuna'] += $item['ivs_infra'];
+                $bucket['soma_renda_lacuna'] += $item['ivs_renda'];
+                $bucket['soma_capital_lacuna'] += $item['ivs_capital'];
+            }
+
+            if ($isVuln) {
+                $bucket['vuln_total']++;
+                if ($isAlc) {
+                    $bucket['vuln_alcancados']++;
+                } else {
+                    $bucket['vuln_lacuna']++;
+                }
+            }
+
+            if ($item['zona_norm'] === 'Rural') {
+                $bucket['rural_total']++;
+                if ($isAlc) {
+                    $bucket['rural_alcancados']++;
+                } else {
+                    $bucket['rural_lacuna']++;
+                }
+            } elseif ($item['zona_norm'] === 'Urbana') {
+                $bucket['urbana_total']++;
+                if ($isAlc) {
+                    $bucket['urbana_alcancados']++;
+                } else {
+                    $bucket['urbana_lacuna']++;
+                }
+            }
+
+            $bucket['soma_ivs_geral'] += $item['ivs_geral'];
+            $bucket['soma_ivs_infra'] += $item['ivs_infra'];
+            $bucket['soma_ivs_renda'] += $item['ivs_renda'];
+            $bucket['soma_ivs_capital'] += $item['ivs_capital'];
+        };
+
+        // Helper para finalizar médias e taxas do bucket
+        $finalizeBucket = function (array $b): array {
+            $b['taxa_alcance_geral'] = $b['total'] > 0 ? round(($b['alcancados'] / $b['total']) * 100, 1) : 0.0;
+            $b['taxa_alcance_vuln'] = $b['vuln_total'] > 0 ? round(($b['vuln_alcancados'] / $b['vuln_total']) * 100, 1) : 0.0;
+            $b['taxa_alcance_rural'] = $b['rural_total'] > 0 ? round(($b['rural_alcancados'] / $b['rural_total']) * 100, 1) : 0.0;
+            $b['taxa_alcance_urbana'] = $b['urbana_total'] > 0 ? round(($b['urbana_alcancados'] / $b['urbana_total']) * 100, 1) : 0.0;
+
+            $b['media_ivs_geral'] = $b['total'] > 0 ? round($b['soma_ivs_geral'] / $b['total'], 3) : 0.0;
+            $b['media_ivs_infra'] = $b['total'] > 0 ? round($b['soma_ivs_infra'] / $b['total'], 3) : 0.0;
+            $b['media_ivs_renda'] = $b['total'] > 0 ? round($b['soma_ivs_renda'] / $b['total'], 3) : 0.0;
+            $b['media_ivs_capital'] = $b['total'] > 0 ? round($b['soma_ivs_capital'] / $b['total'], 3) : 0.0;
+
+            $b['media_dim_alcancados'] = $b['alcancados'] > 0 ? round($b['soma_dim_alcancados'] / $b['alcancados'], 3) : 0.0;
+            $b['media_dim_lacuna'] = $b['lacuna'] > 0 ? round($b['soma_dim_lacuna'] / $b['lacuna'], 3) : 0.0;
+
+            $b['media_geral_alcancados'] = $b['alcancados'] > 0 ? round($b['soma_geral_alcancados'] / $b['alcancados'], 3) : 0.0;
+            $b['media_geral_lacuna'] = $b['lacuna'] > 0 ? round($b['soma_geral_lacuna'] / $b['lacuna'], 3) : 0.0;
+            $b['media_infra_alcancados'] = $b['alcancados'] > 0 ? round($b['soma_infra_alcancados'] / $b['alcancados'], 3) : 0.0;
+            $b['media_infra_lacuna'] = $b['lacuna'] > 0 ? round($b['soma_infra_lacuna'] / $b['lacuna'], 3) : 0.0;
+            $b['media_renda_alcancados'] = $b['alcancados'] > 0 ? round($b['soma_renda_alcancados'] / $b['alcancados'], 3) : 0.0;
+            $b['media_renda_lacuna'] = $b['lacuna'] > 0 ? round($b['soma_renda_lacuna'] / $b['lacuna'], 3) : 0.0;
+            $b['media_capital_alcancados'] = $b['alcancados'] > 0 ? round($b['soma_capital_alcancados'] / $b['alcancados'], 3) : 0.0;
+            $b['media_capital_lacuna'] = $b['lacuna'] > 0 ? round($b['soma_capital_lacuna'] / $b['lacuna'], 3) : 0.0;
+
+            // Índice de Justiça Distributiva:
+            // Diferença entre IVS médio dos aprovados e IVS médio dos não aprovados (positivo = priorizou mais vulneráveis)
+            $b['delta_justica'] = round($b['media_dim_alcancados'] - $b['media_dim_lacuna'], 3);
+            $pctVulnAprov = $b['alcancados'] > 0 ? ($b['vuln_alcancados'] / $b['alcancados']) : 0.0;
+            $pctVulnTotal = $b['total'] > 0 ? ($b['vuln_total'] / $b['total']) : 0.0;
+            $b['razao_prioridade'] = $pctVulnTotal > 0 ? round($pctVulnAprov / $pctVulnTotal, 2) : 0.0;
+
+            return $b;
+        };
+
+        // 3. Estratificação: GERAL (Inscrições), POR CURSO e POR TURMA
+        $geralBucket = $initBucket('Geral (Inscrições)');
+        $cursosBuckets = [];
+        $turmasBuckets = [];
+
+        // Pré-popular turmas com vagas conhecidas (respeitando filtro de curso/oferta se ativo)
+        foreach ($ofertas as $of) {
+            if ($filtros['curso'] !== '' && $of['nome'] !== $filtros['curso']) {
+                continue;
+            }
+            if ($filtros['oferta_id'] !== '' && (string)$of['id'] !== (string)$filtros['oferta_id']) {
+                continue;
+            }
+            $turmaId = $of['id'];
+            $turmasBuckets[$turmaId] = $initBucket($of['nome'], [
+                'oferta_id' => $turmaId,
+                'turno' => $of['turno'] ?? 'N/I',
+                'local' => $of['local'] ?? 'N/I',
+                'vagas' => (int)($of['numero_vagas'] ?? 0),
+            ]);
+            if (!isset($cursosBuckets[$of['nome']])) {
+                $cursosBuckets[$of['nome']] = $initBucket($of['nome'], ['vagas' => 0, 'qtd_turmas' => 0]);
+            }
+            $cursosBuckets[$of['nome']]['vagas'] += (int)($of['numero_vagas'] ?? 0);
+            $cursosBuckets[$of['nome']]['qtd_turmas']++;
+        }
+
+        // Faixas IPEA e Resumo das 4 Dimensões
+        $faixasIpea = [
+            'muito_baixa' => ['label' => 'Muito Baixa (0,000–0,200)', 'alcancados' => 0, 'lacuna' => 0, 'color' => '#2ecc71'],
+            'baixa'       => ['label' => 'Baixa (0,201–0,300)',       'alcancados' => 0, 'lacuna' => 0, 'color' => '#27ae60'],
+            'media'       => ['label' => 'Média (0,301–0,400)',       'alcancados' => 0, 'lacuna' => 0, 'color' => '#f39c12'],
+            'alta'        => ['label' => 'Alta (0,401–0,500)',        'alcancados' => 0, 'lacuna' => 0, 'color' => '#e67e22'],
+            'muito_alta'  => ['label' => 'Muito Alta (0,501–1,000)',  'alcancados' => 0, 'lacuna' => 0, 'color' => '#e74c3c'],
+        ];
+
+        $dimensoesResumo = [
+            'ivs_geral'   => ['nome' => 'IVS Geral (Composto)',       'vuln_total' => 0, 'vuln_alcancados' => 0, 'vuln_lacuna' => 0, 'soma_alc' => 0.0, 'soma_lac' => 0.0],
+            'ivs_infra'   => ['nome' => 'IVS Infraestrutura Urbana',  'vuln_total' => 0, 'vuln_alcancados' => 0, 'vuln_lacuna' => 0, 'soma_alc' => 0.0, 'soma_lac' => 0.0],
+            'ivs_renda'   => ['nome' => 'IVS Renda e Trabalho',       'vuln_total' => 0, 'vuln_alcancados' => 0, 'vuln_lacuna' => 0, 'soma_alc' => 0.0, 'soma_lac' => 0.0],
+            'ivs_capital' => ['nome' => 'IVS Capital Humano',         'vuln_total' => 0, 'vuln_alcancados' => 0, 'vuln_lacuna' => 0, 'soma_alc' => 0.0, 'soma_lac' => 0.0],
+        ];
+
+        $cidadesBuckets = [];
+
+        foreach ($registrosFiltrados as $item) {
+            $accumulate($geralBucket, $item);
+
+            $cName = $item['curso_nome'];
+            if (!isset($cursosBuckets[$cName])) {
+                $cursosBuckets[$cName] = $initBucket($cName, ['vagas' => 0, 'qtd_turmas' => 0]);
+            }
+            $accumulate($cursosBuckets[$cName], $item);
+
+            $tId = $item['oferta_id'];
+            if (!isset($turmasBuckets[$tId])) {
+                $turmasBuckets[$tId] = $initBucket($cName, [
+                    'oferta_id' => $tId,
+                    'turno' => $item['oferta_turno'] ?? 'N/I',
+                    'local' => $item['oferta_local'] ?? 'N/I',
+                    'vagas' => (int)($item['numero_vagas'] ?? 0),
+                ]);
+            }
+            $accumulate($turmasBuckets[$tId], $item);
+
+            // Faixas IPEA para a dimensão selecionada
+            $slug = $item[$faixaKey]['slug'];
+            if (isset($faixasIpea[$slug])) {
+                if ($item['alcancado']) {
+                    $faixasIpea[$slug]['alcancados']++;
+                } else {
+                    $faixasIpea[$slug]['lacuna']++;
+                }
+            }
+
+            // Resumo de todas as 4 dimensões simultaneamente
+            foreach (['ivs_geral' => 'faixa_geral', 'ivs_infra' => 'faixa_infra', 'ivs_renda' => 'faixa_renda', 'ivs_capital' => 'faixa_capital'] as $dKey => $fKey) {
+                if ($item['alcancado']) {
+                    $dimensoesResumo[$dKey]['soma_alc'] += $item[$dKey];
+                } else {
+                    $dimensoesResumo[$dKey]['soma_lac'] += $item[$dKey];
+                }
+                if ($item[$fKey]['vulnerable']) {
+                    $dimensoesResumo[$dKey]['vuln_total']++;
+                    if ($item['alcancado']) {
+                        $dimensoesResumo[$dKey]['vuln_alcancados']++;
+                    } else {
+                        $dimensoesResumo[$dKey]['vuln_lacuna']++;
+                    }
+                }
+            }
+
+            // Cidades
+            $cid = $item['cidade_ref'];
+            if (!isset($cidadesBuckets[$cid])) {
+                $cidadesBuckets[$cid] = $initBucket($cid);
+            }
+            $accumulate($cidadesBuckets[$cid], $item);
+        }
+
+        $geralInscricoes = $finalizeBucket($geralBucket);
+        $porCurso = array_map($finalizeBucket, array_values($cursosBuckets));
+        $porTurma = array_map($finalizeBucket, array_values($turmasBuckets));
+        $porCidade = array_map($finalizeBucket, array_values($cidadesBuckets));
+        usort($porCidade, fn($a, $b) => $b['total'] <=> $a['total']);
+
+        foreach ($dimensoesResumo as $k => &$d) {
+            $d['taxa_alcance'] = $d['vuln_total'] > 0 ? round(($d['vuln_alcancados'] / $d['vuln_total']) * 100, 1) : 0.0;
+            $d['media_alc'] = $geralInscricoes['alcancados'] > 0 ? round($d['soma_alc'] / $geralInscricoes['alcancados'], 3) : 0.0;
+            $d['media_lac'] = $geralInscricoes['lacuna'] > 0 ? round($d['soma_lac'] / $geralInscricoes['lacuna'], 3) : 0.0;
+            $d['delta_justica'] = round($d['media_alc'] - $d['media_lac'], 3);
+        }
+        unset($d);
+
+        // 4. Visão Global de Alunos Únicos (Base `alunos` inteira, inclusive não inscritos)
+        $todosAlunos = $db->query("
+            SELECT id, nome, zona_residencia, cidade_origem, cidade_atual, comunidade_tradicional,
+                   possui_deficiencia, possui_filhos, quantidade_filhos, tipo_escola_ensino_medio,
+                   nivel_escolaridade, beneficiario_programa_social, acesso_internet, dispositivo_principal
+            FROM alunos
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+        $globalAlunosBucket = $initBucket('Base Global (Alunos Únicos)');
+        $globalSemInscricao = 0;
+        $globalVulnSemInscricao = 0;
+
+        foreach ($todosAlunos as $al) {
+            $inscs = $inscricoesPorAluno[$al['id']] ?? [];
+            $alcancadoGlobal = false;
+            $melhorReg = $al;
+
+            if (!empty($inscs)) {
+                // Usa dados socioeconômicos da inscrição mais recente/vulnerável
+                $melhorReg = $inscs[0];
+                foreach ($inscs as $ins) {
+                    if ($ins['alcancado']) {
+                        $alcancadoGlobal = true;
+                        $melhorReg = $ins;
+                        break;
+                    }
+                }
+            } else {
+                $globalSemInscricao++;
+            }
+
+            $ivsAl = IvsCalculator::calculate($melhorReg);
+            $zonaAl = IvsCalculator::normalizeZona($melhorReg['zona_residencia'] ?? '');
+            $itemGlobal = array_merge($melhorReg, $ivsAl, [
+                'zona_norm' => $zonaAl,
+                'alcancado' => $alcancadoGlobal,
+            ]);
+
+            if (empty($inscs) && $itemGlobal[$faixaKey]['vulnerable']) {
+                $globalVulnSemInscricao++;
+            }
+
+            $accumulate($globalAlunosBucket, $itemGlobal);
+        }
+        $geralAlunosUnicos = $finalizeBucket($globalAlunosBucket);
+        $geralAlunosUnicos['sem_inscricao'] = $globalSemInscricao;
+        $geralAlunosUnicos['vuln_sem_inscricao'] = $globalVulnSemInscricao;
+
+        require_once __DIR__ . '/../views/dashboard/relatorio_vulnerabilidade.php';
     }
 }

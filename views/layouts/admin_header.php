@@ -51,6 +51,7 @@ if (!is_admin()) {
                 <div class="dropdown-content">
                     <a href="index.php?action=relatorio_geral">Relatório Geral</a>
                     <a href="index.php?action=relatorio_detalhado">Relatório Detalhado</a>
+                    <a href="index.php?action=relatorio_vulnerabilidade">Vulnerabilidade e Alcance (IVS)</a>
                     <a href="index.php?action=visualizar_inscritos">Visualizar Inscritos</a>
                 </div>
             </div>
